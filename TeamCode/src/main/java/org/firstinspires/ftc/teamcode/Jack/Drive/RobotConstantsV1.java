@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 public class RobotConstantsV1 {
+    //Drive motors
+    public String frontLeft = "fl";
+    public String frontRight = "fr";
+    public String backLeft = "bl";
+    public String backRight = "br";
+
+
     //Config names
     public static String pinpointName = "pinpoint";
-    public static String frontLeft = "fl";
-    public static String frontRight = "fr";
-    public static String backLeft = "bl";
-    public static String backRight = "br";
 
 
     //Auto, needs measuring

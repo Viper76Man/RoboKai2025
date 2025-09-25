@@ -7,14 +7,14 @@ public class MecanumDrive extends OpMode {
     private DcMotor frontRightMotor;
     private DcMotor backLeftMotor;
     private DcMotor backRightMotor;
-
+    public RobotConstantsV1 constants = new RobotConstantsV1();
 
     @Override
     public void init() {
-        frontLeftMotor = hardwareMap.get(DcMotor.class, "fl");
-        frontRightMotor = hardwareMap.get(DcMotor.class, "fr");
-        backLeftMotor = hardwareMap.get(DcMotor.class, "bl");
-        backRightMotor = hardwareMap.get(DcMotor.class, "br");
+        frontLeftMotor = hardwareMap.get(DcMotor.class, constants.frontLeft);
+        frontRightMotor = hardwareMap.get(DcMotor.class, constants.frontRight);
+        backLeftMotor = hardwareMap.get(DcMotor.class, constants.backLeft);
+        backRightMotor = hardwareMap.get(DcMotor.class, constants.backRight);
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
