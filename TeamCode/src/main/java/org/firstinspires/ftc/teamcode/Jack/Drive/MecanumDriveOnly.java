@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class MecanumDrive extends OpMode {
+public class MecanumDriveOnly extends OpMode {
     private DcMotor frontLeftMotor;
     private DcMotor frontRightMotor;
     private DcMotor backLeftMotor;
