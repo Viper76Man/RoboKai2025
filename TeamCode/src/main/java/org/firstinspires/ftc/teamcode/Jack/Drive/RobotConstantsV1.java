@@ -16,9 +16,12 @@ public class RobotConstantsV1 {
     public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction frontRightDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction backRightDirection = DcMotorSimple.Direction.FORWARD;
-
+    public static boolean useBrakeInTeleOp = true;
     //Config names
     public static String pinpointName = "pinpoint";
+    //HARDWARE--------------------------------------------------------------------------------------
+    public static String arcShooterName = "arcMotor";
+
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches

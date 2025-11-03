@@ -40,7 +40,7 @@ public class Constants {
             .rightRearMotorDirection(RobotConstantsV1.backRightDirection)
             .xVelocity(RobotConstantsV1.xVelocity)   // was 26.99
             .yVelocity(RobotConstantsV1.yVelocity)  // was 26.99
-            .useBrakeModeInTeleOp(true);
+            .useBrakeModeInTeleOp(RobotConstantsV1.useBrakeInTeleOp);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(RobotConstantsV1.forwardPodY)
