@@ -21,7 +21,7 @@ public class RobotConstantsV1 {
     public static String pinpointName = "pinpoint";
     //HARDWARE--------------------------------------------------------------------------------------
     public static String arcShooterName = "arcMotor";
-
+    public static String intakeMotorName = "intake";
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
@@ -42,4 +42,11 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.3, 0, 0.01, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
+    //TELEOP-------------------------------------------------------------------------------------------------------------------------
+    public static double SHOOTER_TARGET_VELOCITY = 1;
+    public static double INTAKE_POWER = 0.6;
+    //TUNERS---------------------------------------------------------------------------------------------------------------------------
+    public static double defaultShooterVelocity = SHOOTER_TARGET_VELOCITY;
+    public static double velocityUpStep = 0.1;
+    public static double velocityDownStep = 0.1;
 }

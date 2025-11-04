@@ -4,12 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
     public GamepadV1 gamepad = new GamepadV1();
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();
+    public IntakeV1 intake = new IntakeV1();
+
+    public boolean firstIteration = true;
 
     public enum modeSelected {
         SELECTED,
@@ -32,6 +36,8 @@ public class AllInOneTuning extends OpMode {
     public void init() {
         gamepad.init(gamepad1, 0.3);
         mecDrive.init(hardwareMap, gamepad);
+        arcShooter.init(hardwareMap);
+        intake.init(hardwareMap);
 
     }
 
@@ -66,21 +72,36 @@ public class AllInOneTuning extends OpMode {
     }
 
     public void tuningUpdate(){
+        gamepad.update();
         switch (mode){
             case DRIVE:
                 mecDrive.drive();
                 mecDrive.log(telemetry);
                 break;
             case SHOOT:
+                //Set initial velocity
+                if(firstIteration){
+                    arcShooter.setTargetVelocity(RobotConstantsV1.defaultShooterVelocity);
+                    firstIteration = false;
+                }
+
                 if(gamepad.dpad_up && gamepad.isGamepadReady()){
-                    arcShooter.setVelocity(arcShooter.getVelocity() + 0.1);
+                    arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() + RobotConstantsV1.velocityUpStep);
                     gamepad.resetTimer();
                 }
                 else if(gamepad.dpad_down && gamepad.isGamepadReady()) {
-                    arcShooter.setVelocity(arcShooter.getVelocity() - 0.1);
+                    arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
                 arcShooter.log(telemetry);
+                break;
+            case INTAKE:
+                intake.setPower(RobotConstantsV1.INTAKE_POWER);
+                if(gamepad.circle && gamepad.isGamepadReady()){
+                    intake.switchDirection();
+                    gamepad.resetTimer();
+                }
+                intake.log(telemetry);
                 break;
         }
     }
