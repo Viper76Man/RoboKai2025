@@ -43,8 +43,10 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static double SHOOTER_TARGET_VELOCITY = 1;
-    public static double INTAKE_POWER = 0.6;
+    public static double SHOOTER_TARGET_VELOCITY = 39.4;
+    public static double INTAKE_POWER = 1;
+    public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
+    public static int SHOOTER_PPR = 28;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     public static double defaultShooterVelocity = SHOOTER_TARGET_VELOCITY;
     public static double velocityUpStep = 0.1;

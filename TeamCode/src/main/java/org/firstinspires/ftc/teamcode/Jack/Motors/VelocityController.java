@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Motors;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class PIDController {
+public class VelocityController {
     public ElapsedTime timer;
     public double power = 0;
     public double error = 0;
@@ -10,14 +10,16 @@ public class PIDController {
     public double kI = 0;
     public double kD = 0;
 
+    public double motorTPR;
 
     public double previousError = error;
     public double integralError = 0;
 
-    public PIDController(double kP, double kI, double kD){
+    public VelocityController(double motorTicksPerRev, double kP, double kI, double kD){
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        this.motorTPR = motorTicksPerRev;
     }
 
     public double getOutputPOnly(int currentPosition, int target){
@@ -27,18 +29,10 @@ public class PIDController {
     }
 
     //@param currentPosition gets
-    public double getOutput(int currentPosition, int target){
+    public double getOutput(double currentTPS, double targetRPM){
         //Calculations
-        error = target - currentPosition;
-        double errorChange = (error - previousError) / timer.seconds();
-        integralError = integralError + (error * timer.seconds());
-
-        //Calculate output
-        power = (error * kP) + (integralError * kI) + (errorChange * kD);
-
-        //Cleanup
-        previousError = error;
-        timer.reset();
-        return power;
+        double currentRPM = (currentTPS / motorTPR) * 60;
+        PIDController controller = new PIDController(kP, kI, kD);
+        return controller.getOutput((int) currentRPM, (int) targetRPM);
     }
 }

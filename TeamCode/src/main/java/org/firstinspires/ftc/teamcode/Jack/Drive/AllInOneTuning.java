@@ -36,7 +36,7 @@ public class AllInOneTuning extends OpMode {
     public void init() {
         gamepad.init(gamepad1, 0.3);
         mecDrive.init(hardwareMap, gamepad);
-        arcShooter.init(hardwareMap);
+        arcShooter.init(hardwareMap, 0.1, 0, 0);
         intake.init(hardwareMap);
 
     }
@@ -93,6 +93,8 @@ public class AllInOneTuning extends OpMode {
                     arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
+                telemetry.addData("Power for velocity: ", arcShooter.runToVelocity(arcShooter.getVelocity(), 6000));
+                telemetry.addData("RPM: ", (arcShooter.getVelocity()/28)*60);
                 arcShooter.log(telemetry);
                 break;
             case INTAKE:

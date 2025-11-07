@@ -19,6 +19,7 @@ public class IntakeV1{
     public void init(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.intakeMotorName);
+        motor.setDirection(RobotConstantsV1.intakeDirection);
     }
 
     public void setPower(double power){
