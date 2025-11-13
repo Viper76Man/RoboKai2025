@@ -22,6 +22,7 @@ public class RobotConstantsV1 {
     //HARDWARE--------------------------------------------------------------------------------------
     public static String arcShooterName = "arcMotor";
     public static String intakeMotorName = "intake";
+    public static String storageServoName = "storageServo";
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
@@ -47,8 +48,14 @@ public class RobotConstantsV1 {
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static int SHOOTER_PPR = 28;
+
+    public static double STORAGE_BALL_1 = 0.25;
+    public static double STORAGE_BALL_2 = 0.6;
+    public static double STORAGE_BALL_3 = 1;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     public static double defaultShooterVelocity = SHOOTER_TARGET_VELOCITY;
     public static double velocityUpStep = 0.1;
     public static double velocityDownStep = 0.1;
+
+    public static double storageServoStep = 0.05;
 }

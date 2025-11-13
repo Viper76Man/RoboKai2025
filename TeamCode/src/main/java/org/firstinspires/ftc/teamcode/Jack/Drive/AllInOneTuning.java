@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
@@ -12,9 +16,13 @@ public class AllInOneTuning extends OpMode {
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();
     public IntakeV1 intake = new IntakeV1();
+    public IntakeDualMotorsV1 dualIntake = new IntakeDualMotorsV1();
 
     public boolean firstIteration = true;
+    public PanelsTelemetry panels = PanelsTelemetry.INSTANCE;
+    public MultipleTelemetry multipleTelemetry;
 
+    public StorageServoV1 storageServo = new StorageServoV1();
     public enum modeSelected {
         SELECTED,
         NOT_SELECTED
@@ -24,6 +32,8 @@ public class AllInOneTuning extends OpMode {
         DRIVE,
         SHOOT,
         INTAKE,
+        STORAGE,
+        PINPOINT,
         CAMERA
     }
 
@@ -36,9 +46,11 @@ public class AllInOneTuning extends OpMode {
     public void init() {
         gamepad.init(gamepad1, 0.3);
         mecDrive.init(hardwareMap, gamepad);
-        arcShooter.init(hardwareMap, 0.1, 0, 0);
-        intake.init(hardwareMap);
-
+        arcShooter.init(hardwareMap, 0.2, 0, 0);
+        //intake.init(hardwareMap);
+        multipleTelemetry = new MultipleTelemetry(telemetry, panels);
+        storageServo.init(hardwareMap);
+        dualIntake.init(hardwareMap);
     }
 
     @Override
@@ -53,7 +65,7 @@ public class AllInOneTuning extends OpMode {
 
     public void menuSelectUpdate(){
         gamepad.update();
-        telemetry.addData("Selected tuning mode: ", mode.name());
+        multipleTelemetry.addData("Selected tuning mode: ", mode.name());
         if(gamepad.isGamepadReady()) {
             if (gamepad.dpad_up) {
                 selectedMode -= 1;
@@ -76,7 +88,7 @@ public class AllInOneTuning extends OpMode {
         switch (mode){
             case DRIVE:
                 mecDrive.drive();
-                mecDrive.log(telemetry);
+                mecDrive.log(multipleTelemetry);
                 break;
             case SHOOT:
                 //Set initial velocity
@@ -93,18 +105,34 @@ public class AllInOneTuning extends OpMode {
                     arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
-                telemetry.addData("Power for velocity: ", arcShooter.runToVelocity(arcShooter.getVelocity(), 6000));
-                telemetry.addData("RPM: ", (arcShooter.getVelocity()/28)*60);
-                arcShooter.log(telemetry);
+                multipleTelemetry.addData("Power for velocity: ", arcShooter.runToVelocity(arcShooter.getVelocity(), 6000));
+                multipleTelemetry.addData("RPM: ", (arcShooter.getVelocity()));
+                arcShooter.log(multipleTelemetry);
+                arcShooter.graph(multipleTelemetry);
                 break;
             case INTAKE:
-                intake.setPower(RobotConstantsV1.INTAKE_POWER);
-                if(gamepad.circle && gamepad.isGamepadReady()){
-                    intake.switchDirection();
+                dualIntake.setPowers(RobotConstantsV1.INTAKE_POWER);
+                if(gamepad.isGamepadReady() && gamepad.a){
+                    dualIntake.switchDirections();
                     gamepad.resetTimer();
                 }
-                intake.log(telemetry);
+                break;
+            case STORAGE:
+                if(firstIteration){
+                    storageServo.setPosition(RobotConstantsV1.STORAGE_BALL_1);
+                    firstIteration = false;
+                }
+                if(gamepad.dpad_up && gamepad.isGamepadReady()){
+                    storageServo.setPosition(storageServo.getPosition() + RobotConstantsV1.storageServoStep);
+                    gamepad.resetTimer();
+                }
+                else if(gamepad.dpad_down && gamepad.isGamepadReady()) {
+                    storageServo.setPosition(storageServo.getPosition() - RobotConstantsV1.storageServoStep);
+                    gamepad.resetTimer();
+                }
+                storageServo.log(telemetry);
                 break;
         }
+
     }
 }

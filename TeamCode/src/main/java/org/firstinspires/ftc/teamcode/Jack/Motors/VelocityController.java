@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Jack.Motors;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class VelocityController {
-    public ElapsedTime timer;
+    public ElapsedTime timer = new ElapsedTime();
     public double power = 0;
     public double error = 0;
     public double kP = 0;

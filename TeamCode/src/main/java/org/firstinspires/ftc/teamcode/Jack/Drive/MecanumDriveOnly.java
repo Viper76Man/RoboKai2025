@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
 public class MecanumDriveOnly {
     private DcMotor frontLeftMotor;
@@ -69,4 +70,15 @@ public class MecanumDriveOnly {
         telemetry.addLine("Back Left Position: " + backLeftMotor.getCurrentPosition());
         telemetry.addLine("Back Right Position: " + backRightMotor.getCurrentPosition());
     }
+    public void log(MultipleTelemetry telemetry){
+        telemetry.addLine("Front Left Power: " + frontLeftMotor.getPower());
+        telemetry.addLine("Front Right Power: " + frontRightMotor.getPower());
+        telemetry.addLine("Back Left Power: " + backLeftMotor.getPower());
+        telemetry.addLine("Back Right Power: " + backRightMotor.getPower());
+        telemetry.addLine("Front Left Position: " + frontLeftMotor.getCurrentPosition());
+        telemetry.addLine("Front Right Position: " + frontRightMotor.getCurrentPosition());
+        telemetry.addLine("Back Left Position: " + backLeftMotor.getCurrentPosition());
+        telemetry.addLine("Back Right Position: " + backRightMotor.getCurrentPosition());
+    }
+
 }

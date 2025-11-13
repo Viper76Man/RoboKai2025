@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
 public class IntakeV1{
     public HardwareMap hardwareMap;
@@ -40,6 +41,13 @@ public class IntakeV1{
     }
 
     public void log(Telemetry telemetry){
+        telemetry.addData("Intake Power: ", motor.getPower());
+        telemetry.addData("Intake Motor Position: ", motor.getCurrentPosition());
+        telemetry.addData("Intake Direction: " , motor.getDirection());
+        telemetry.update();
+    }
+
+    public void log(MultipleTelemetry telemetry){
         telemetry.addData("Intake Power: ", motor.getPower());
         telemetry.addData("Intake Motor Position: ", motor.getCurrentPosition());
         telemetry.addData("Intake Direction: " , motor.getDirection());

@@ -6,20 +6,23 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
+import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 public class Robot {
 
     public PinpointV1 pinpoint = new PinpointV1();
     public ArcShooterV1 shooter = new ArcShooterV1();
-    public IntakeV1 intake = new IntakeV1();
     public MecanumDriveOnly drive = new MecanumDriveOnly();
 
     public HardwareMap hardwareMap;
     public Telemetry telemetry;
     public Mode mode;
-    public Gamepad gamepad1;
+    public GamepadV1 gamepad = new GamepadV1();
+    public IntakeDualMotorsV1 dualIntake = new IntakeDualMotorsV1();
+    public StorageServoV1 storage = new StorageServoV1();
 
     public enum Mode {
         TELEOP,
@@ -30,11 +33,13 @@ public class Robot {
         this.mode = mode;
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
-        this.gamepad1 = gamepad1;
+        //TODO: Debug gamepad
+        this.gamepad.init(gamepad1, 0.3);
         //pinpoint.init(hardwareMap);
         shooter.init(hardwareMap);
-        intake.init(hardwareMap);
         drive.init(hardwareMap, gamepad1);
+        dualIntake.init(hardwareMap);
+        storage.init(hardwareMap);
         //if(mode == Mode.AUTONOMOUS){
             //pinpoint.resetPosAndIMU();
         //}
@@ -43,8 +48,15 @@ public class Robot {
 
     public void systemStatesUpdate(){
         shooter.setTargetVelocity(RobotConstantsV1.SHOOTER_TARGET_VELOCITY);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-        intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        dualIntake.setPowers(RobotConstantsV1.INTAKE_POWER);
         drive.drive();
+        if(gamepad.circle && gamepad.isGamepadReady()){
+            storage.runToIntakeBall(storage.getNextBall(storage.getIntakeBall()));
+            gamepad.resetTimer();
+        }
+        if(gamepad.triangle && gamepad.isGamepadReady()){
+            dualIntake.switchDirections();
+            gamepad.resetTimer();
+        }
     }
 }

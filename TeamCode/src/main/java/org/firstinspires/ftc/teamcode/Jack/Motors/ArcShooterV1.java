@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
 import android.app.backup.BackupAgent;
+import android.provider.Settings;
 
 import androidx.core.text.util.LocalePreferences;
 
+import com.bylazar.graph.GraphManager;
+import com.bylazar.panels.Panels;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,13 +17,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
 public class ArcShooterV1 {
     public HardwareMap hardwareMap;
     public DcMotor motor;
     public DcMotorEx shooter;
     public double velocity = 0;
-    public double measureInterval;
+    public double measureInterval = 0.3;
     public double lastTPS = 0;
     public double newTicks = 0;
     public ElapsedTime tickTimer = new ElapsedTime();
@@ -79,18 +85,25 @@ public class ArcShooterV1 {
     public double getTargetVelocity(){
         return velocity;
     }
-    public double getVelocity(){
-        if(tickTimer.seconds() > measureInterval) {
-            newTicks = Math.abs(shooter.getCurrentPosition()) - Math.abs(lastTicks);
-            tickTimer.reset();
-            lastTicks = shooter.getCurrentPosition();
-            lastTPS = newTicks/(1/measureInterval);
-            return lastTicks;
-        }
-        else {
-            return lastTPS;
-        }
 
+    public double getVelocity() {
+        double elapsedTime = tickTimer.seconds();
+
+        // Only update every so often (optional, e.g., every 50 ms)
+        if (elapsedTime >= measureInterval) {
+            int currentTicks = shooter.getCurrentPosition();
+            double deltaTicks = currentTicks - lastTicks;
+            // ticks per second = deltaTicks / elapsedTime
+            lastTPS = deltaTicks / elapsedTime;
+            // Update tracking vars
+            lastTicks = currentTicks;
+            tickTimer.reset();
+        }
+        return tPStoRPM(lastTPS, 28);
+    }
+
+    public double tPStoRPM(double tps, double motorTicksPerRev){
+        return (tps / motorTicksPerRev) * 60.0;
     }
 
     public boolean ready(){
@@ -115,6 +128,24 @@ public class ArcShooterV1 {
         telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
         telemetry.addData("Ready? : ", ready());
         telemetry.update();
+    }
+
+    public void log(MultipleTelemetry telemetry){
+        telemetry.addData("Arc Motor Velocity: ", velocity);
+        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.addData("Ready? : ", ready());
+        telemetry.update();
+    }
+
+    public void graph(MultipleTelemetry telemetry){
+        telemetry.panels.addData("Target Velocity: ", getTargetVelocity());
+        telemetry.panels.addData("Actual Velocity: ", getVelocity());
+        telemetry.panels.update();
+    }
+
+    public void graph(Telemetry telemetry){
+        telemetry.addData("Target Velocity: ", getTargetVelocity());
+        telemetry.addData("Actual Velocity: ", getVelocity());
     }
 
 }
