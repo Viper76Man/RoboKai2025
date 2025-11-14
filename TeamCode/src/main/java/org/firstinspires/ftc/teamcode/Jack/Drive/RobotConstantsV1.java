@@ -44,16 +44,16 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static double SHOOTER_TARGET_VELOCITY = 39.4;
+    public static double SHOOTER_TARGET_RPM = 6000;
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static int SHOOTER_PPR = 28;
 
-    public static double STORAGE_BALL_1 = 0.25;
-    public static double STORAGE_BALL_2 = 0.6;
-    public static double STORAGE_BALL_3 = 1;
+    public static double STORAGE_BALL_1 = 0.1;
+    public static double STORAGE_BALL_2 = 0.45;
+    public static double STORAGE_BALL_3 = 0.85;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
-    public static double defaultShooterVelocity = SHOOTER_TARGET_VELOCITY;
+    public static double defaultShooterRPM = SHOOTER_TARGET_RPM;
     public static double velocityUpStep = 0.1;
     public static double velocityDownStep = 0.1;
 

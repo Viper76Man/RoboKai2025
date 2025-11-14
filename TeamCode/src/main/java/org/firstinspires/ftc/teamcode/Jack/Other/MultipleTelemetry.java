@@ -8,8 +8,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class MultipleTelemetry {
     public Telemetry telemetry;
     public TelemetryManager panels;
-    public MultipleTelemetry(Telemetry telemetry, PanelsTelemetry panels){
-        this.panels = panels.getTelemetry();
+    public MultipleTelemetry(Telemetry telemetry, TelemetryManager panels){
+        this.panels = panels;
         this.telemetry = telemetry;
     }
     public void addData(String key, Object value){
@@ -23,7 +23,7 @@ public class MultipleTelemetry {
     }
 
     public void update(){
-        panels.update();
+        panels.update(telemetry);
         telemetry.update();
     }
 }

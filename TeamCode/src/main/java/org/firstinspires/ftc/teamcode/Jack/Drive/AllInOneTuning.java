@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
@@ -19,7 +21,9 @@ public class AllInOneTuning extends OpMode {
     public IntakeDualMotorsV1 dualIntake = new IntakeDualMotorsV1();
 
     public boolean firstIteration = true;
-    public PanelsTelemetry panels = PanelsTelemetry.INSTANCE;
+    public int loopUpdates = 0;
+
+    public TelemetryManager telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     public MultipleTelemetry multipleTelemetry;
 
     public StorageServoV1 storageServo = new StorageServoV1();
@@ -34,7 +38,8 @@ public class AllInOneTuning extends OpMode {
         INTAKE,
         STORAGE,
         PINPOINT,
-        CAMERA
+        CAMERA,
+        GRAPH
     }
 
     public modeSelected isModeSelected = modeSelected.NOT_SELECTED;
@@ -48,7 +53,7 @@ public class AllInOneTuning extends OpMode {
         mecDrive.init(hardwareMap, gamepad);
         arcShooter.init(hardwareMap, 0.2, 0, 0);
         //intake.init(hardwareMap);
-        multipleTelemetry = new MultipleTelemetry(telemetry, panels);
+        multipleTelemetry = new MultipleTelemetry(telemetry, telemetryManager);
         storageServo.init(hardwareMap);
         dualIntake.init(hardwareMap);
     }
@@ -91,22 +96,15 @@ public class AllInOneTuning extends OpMode {
                 mecDrive.log(multipleTelemetry);
                 break;
             case SHOOT:
-                //Set initial velocity
-                if(firstIteration){
-                    arcShooter.setTargetVelocity(RobotConstantsV1.defaultShooterVelocity);
-                    firstIteration = false;
-                }
-
+                arcShooter.run();
                 if(gamepad.dpad_up && gamepad.isGamepadReady()){
-                    arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() + RobotConstantsV1.velocityUpStep);
+                    arcShooter.setTargetRPM(arcShooter.getTargetRPM() + RobotConstantsV1.velocityUpStep);
                     gamepad.resetTimer();
                 }
                 else if(gamepad.dpad_down && gamepad.isGamepadReady()) {
-                    arcShooter.setTargetVelocity(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
+                    arcShooter.setTargetRPM(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
-                multipleTelemetry.addData("Power for velocity: ", arcShooter.runToVelocity(arcShooter.getVelocity(), 6000));
-                multipleTelemetry.addData("RPM: ", (arcShooter.getVelocity()));
                 arcShooter.log(multipleTelemetry);
                 arcShooter.graph(multipleTelemetry);
                 break;
@@ -131,6 +129,11 @@ public class AllInOneTuning extends OpMode {
                     gamepad.resetTimer();
                 }
                 storageServo.log(telemetry);
+                break;
+            case GRAPH:
+                loopUpdates = loopUpdates + 1;
+                arcShooter.graph(multipleTelemetry);
+                multipleTelemetry.panels.addData("Updates: ", loopUpdates);
                 break;
         }
 

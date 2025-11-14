@@ -43,8 +43,8 @@ public class StorageServoV1{
         servo.setPosition(position);
     }
 
-    public void runToIntakeBall(Ball intakeBall){
-        switch (intakeBall){
+    public void runToIntakeBall(Ball intake_ball){
+        switch (intake_ball){
             case BALL_1:
                 setPosition(RobotConstantsV1.STORAGE_BALL_1);
                 break;

@@ -1,14 +1,8 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
-import android.app.backup.BackupAgent;
-import android.provider.Settings;
-
-import androidx.core.text.util.LocalePreferences;
-
+import com.bylazar.graph.GraphEntry;
 import com.bylazar.graph.GraphManager;
 import com.bylazar.panels.Panels;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -24,7 +18,7 @@ public class ArcShooterV1 {
     public DcMotor motor;
     public DcMotorEx shooter;
     public double velocity = 0;
-    public double measureInterval = 0.3;
+    public double measureInterval = 0.1;
     public double lastTPS = 0;
     public double newTicks = 0;
     public ElapsedTime tickTimer = new ElapsedTime();
@@ -34,6 +28,7 @@ public class ArcShooterV1 {
     public VelocityController controller;
     public double kP, kI, kD;
     public boolean usingPID = false;
+    public double rpm = 0;
 
 
     public void init(HardwareMap hardwareMap) {
@@ -82,11 +77,22 @@ public class ArcShooterV1 {
         updateVelocity();
     }
 
+    public void setTargetRPM(double rpm_){
+        rpm = rpm_;
+    }
+
+    public void run(){
+        shooter.setPower(runToVelocity(getVelocityRPM(), 6000));
+    }
+
     public double getTargetVelocity(){
         return velocity;
     }
+    public double getTargetRPM(){
+        return rpm;
+    }
 
-    public double getVelocity() {
+    public double getVelocityRPM() {
         double elapsedTime = tickTimer.seconds();
 
         // Only update every so often (optional, e.g., every 50 ms)
@@ -105,21 +111,25 @@ public class ArcShooterV1 {
     public double tPStoRPM(double tps, double motorTicksPerRev){
         return (tps / motorTicksPerRev) * 60.0;
     }
+    public double rPMtoTPS(double rpm, double motorTicksPerRev){
+        return (rpm / 60.0) * motorTicksPerRev;
+    }
+
 
     public boolean ready(){
-        return getVelocity() >= RobotConstantsV1.SHOOTER_TARGET_VELOCITY;
+        return getVelocityRPM() >= RobotConstantsV1.SHOOTER_TARGET_RPM;
     }
 
     private void updateVelocity(){
         shooter.setVelocity(velocity);
     }
 
-    public double runToVelocity(double currentTPS, double targetRPM){
+    public double runToVelocity(double currentRPM, double targetRPM){
         if(!usingPID){
             return 0.0;
         }
         else {
-            return controller.getOutput(currentTPS, targetRPM);
+            return controller.getOutput(currentRPM, targetRPM);
         }
     }
 
@@ -131,21 +141,21 @@ public class ArcShooterV1 {
     }
 
     public void log(MultipleTelemetry telemetry){
-        telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
-        telemetry.addData("Ready? : ", ready());
-        telemetry.update();
+        telemetry.telemetry.addData("Arc Motor Velocity: ", velocity);
+        telemetry.telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.telemetry.addData("Ready? : ", ready());
+        telemetry.telemetry.update();
     }
 
     public void graph(MultipleTelemetry telemetry){
-        telemetry.panels.addData("Target Velocity: ", getTargetVelocity());
-        telemetry.panels.addData("Actual Velocity: ", getVelocity());
-        telemetry.panels.update();
+        telemetry.panels.addData("Target Velocity", getTargetVelocity());
+        telemetry.panels.addData("RPM", getVelocityRPM());
+        telemetry.panels.update(telemetry.telemetry);
     }
 
     public void graph(Telemetry telemetry){
         telemetry.addData("Target Velocity: ", getTargetVelocity());
-        telemetry.addData("Actual Velocity: ", getVelocity());
+        telemetry.addData("RPM: ", getVelocityRPM());
     }
 
 }

@@ -47,7 +47,8 @@ public class Robot {
     }
 
     public void systemStatesUpdate(){
-        shooter.setTargetVelocity(RobotConstantsV1.SHOOTER_TARGET_VELOCITY);
+        gamepad.update();
+        shooter.setTargetVelocity(RobotConstantsV1.SHOOTER_TARGET_RPM);
         dualIntake.setPowers(RobotConstantsV1.INTAKE_POWER);
         drive.drive();
         if(gamepad.circle && gamepad.isGamepadReady()){
@@ -58,5 +59,7 @@ public class Robot {
             dualIntake.switchDirections();
             gamepad.resetTimer();
         }
+        telemetry.addLine("Ball: " + storage.getIntakeBall());
+        telemetry.addLine("Next ball: " + storage.getNextBall(storage.getIntakeBall()));
     }
 }
