@@ -14,7 +14,6 @@ public class MultipleTelemetry {
     }
     public void addData(String key, Object value){
         panels.addData(key, value);
-        telemetry.addData(key, value);
     }
 
     public void addLine(String line){

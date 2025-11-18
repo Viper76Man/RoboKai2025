@@ -2,15 +2,20 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
+
+import java.util.List;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
@@ -20,6 +25,8 @@ public class AllInOneTuning extends OpMode {
     public IntakeV1 intake = new IntakeV1();
     public IntakeDualMotorsV1 dualIntake = new IntakeDualMotorsV1();
 
+    public LimelightV1 limelight = new LimelightV1();
+    public TagIDToAprilTag tagIDToAprilTag = new TagIDToAprilTag();
     public boolean firstIteration = true;
     public int loopUpdates = 0;
 
@@ -51,11 +58,17 @@ public class AllInOneTuning extends OpMode {
     public void init() {
         gamepad.init(gamepad1, 0.3);
         mecDrive.init(hardwareMap, gamepad);
-        arcShooter.init(hardwareMap, 0.2, 0, 0);
+        arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
         //intake.init(hardwareMap);
         multipleTelemetry = new MultipleTelemetry(telemetry, telemetryManager);
         storageServo.init(hardwareMap);
+        //limelight.init(hardwareMap, telemetry);
         dualIntake.init(hardwareMap);
+    }
+
+    @Override
+    public void init_loop(){
+        arcShooter.graph(multipleTelemetry);
     }
 
     @Override
@@ -71,6 +84,7 @@ public class AllInOneTuning extends OpMode {
     public void menuSelectUpdate(){
         gamepad.update();
         multipleTelemetry.addData("Selected tuning mode: ", mode.name());
+        multipleTelemetry.update();
         if(gamepad.isGamepadReady()) {
             if (gamepad.dpad_up) {
                 selectedMode -= 1;
@@ -105,7 +119,6 @@ public class AllInOneTuning extends OpMode {
                     arcShooter.setTargetRPM(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
-                arcShooter.log(multipleTelemetry);
                 arcShooter.graph(multipleTelemetry);
                 break;
             case INTAKE:
@@ -133,7 +146,10 @@ public class AllInOneTuning extends OpMode {
             case GRAPH:
                 loopUpdates = loopUpdates + 1;
                 arcShooter.graph(multipleTelemetry);
-                multipleTelemetry.panels.addData("Updates: ", loopUpdates);
+                break;
+            case CAMERA:
+                List<LLResultTypes.FiducialResult> latest = limelight.getFiducialResults();
+                telemetry.addData("Latest: ", tagIDToAprilTag.getTag(latest.get(latest.toArray().length).getFiducialId()));
                 break;
         }
 

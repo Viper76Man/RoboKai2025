@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
-import com.bylazar.graph.GraphEntry;
-import com.bylazar.graph.GraphManager;
-import com.bylazar.panels.Panels;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -18,10 +16,14 @@ public class ArcShooterV1 {
     public DcMotor motor;
     public DcMotorEx shooter;
     public double velocity = 0;
-    public double measureInterval = 0.1;
-    public double lastTPS = 0;
+    public double error = 0;
+    public double targetRPM = RobotConstantsV1.defaultShooterRPM;
+    public double lastTime = 0;
+    public double measureInterval = 0.3;
+    public double lastRPM= 0;
     public double newTicks = 0;
     public ElapsedTime tickTimer = new ElapsedTime();
+    public ElapsedTime tickTimer2 = new ElapsedTime();
 
 
     public double lastTicks = 0;
@@ -55,6 +57,20 @@ public class ArcShooterV1 {
         this.usingPID = true;
     }
 
+    public void init(HardwareMap hardwareMap, PIDCoefficients pidCoefficients) {
+        this.hardwareMap = hardwareMap;
+        motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
+        shooter = (DcMotorEx) motor;
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setDirection(DcMotorSimple.Direction.FORWARD);
+        this.kP = pidCoefficients.p;
+        this.kI = pidCoefficients.i;
+        this.kD = pidCoefficients.d;
+        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD);
+        this.usingPID = true;
+    }
+
     public void setMotorPower(double power){
         motor.setPower(power);
     }
@@ -78,34 +94,35 @@ public class ArcShooterV1 {
     }
 
     public void setTargetRPM(double rpm_){
-        rpm = rpm_;
+        targetRPM = rpm_;
     }
 
     public void run(){
-        shooter.setPower(runToVelocity(getVelocityRPM(), 6000));
+        //targetRPM = 2000 * Math.sin(tickTimer2.seconds());
+
+        error = controller.getError();
+        shooter.setPower(runToVelocity(getVelocityRPM(), (int) targetRPM));
     }
 
     public double getTargetVelocity(){
         return velocity;
     }
     public double getTargetRPM(){
-        return rpm;
+        return targetRPM;
     }
-
-    public double getVelocityRPM() {
-        double elapsedTime = tickTimer.seconds();
-
-        // Only update every so often (optional, e.g., every 50 ms)
-        if (elapsedTime >= measureInterval) {
-            int currentTicks = shooter.getCurrentPosition();
-            double deltaTicks = currentTicks - lastTicks;
-            // ticks per second = deltaTicks / elapsedTime
-            lastTPS = deltaTicks / elapsedTime;
-            // Update tracking vars
+    public double getVelocityRPM(){
+        int currentTicks = shooter.getCurrentPosition();
+        double elapsed = tickTimer.seconds();
+        if(elapsed > RobotConstantsV1.SHOOTER_UPDATE_TIME_SECONDS) {
+            double delta = currentTicks - lastTicks;
+            double tps = (elapsed > 0) ? delta / elapsed : 0;
+            double rpm = (tps/28.0)*60.0;
             lastTicks = currentTicks;
             tickTimer.reset();
+            lastRPM = rpm;
+            return rpm;
         }
-        return tPStoRPM(lastTPS, 28);
+        return lastRPM;
     }
 
     public double tPStoRPM(double tps, double motorTicksPerRev){
@@ -124,7 +141,7 @@ public class ArcShooterV1 {
         shooter.setVelocity(velocity);
     }
 
-    public double runToVelocity(double currentRPM, double targetRPM){
+    public double runToVelocity(double currentRPM, int targetRPM){
         if(!usingPID){
             return 0.0;
         }
@@ -141,15 +158,17 @@ public class ArcShooterV1 {
     }
 
     public void log(MultipleTelemetry telemetry){
-        telemetry.telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
-        telemetry.telemetry.addData("Ready? : ", ready());
-        telemetry.telemetry.update();
+        telemetry.addData("Arc Motor Velocity: ", velocity);
+        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.addData("Ready? : ", ready());
     }
 
     public void graph(MultipleTelemetry telemetry){
-        telemetry.panels.addData("Target Velocity", getTargetVelocity());
-        telemetry.panels.addData("RPM", getVelocityRPM());
+        telemetry.addData("Error", error);
+        telemetry.addData("Power", shooter.getPower());
+        telemetry.addData("Target RPM", targetRPM);
+        telemetry.addData("RPM", getVelocityRPM());
+        telemetry.addData("Pos", shooter.getCurrentPosition());
         telemetry.panels.update(telemetry.telemetry);
     }
 

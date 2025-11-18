@@ -4,14 +4,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.R;
+
 public class IntakeDualMotorsV1 {
     public HardwareMap hardwareMap;
     public DcMotor left;
     public DcMotor right;
     public void init(HardwareMap hardwareMap){
         this.hardwareMap = hardwareMap;
-        left = hardwareMap.get(DcMotor.class, "leftIntake");
-        right = hardwareMap.get(DcMotor.class, "rightIntake");
+        left = hardwareMap.get(DcMotor.class, RobotConstantsV1.dualIntakeLeftName);
+        right = hardwareMap.get(DcMotor.class, RobotConstantsV1.dualIntakeRightName);
         right.setDirection(DcMotorSimple.Direction.REVERSE);
     }
     public void setPowers(double power) {

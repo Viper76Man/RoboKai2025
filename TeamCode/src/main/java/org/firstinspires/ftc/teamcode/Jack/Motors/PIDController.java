@@ -41,4 +41,8 @@ public class PIDController {
         timer.reset();
         return power;
     }
+
+    public double getError(){
+        return error;
+    }
 }
