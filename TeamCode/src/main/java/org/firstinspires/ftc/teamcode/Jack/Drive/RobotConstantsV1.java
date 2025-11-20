@@ -26,8 +26,9 @@ public class RobotConstantsV1 {
     //HARDWARE--------------------------------------------------------------------------------------
     public static String arcShooterName = "arcMotor"; //Expansion Hub Port 2
     public static String intakeMotorName = "intake";
+    public static String flickerServoName = "flicker"; //Control Hub Servos Port 2
     public static String dualIntakeLeftName = "leftIntake"; //Expansion Hub Port 0
-    public static String dualIntakeRightName = "rightIntake"; //Expansion hub Port 1
+    public static String dualIntakeRightName = "rightIntake"; //Expansion Hub Port 1
     public static String storageServoName = "storageServo"; //Control Hub Servos Port 0
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
@@ -57,6 +58,8 @@ public class RobotConstantsV1 {
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
+    public static double FLICKER_SERVO_UP = 1;
+    public static double FLICKER_SERVO_DOWN = 0;
 
     public static double STORAGE_BALL_1 = 0.1;
     public static double STORAGE_BALL_2 = 0.45;

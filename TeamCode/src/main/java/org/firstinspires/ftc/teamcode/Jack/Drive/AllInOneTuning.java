@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
+import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class AllInOneTuning extends OpMode {
 
     public LimelightV1 limelight = new LimelightV1();
     public TagIDToAprilTag tagIDToAprilTag = new TagIDToAprilTag();
+    public FlickerServoV1 flicker = new FlickerServoV1();
     public boolean firstIteration = true;
     public int loopUpdates = 0;
 
@@ -43,6 +45,7 @@ public class AllInOneTuning extends OpMode {
         DRIVE,
         SHOOT,
         INTAKE,
+        FLICKER,
         STORAGE,
         PINPOINT,
         CAMERA,
@@ -63,6 +66,7 @@ public class AllInOneTuning extends OpMode {
         multipleTelemetry = new MultipleTelemetry(telemetry, telemetryManager);
         storageServo.init(hardwareMap);
         //limelight.init(hardwareMap, telemetry);
+        flicker.init(hardwareMap);
         dualIntake.init(hardwareMap);
     }
 
@@ -127,6 +131,16 @@ public class AllInOneTuning extends OpMode {
                     dualIntake.switchDirections();
                     gamepad.resetTimer();
                 }
+                break;
+            case FLICKER:
+                if(firstIteration){
+                    flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                    firstIteration = false;
+                }
+                if(gamepad.isGamepadReady() && gamepad.circle){
+                    flicker.switchPositions();
+                }
+                flicker.log(multipleTelemetry);
                 break;
             case STORAGE:
                 if(firstIteration){
