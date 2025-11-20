@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
+import android.os.Environment;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -11,15 +13,19 @@ import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AllInOneTuning.class);
     public GamepadV1 gamepad = new GamepadV1();
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();
@@ -34,6 +40,7 @@ public class AllInOneTuning extends OpMode {
 
     public TelemetryManager telemetryManager = PanelsTelemetry.INSTANCE.getTelemetry();
     public MultipleTelemetry multipleTelemetry;
+    public LoggerV1 logger = new LoggerV1();
 
     public StorageServoV1 storageServo = new StorageServoV1();
     public enum modeSelected {
@@ -49,6 +56,7 @@ public class AllInOneTuning extends OpMode {
         STORAGE,
         PINPOINT,
         CAMERA,
+        LOG,
         GRAPH
     }
 
@@ -160,6 +168,11 @@ public class AllInOneTuning extends OpMode {
             case GRAPH:
                 loopUpdates = loopUpdates + 1;
                 arcShooter.graph(multipleTelemetry);
+                break;
+            case LOG:
+                String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+                logger.openFile(path+ "hi.txt", true);
+                logger.info("HELLOWORLD");
                 break;
             case CAMERA:
                 List<LLResultTypes.FiducialResult> latest = limelight.getFiducialResults();
