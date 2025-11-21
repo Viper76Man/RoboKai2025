@@ -8,10 +8,8 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
-import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeDualMotorsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
@@ -21,7 +19,6 @@ import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
@@ -30,7 +27,6 @@ public class AllInOneTuning extends OpMode {
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();
     public IntakeV1 intake = new IntakeV1();
-    public IntakeDualMotorsV1 dualIntake = new IntakeDualMotorsV1();
 
     public LimelightV1 limelight = new LimelightV1();
     public TagIDToAprilTag tagIDToAprilTag = new TagIDToAprilTag();
@@ -75,12 +71,19 @@ public class AllInOneTuning extends OpMode {
         storageServo.init(hardwareMap);
         //limelight.init(hardwareMap, telemetry);
         flicker.init(hardwareMap);
-        dualIntake.init(hardwareMap);
+        intake.init(hardwareMap);
+        limelight.init(hardwareMap, telemetry);
+        limelight.limelight.pipelineSwitch(0);
     }
 
     @Override
     public void init_loop(){
         arcShooter.graph(multipleTelemetry);
+    }
+
+    @Override
+    public void start(){
+        limelight.startStreaming();
     }
 
     @Override
@@ -134,9 +137,9 @@ public class AllInOneTuning extends OpMode {
                 arcShooter.graph(multipleTelemetry);
                 break;
             case INTAKE:
-                dualIntake.setPowers(RobotConstantsV1.INTAKE_POWER);
+                intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 if(gamepad.isGamepadReady() && gamepad.a){
-                    dualIntake.switchDirections();
+                    intake.switchDirection();
                     gamepad.resetTimer();
                 }
                 break;
@@ -176,7 +179,15 @@ public class AllInOneTuning extends OpMode {
                 break;
             case CAMERA:
                 List<LLResultTypes.FiducialResult> latest = limelight.getFiducialResults();
-                telemetry.addData("Latest: ", tagIDToAprilTag.getTag(latest.get(latest.toArray().length).getFiducialId()));
+                if(!latest.isEmpty()) {
+                    LLResultTypes.FiducialResult latest_result = latest.get(latest.toArray().length - 1);
+                    int latestID = latest_result.getFiducialId();
+                    multipleTelemetry.addData("Latest: ", tagIDToAprilTag.getTag(latestID));
+                    multipleTelemetry.addData("ID:", latestID);
+                    multipleTelemetry.addData("X: ", latest_result.getTargetXDegrees());
+                    multipleTelemetry.addData("Y: ", latest_result.getTargetYDegrees());
+                    multipleTelemetry.update();
+                }
                 break;
         }
 

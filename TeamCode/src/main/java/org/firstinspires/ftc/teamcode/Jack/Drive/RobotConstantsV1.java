@@ -24,11 +24,9 @@ public class RobotConstantsV1 {
     //Config names
     public static String pinpointName = "pinpoint";
     //HARDWARE--------------------------------------------------------------------------------------
-    public static String arcShooterName = "arcMotor"; //Expansion Hub Port 2
-    public static String intakeMotorName = "intake";
-    public static String flickerServoName = "flicker"; //Control Hub Servos Port 2
-    public static String dualIntakeLeftName = "leftIntake"; //Expansion Hub Port 0
-    public static String dualIntakeRightName = "rightIntake"; //Expansion Hub Port 1
+    public static String arcShooterName = "arcMotor"; //Expansion Hub Port 1
+    public static String intakeMotorName = "intake"; //Expansion Hub Port 0
+    public static String flickerServoName = "flicker"; //Control Hub Servos Port 1
     public static String storageServoName = "storageServo"; //Control Hub Servos Port 0
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
