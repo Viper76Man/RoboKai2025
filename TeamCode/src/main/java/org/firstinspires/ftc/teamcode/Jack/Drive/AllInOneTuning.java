@@ -22,7 +22,6 @@ import java.util.List;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(AllInOneTuning.class);
     public GamepadV1 gamepad = new GamepadV1();
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();

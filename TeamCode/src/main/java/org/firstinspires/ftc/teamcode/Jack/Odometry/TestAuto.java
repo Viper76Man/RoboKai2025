@@ -83,7 +83,6 @@ public class TestAuto extends LinearOpMode {
     @Override
     public void runOpMode() {
         follower = Constants.createFollower(hardwareMap);
-
         follower.setPose(startPose);
         buildPaths();
         telemetry.addLine("Waiting for start");
