@@ -72,6 +72,7 @@ public class AllInOneTuning extends OpMode {
         //limelight.init(hardwareMap, telemetry);
         flicker.init(hardwareMap);
         intake.init(hardwareMap);
+        logger.init(telemetry);
         limelight.init(hardwareMap, telemetry);
         limelight.limelight.pipelineSwitch(0);
     }
@@ -173,9 +174,25 @@ public class AllInOneTuning extends OpMode {
                 arcShooter.graph(multipleTelemetry);
                 break;
             case LOG:
-                String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-                logger.openFile(path+ "hi.txt", true);
-                logger.info("HELLOWORLD");
+                if(firstIteration) {
+                    String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+                    String file = path + "/hi.txt";
+                    if (logger.exists(file)) {
+                        int status = logger.openFile(file, false);
+                        logger.info("INIT");
+                        multipleTelemetry.addLine("File open status: " + status);
+                    } else {
+                        int status = logger.openFile(file, true);
+                        logger.info("HELLOWORLD");
+                        multipleTelemetry.addLine("File open status: " + status);
+                    }
+                    multipleTelemetry.update();
+                    for (String line : logger.readLines(file)) {
+                        multipleTelemetry.addLine(line);
+                        multipleTelemetry.update();
+                    }
+                    firstIteration = false;
+                }
                 break;
             case CAMERA:
                 List<LLResultTypes.FiducialResult> latest = limelight.getFiducialResults();
