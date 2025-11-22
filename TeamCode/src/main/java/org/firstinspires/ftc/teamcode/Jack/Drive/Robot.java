@@ -60,4 +60,8 @@ public class Robot {
         telemetry.addLine("Ball: " + storage.getIntakeBall());
         telemetry.addLine("Next ball: " + storage.getNextBall(storage.getIntakeBall()));
     }
+
+    public void shootArtifact(int artifact){
+        return;
+    }
 }

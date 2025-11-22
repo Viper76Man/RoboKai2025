@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
+import org.firstinspires.ftc.teamcode.R;
 
 @Configurable
 public class RobotConstantsV1 {
@@ -28,6 +30,7 @@ public class RobotConstantsV1 {
     public static String intakeMotorName = "intake"; //Expansion Hub Port 0
     public static String flickerServoName = "flicker"; //Control Hub Servos Port 1
     public static String storageServoName = "storageServo"; //Control Hub Servos Port 0
+    public static String colorSensor1 = "colorSensor1"; //I2C port 0
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
@@ -58,11 +61,14 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double FLICKER_SERVO_UP = 1;
     public static double FLICKER_SERVO_DOWN = 0;
-
+    public static RGB greenRGB = new RGB(0, 255, 0);
+    public static RGB purpleRGB = new RGB(128, 0, 128);
     public static double STORAGE_BALL_1 = 0.1;
     public static double STORAGE_BALL_2 = 0.45;
     public static double STORAGE_BALL_3 = 0.85;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
+    //TODO: TURN OFF BEFORE COMPS
+    public static boolean panelsDrawingEnabled = true;
     public static double defaultShooterRPM = SHOOTER_TARGET_RPM;
     public static double velocityUpStep = 0.1;
     public static double velocityDownStep = 0.1;

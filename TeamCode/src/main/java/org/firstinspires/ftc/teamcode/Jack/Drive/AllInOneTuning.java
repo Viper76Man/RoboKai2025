@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.andymark.AndyMarkColorSensor;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
@@ -38,6 +40,7 @@ public class AllInOneTuning extends OpMode {
     public LoggerV1 logger = new LoggerV1();
 
     public StorageServoV1 storageServo = new StorageServoV1();
+    public SlotColorSensorV1 slot1Sensor = new SlotColorSensorV1();
     public enum modeSelected {
         SELECTED,
         NOT_SELECTED
@@ -49,6 +52,7 @@ public class AllInOneTuning extends OpMode {
         INTAKE,
         FLICKER,
         STORAGE,
+        COLOR_SENSORS,
         PINPOINT,
         CAMERA,
         LOG,
@@ -74,6 +78,7 @@ public class AllInOneTuning extends OpMode {
         logger.init(telemetry);
         limelight.init(hardwareMap, telemetry);
         limelight.limelight.pipelineSwitch(0);
+        slot1Sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
     }
 
     @Override
@@ -167,6 +172,11 @@ public class AllInOneTuning extends OpMode {
                     gamepad.resetTimer();
                 }
                 storageServo.log(telemetry);
+                break;
+            case COLOR_SENSORS:
+                telemetry.addData("RGB:", "("+ slot1Sensor.getRGB().asText() + ")");
+                telemetry.addData("IS GREEN: ", slot1Sensor.isGreen());
+                telemetry.addData("IS PURPLE: ", slot1Sensor.isPurple());
                 break;
             case GRAPH:
                 loopUpdates = loopUpdates + 1;
