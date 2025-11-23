@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Jack.Other;
 
+import android.provider.Settings;
+
+import com.bylazar.camerastream.PanelsCameraStream;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
@@ -11,6 +14,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
@@ -86,6 +90,10 @@ public class PanelsToolkit {
     }
     public void toggleDrawing(){
         setDrawingEnabled(!enabled);
+    }
+
+    public void startCameraStream(CameraStreamSource source, int maxFPS){
+        PanelsCameraStream.INSTANCE.startStream(source, maxFPS);
     }
     public void setDrawingEnabled(boolean enabled){
         this.enabled = enabled;

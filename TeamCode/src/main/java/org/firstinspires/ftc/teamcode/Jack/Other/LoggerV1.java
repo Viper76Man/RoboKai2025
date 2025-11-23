@@ -62,7 +62,7 @@ public class LoggerV1 {
 
     public int openFile(String file, boolean create) {
         File current = new File(file);
-        if (create) {
+        if (!create) {
             if (current.exists() && current.isFile()) {
                 int status_ = createFileWriter(file);
                 status = Status.IN_FILE;
@@ -79,13 +79,13 @@ public class LoggerV1 {
         }
         else {
             if (current.exists() && current.isFile()) {
-                int status_ = createFileWriter(file);
-                status = Status.IN_FILE;
+                status = Status.BROWSING;
                 return 1;
             } else if (!current.exists()) {
-                status = Status.BROWSING;
+                int status_ = createFileWriter(file);
+                status = Status.IN_FILE;
                 return 0;
-            } else if (current.exists() && !current.isDirectory()) {
+            } else if (current.exists() && !current.isFile()) {
                 status = Status.BROWSING;
                 return 2;
             }

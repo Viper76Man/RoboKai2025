@@ -2,16 +2,22 @@ package org.firstinspires.ftc.teamcode.Jack.Motors;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+
 public class PIDController {
     public ElapsedTime timer = new ElapsedTime();
     public double power = 0;
+    public double powerDrop = 0;
     public double error = 0;
     public double kP = 0;
     public double kI = 0;
     public double kD = 0;
+    public double previousFilterEstimate = 0;
+    public double currentFilterEstimate = 0;
 
 
     public double previousError = error;
+    public double previousPower = 0;
     public double integralError = 0;
 
     public PIDController(double kP, double kI, double kD){
@@ -26,19 +32,34 @@ public class PIDController {
         return power;
     }
 
+    public void updatePIDsFromConstants(){
+        kP = RobotConstantsV1.arcPIDs.p;
+        kI = RobotConstantsV1.arcPIDs.i;
+        kD = RobotConstantsV1.arcPIDs.d;
+    }
+
     //@param currentPosition gets
     public double getOutput(int currentPosition, int target){
+        previousPower = power;
+        updatePIDsFromConstants();
+        currentFilterEstimate = 0;
+        previousFilterEstimate = currentFilterEstimate;
         //Calculations
         error = target - currentPosition;
         double errorChange = (error - previousError) / timer.seconds();
         integralError = integralError + (error * timer.seconds());
-
         //Calculate output
         power = (error * kP) + (integralError * kI) + (errorChange * kD);
-
+        powerDrop = previousPower - power;
         //Cleanup
         previousError = error;
         timer.reset();
+        if(power > 1){
+            power = 1;
+        }
+        if(power < -1){
+            power = -1;
+        }
         return power;
     }
 

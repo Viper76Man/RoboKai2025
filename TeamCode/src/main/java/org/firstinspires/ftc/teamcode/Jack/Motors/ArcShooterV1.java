@@ -99,7 +99,6 @@ public class ArcShooterV1 {
 
     public void run(){
         //targetRPM = 2000 * Math.sin(tickTimer2.seconds());
-
         error = controller.getError();
         shooter.setPower(runToVelocity(getVelocityRPM(), (int) targetRPM));
     }
@@ -169,7 +168,8 @@ public class ArcShooterV1 {
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
         telemetry.addData("Pos", shooter.getCurrentPosition());
-        telemetry.panels.update(telemetry.telemetry);
+        telemetry.addData("Power drop", controller.controller.powerDrop);
+        telemetry.update();
     }
 
     public void graph(Telemetry telemetry){

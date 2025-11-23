@@ -51,10 +51,11 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.3, 0, 0.01, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
+    public static double filter = 0.5;
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDCoefficients arcPIDs = new PIDCoefficients(0.00035, 0, 0.00000003);
-    public static double SHOOTER_TARGET_RPM = 6000;
+    public static PIDCoefficients arcPIDs = new PIDCoefficients(0.00012, 0.000065, 0.00001);
+    public static double SHOOTER_TARGET_RPM = 5000;
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static int SHOOTER_PPR = 28;

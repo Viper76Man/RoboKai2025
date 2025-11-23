@@ -79,6 +79,7 @@ public class AllInOneTuning extends OpMode {
         limelight.init(hardwareMap, telemetry);
         limelight.limelight.pipelineSwitch(0);
         slot1Sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
+        arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
     }
 
     @Override
