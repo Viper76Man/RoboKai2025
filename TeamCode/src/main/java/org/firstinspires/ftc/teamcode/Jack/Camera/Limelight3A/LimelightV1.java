@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A;
 
+import com.bylazar.camerastream.PanelsCameraStream;
+import com.bylazar.limelightproxy.LimelightProxyConfig;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -101,11 +103,12 @@ public class LimelightV1 {
     public List<LLResultTypes.FiducialResult> getFiducialResults(){
         List<LLResultTypes.FiducialResult> list = new ArrayList<>();
         if (limelight.getLatestResult() != null) {
-            return limelight.getLatestResult().getFiducialResults();
+            list = limelight.getLatestResult().getFiducialResults();
         }
-        else {
-            return list;
+        if (list.size() > 10) {
+            list.remove(1);
         }
+        return list;
     }
     public LLResultTypes.ColorResult getColorResultFromList(List<LLResultTypes.ColorResult> list, int index){
         return list.get(index);

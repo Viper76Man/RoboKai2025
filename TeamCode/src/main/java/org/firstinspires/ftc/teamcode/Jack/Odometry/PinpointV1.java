@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
@@ -23,5 +25,9 @@ public class PinpointV1 {
 
     public boolean isReady(){
         return getStatus() == GoBildaPinpointDriver.DeviceStatus.READY;
+    }
+
+    public Pose getPose(){
+        return new Pose(pinpoint.getPosX(DistanceUnit.INCH), pinpoint.getPosY(DistanceUnit.INCH), pinpoint.getHeading(AngleUnit.RADIANS));
     }
 }

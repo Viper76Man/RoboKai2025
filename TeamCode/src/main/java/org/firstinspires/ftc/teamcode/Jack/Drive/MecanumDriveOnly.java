@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
 public class MecanumDriveOnly {
@@ -13,6 +15,7 @@ public class MecanumDriveOnly {
     private DcMotor backLeftMotor;
     private DcMotor backRightMotor;
     public GamepadV1 gamepad1 = new GamepadV1();
+    public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
 
     public void init(HardwareMap hardwareMap, Gamepad gamepad) {
         gamepad1.init(gamepad, 0.3);
@@ -59,6 +62,37 @@ public class MecanumDriveOnly {
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
     }
+
+    public void driveWithRotationLock(Robot.Alliance team, Pose pose){
+        double kP = RobotConstantsV1.rotationalPIDs.p;
+        double y = gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
+        double x = gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
+        double rx = -gamepad1.gamepad.right_stick_x;
+        if(localizer.isRobotInBackLaunchZone(pose)) {
+            switch (team) {
+                case TEST:
+                    rx = -(kP * localizer.getHeadingErrorFromGoalDegrees(pose));
+                    break;
+                case BLUE:
+                    rx = -(kP * localizer.getHeadingErrorBlue(pose));
+                    break;
+                case RED:
+                    rx = -(kP * localizer.getHeadingErrorRed(pose));
+                    break;
+            }
+        }
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (-y + x + rx) / denominator;
+        double backLeftPower = (-y - x + rx) / denominator;
+        double frontRightPower = (y + x + rx) / denominator;
+        double backRightPower = (y - x + rx) / denominator;
+
+        frontLeftMotor.setPower(frontLeftPower);
+        backLeftMotor.setPower(backLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backRightMotor.setPower(backRightPower);
+    }
+
 
     public void log(Telemetry telemetry){
         telemetry.addLine("Front Left Power: " + frontLeftMotor.getPower());

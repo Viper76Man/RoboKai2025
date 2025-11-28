@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
-public class TeleOpV1 extends OpMode {
+public class BlueTeleOpV1 extends OpMode {
     public Robot robot = new Robot();
     @Override
     public void init() {
-        robot.init(Robot.Mode.TELEOP, hardwareMap, telemetry, gamepad1);
+        robot.init(Robot.Mode.TELEOP, Robot.Alliance.BLUE, hardwareMap, telemetry, gamepad1);
     }
 
     @Override

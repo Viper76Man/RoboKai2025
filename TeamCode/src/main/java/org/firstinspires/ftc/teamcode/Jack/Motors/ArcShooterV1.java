@@ -124,6 +124,13 @@ public class ArcShooterV1 {
         return lastRPM;
     }
 
+    public double getVelocityFeetPerSecond(double distanceFeetPerRotation){
+        double rpm = getVelocityRPM();
+        double rotationsPerSec = rpm / 60.0;
+        //11.87 in per rotation = 0.99 ft
+        return rotationsPerSec * distanceFeetPerRotation;
+    }
+
     public double tPStoRPM(double tps, double motorTicksPerRev){
         return (tps / motorTicksPerRev) * 60.0;
     }

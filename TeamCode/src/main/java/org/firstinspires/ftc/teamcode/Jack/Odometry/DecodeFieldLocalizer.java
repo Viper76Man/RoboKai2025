@@ -1,0 +1,42 @@
+package org.firstinspires.ftc.teamcode.Jack.Odometry;
+
+import com.pedropathing.geometry.Pose;
+
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+
+public class DecodeFieldLocalizer {
+    public Pose blueGoalCenter = new Pose(13,134.7, Math.toRadians(110));
+    public Pose redGoalCenter = new Pose(131, 134.7, Math.toRadians(70));
+    public Pose launchZoneCenter = new Pose(72, 12);
+    public double getDistanceFromRedGoal(Pose pose){
+        return pose.distanceFrom(redGoalCenter);
+    }
+    public double getDistanceFromBlueGoal(Pose pose){
+        return pose.distanceFrom(blueGoalCenter);
+    }
+
+    public double getDistanceFromLaunchZone(Pose pose){
+        return pose.distanceFrom(launchZoneCenter);
+    }
+    public boolean isRobotInBackLaunchZone(Pose pose){
+        return pose.distanceFrom(launchZoneCenter) <= RobotConstantsV1.maxLaunchZoneDistance;
+    }
+    public double getHeadingErrorFromGoalDegrees(Pose pose){
+        if(pose.getX() > 72){
+            return getHeadingErrorRed(pose);
+        }
+        else if(pose.getX() < 72){
+            return getHeadingErrorBlue(pose);
+        }
+        return 0;
+
+    }
+
+    public double getHeadingErrorRed(Pose pose){
+        return Math.toDegrees(pose.getHeading()) - Math.toDegrees(redGoalCenter.getHeading());
+    }
+
+    public double getHeadingErrorBlue(Pose pose){
+        return Math.toDegrees(pose.getHeading()) - Math.toDegrees(blueGoalCenter.getHeading());
+    }
+}

@@ -32,7 +32,7 @@ public class BlueAutoV1 extends LinearOpMode {
                 if(!follower.isBusy()){
                     follower.followPath(paths.outOfStart);
                 }
-                if(follower.getCurrentTValue() > paths.toShootPoseTValue){
+                if(follower.getCurrentTValue() > BlueAutoPathsV1.toShootPoseTValue){
                     setPathState(PathStates.TO_FIRST_ARTIFACTS);
                 }
                 break;
@@ -44,7 +44,7 @@ public class BlueAutoV1 extends LinearOpMode {
     public void runOpMode() {
         follower = Constants.createFollower(hardwareMap);
         paths.buildPaths();
-        follower.setStartingPose(paths.startPose);
+        follower.setStartingPose(BlueAutoPathsV1.startPose);
         waitForStart();
         while (opModeIsActive()) {
             autoPathUpdate();

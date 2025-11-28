@@ -1,17 +1,15 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
-import org.firstinspires.ftc.teamcode.R;
 
-@Configurable
 public class RobotConstantsV1 {
     //Drive motors
     public static String frontLeft = "fl"; //Control Hub Port 0
@@ -38,6 +36,9 @@ public class RobotConstantsV1 {
     public static double strafePodX = 0.5;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
+    public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+    public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+
     public static double xVelocity = 49.88;
     public static double yVelocity = 49.88;
 
@@ -55,13 +56,27 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDCoefficients arcPIDs = new PIDCoefficients(0.00012, 0.000065, 0.00001);
-    public static double SHOOTER_TARGET_RPM = 5000;
+    public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.102, 0.00065,0.00001);
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
+
+    public static double SHOOTER_TARGET_RPM = 5000;
+    public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
+    public static double SHOOTER_DISTANCE_FEET_PER_ROTATION = 1;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
+    public static double SHOOTER_ANGLE_DEG = 50;
+
+
     public static double FLICKER_SERVO_UP = 1;
     public static double FLICKER_SERVO_DOWN = 0;
+
+
+    public static double maxLaunchZoneDistance = 18; //inches
+
+
+
+
     public static RGB greenRGB = new RGB(0, 255, 0);
     public static RGB purpleRGB = new RGB(128, 0, 128);
     public static double STORAGE_BALL_1 = 0.1;
