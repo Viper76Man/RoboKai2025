@@ -213,6 +213,7 @@ public class AllInOneTuning extends OpMode {
                     multipleTelemetry.addData("ID:", latestID);
                     multipleTelemetry.addData("X: ", latest_result.getTargetXDegrees());
                     multipleTelemetry.addData("Y: ", latest_result.getTargetYDegrees());
+                    multipleTelemetry.addData("Pose: ", latest_result.getTargetPoseRobotSpace().getPosition().toString());
                     multipleTelemetry.update();
                 }
                 break;

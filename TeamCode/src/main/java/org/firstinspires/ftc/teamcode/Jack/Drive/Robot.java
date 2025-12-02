@@ -50,12 +50,10 @@ public class Robot {
         this.alliance = alliance;
         //TODO: Debug gamepad
         this.gamepad.init(gamepad1, 0.3);
-        //pinpoint.init(hardwareMap);
         follower = Constants.createFollower(hardwareMap);
         shooter.init(hardwareMap);
         drive.init(hardwareMap, gamepad1);
         intake.init(hardwareMap);
-        //storage.init(hardwareMap);
     }
 
     public void systemStatesUpdate(){
@@ -74,7 +72,6 @@ public class Robot {
 
     public void shootArtifact(int artifact){
         runShooterActive();
-        return;
     }
 
     public void switchIntakeDirection(){
@@ -104,7 +101,7 @@ public class Robot {
     }
 
     public void arcUpdate(){
-        if(Math.abs(getDistanceFromLaunchZone()) > RobotConstantsV1.maxLaunchZoneDistance + 12){
+        if(Math.abs(getDistanceFromLaunchZone()) < RobotConstantsV1.maxLaunchZoneDistance + 12){
             runShooterActive();
         }
         else {

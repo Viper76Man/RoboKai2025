@@ -32,8 +32,8 @@ public class RobotConstantsV1 {
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
-    public static double forwardPodY = -5;
-    public static double strafePodX = 0.5;
+    public static double forwardPodY = -76.2;
+    public static double strafePodX = 0;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
@@ -52,7 +52,6 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.3, 0, 0.01, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
-    public static double filter = 0.5;
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDCoefficients arcPIDs = new PIDCoefficients(0.00012, 0.000065, 0.00001);
