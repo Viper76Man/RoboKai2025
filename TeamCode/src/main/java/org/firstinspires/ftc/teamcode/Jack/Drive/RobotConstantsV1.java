@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.pedropathing.control.PIDFCoefficients;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -10,14 +11,15 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 
+@Configurable
 public class RobotConstantsV1 {
     //Drive motors
     public static String frontLeft = "fl"; //Control Hub Port 0
     public static String frontRight = "fr"; //Control Hub Port 1
     public static String backLeft = "bl"; //Control Hub Port 2
     public static String backRight = "br"; //Control Hub Port 3
-    public static DcMotorSimple.Direction frontLeftDirection = DcMotorSimple.Direction.REVERSE;
-    public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction frontLeftDirection = DcMotorSimple.Direction.FORWARD;
+    public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction frontRightDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction backRightDirection = DcMotorSimple.Direction.FORWARD;
     public static boolean useBrakeInTeleOp = true;

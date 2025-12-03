@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.R;
 
 public class MecanumDriveOnly {
     private DcMotor frontLeftMotor;
@@ -23,6 +25,10 @@ public class MecanumDriveOnly {
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
         backLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backLeft);
         backRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backRight);
+        frontLeftMotor.setDirection(RobotConstantsV1.frontLeftDirection);
+        backLeftMotor.setDirection(RobotConstantsV1.backLeftDirection);
+        frontRightMotor.setDirection(RobotConstantsV1.frontRightDirection);
+        backRightMotor.setDirection(RobotConstantsV1.backRightDirection);
         if(RobotConstantsV1.useBrakeInTeleOp) {
             frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -37,6 +43,10 @@ public class MecanumDriveOnly {
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
         backLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backLeft);
         backRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backRight);
+        frontLeftMotor.setDirection(RobotConstantsV1.frontLeftDirection);
+        backLeftMotor.setDirection(RobotConstantsV1.backLeftDirection);
+        frontRightMotor.setDirection(RobotConstantsV1.frontRightDirection);
+        backRightMotor.setDirection(RobotConstantsV1.backRightDirection);
         if(RobotConstantsV1.useBrakeInTeleOp) {
             frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -48,8 +58,8 @@ public class MecanumDriveOnly {
 
 
     public void drive() {
-        double y = gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
+        double y = -gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
+        double x = -gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
         double rx = -gamepad1.gamepad.right_stick_x; //This is reversed for our turning
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (-y + x + rx) / denominator;
