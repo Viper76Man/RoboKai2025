@@ -9,19 +9,21 @@ public class VelocityController {
     public double kP = 0;
     public double kI = 0;
     public double kD = 0;
+    public double kF = 0;
 
     public double motorTPR;
-    public PIDController controller;
+    public PIDFController controller;
 
     public double previousError = error;
     public double integralError = 0;
 
-    public VelocityController(double motorTicksPerRev, double kP, double kI, double kD){
+    public VelocityController(double motorTicksPerRev, double kP, double kI, double kD, double kF){
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        this.kF = kF;
         this.motorTPR = motorTicksPerRev;
-        this.controller = new PIDController(kP, kI, kD);
+        this.controller = new PIDFController(kP, kI, kD, kF);
     }
 
     public double getOutputPOnly(int currentPosition, int target){
@@ -32,7 +34,7 @@ public class VelocityController {
 
     //@param currentPosition gets
     public double getOutput(double currentRPM, int targetRPM){
-        return controller.getOutput((int) currentRPM, (int) targetRPM);
+        return controller.getOutput((int) currentRPM, targetRPM);
     }
 
     public double getError(){

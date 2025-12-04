@@ -4,26 +4,28 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
-public class PIDController {
+public class PIDFController {
     public ElapsedTime timer = new ElapsedTime();
+    public PIDController controller;
     public double power = 0;
     public double powerDrop = 0;
     public double error = 0;
     public double kP = 0;
     public double kI = 0;
     public double kD = 0;
-    public double previousFilterEstimate = 0;
-    public double currentFilterEstimate = 0;
+    public double kF = 0;
 
 
     public double previousError = error;
     public double previousPower = 0;
     public double integralError = 0;
 
-    public PIDController(double kP, double kI, double kD){
+    public PIDFController(double kP, double kI, double kD, double kF){
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
+        this.kF = kF;
+        controller = new PIDController(kP, kI, kD);
     }
 
     public double getOutputPOnly(int currentPosition, int target){
@@ -33,32 +35,14 @@ public class PIDController {
     }
 
     public void updatePIDsFromConstants(){
-        kP = RobotConstantsV1.arcPIDs.p;
-        kI = RobotConstantsV1.arcPIDs.i;
-        kD = RobotConstantsV1.arcPIDs.d;
+        kF = RobotConstantsV1.arcPIDs.f;
+        controller.updatePIDsFromConstants();
     }
 
     //@param currentPosition gets
     public double getOutput(int currentPosition, int target){
-        previousPower = power;
         updatePIDsFromConstants();
-        //Calculations
-        error = currentPosition - target;
-        double errorChange = (error - previousError) / timer.seconds();
-        integralError = integralError + (error * timer.seconds());
-        //Calculate output
-        power = (error * kP) + (integralError * kI) + (errorChange * kD);
-        powerDrop = previousPower - power;
-        //Cleanup
-        previousError = error;
-        timer.reset();
-        if(power > 1){
-            power = 1;
-        }
-        if(power < -1){
-            power = -1;
-        }
-        return power;
+        return controller.getOutput(currentPosition, target) + (kF * target);
     }
 
     public double getError(){

@@ -24,8 +24,8 @@ public class Constants {
             .useSecondaryHeadingPIDF(false)
             .useSecondaryDrivePIDF(false)
             .centripetalScaling(RobotConstantsV1.centripetalScaling)
-            .translationalPIDFCoefficients(RobotConstantsV1.translationalPIDCoefficients)  // was 0.3, 0, 0.01, 0
-            .headingPIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients)  // was 5, 0, 0, 0
+            .translationalPIDFCoefficients(new PIDFCoefficients(RobotConstantsV1.translationalPIDCoefficients.p,RobotConstantsV1.translationalPIDCoefficients.i, RobotConstantsV1.translationalPIDCoefficients.d, RobotConstantsV1.translationalPIDCoefficients.f))  // was 0.3, 0, 0.01, 0
+            .headingPIDFCoefficients(new PIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients.p, RobotConstantsV1.headingPIDFCoefficients.i, RobotConstantsV1.headingPIDFCoefficients.d, RobotConstantsV1.headingPIDFCoefficients.f))  // was 5, 0, 0, 0
             .drivePIDFCoefficients(RobotConstantsV1.drivePIDCoefficients);  // was 0.05, 0, 0, 0.6, 0
 
 

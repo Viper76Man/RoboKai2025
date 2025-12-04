@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -28,7 +29,7 @@ public class ArcShooterV1 {
 
     public double lastTicks = 0;
     public VelocityController controller;
-    public double kP, kI, kD;
+    public double kP, kI, kD, kF;
     public boolean usingPID = false;
     public double rpm = 0;
 
@@ -43,7 +44,7 @@ public class ArcShooterV1 {
         this.usingPID = false;
     }
 
-    public void init(HardwareMap hardwareMap, double kP, double kI, double kD) {
+    public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
         shooter = (DcMotorEx) motor;
@@ -53,21 +54,23 @@ public class ArcShooterV1 {
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
-        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD);
+        this.kF = kF;
+        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
 
-    public void init(HardwareMap hardwareMap, PIDCoefficients pidCoefficients) {
+    public void init(HardwareMap hardwareMap, PIDFCoefficients pidfCoefficients) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
         shooter = (DcMotorEx) motor;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setDirection(DcMotorSimple.Direction.FORWARD);
-        this.kP = pidCoefficients.p;
-        this.kI = pidCoefficients.i;
-        this.kD = pidCoefficients.d;
-        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD);
+        this.kP = pidfCoefficients.p;
+        this.kI = pidfCoefficients.i;
+        this.kD = pidfCoefficients.d;
+        this.kF = pidfCoefficients.f;
+        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
 

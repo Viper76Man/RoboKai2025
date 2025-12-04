@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.control.FilteredPIDFCoefficients;
-import com.pedropathing.control.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
@@ -56,7 +56,7 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDCoefficients arcPIDs = new PIDCoefficients(0.00012, 0.000065, 0.00001);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.102, 0.00065,0.00001);
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
@@ -64,7 +64,7 @@ public class RobotConstantsV1 {
     public static double SHOOTER_TARGET_RPM = 5000;
     public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
-    public static double SHOOTER_DISTANCE_FEET_PER_ROTATION = 1;
+    public static double SHOOTER_ANGULAR_VELOCITY = 0;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
