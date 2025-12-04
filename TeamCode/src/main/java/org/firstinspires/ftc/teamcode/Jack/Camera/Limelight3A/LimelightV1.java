@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A;
 
-import com.bylazar.camerastream.PanelsCameraStream;
-import com.bylazar.limelightproxy.LimelightProxyConfig;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -9,10 +8,6 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Point;
-import org.opencv.core.RotatedRect;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +16,7 @@ import java.util.List;
 public class LimelightV1 {
     public HardwareMap hardwareMap;
     public Telemetry telemetry;
+
     public Limelight3A limelight;
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry){
@@ -112,5 +108,13 @@ public class LimelightV1 {
     }
     public LLResultTypes.ColorResult getColorResultFromList(List<LLResultTypes.ColorResult> list, int index){
         return list.get(index);
+    }
+
+    public double getLatestAprilTagRotation(){
+        return getFiducialResults().get(getFiducialResults().size() -1).getTargetPoseRobotSpace().getOrientation().getPitch();
+    }
+
+    public LLResultTypes.FiducialResult getLatestAprilTagResult(){
+        return getFiducialResults().get(getFiducialResults().size() - 1);
     }
 }

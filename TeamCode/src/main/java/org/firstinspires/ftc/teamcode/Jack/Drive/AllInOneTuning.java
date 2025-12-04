@@ -18,12 +18,14 @@ import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @TeleOp
 public class AllInOneTuning extends OpMode {
+    private static final Logger log = LoggerFactory.getLogger(AllInOneTuning.class);
     public GamepadV1 gamepad = new GamepadV1();
     public MecanumDriveOnly mecDrive = new MecanumDriveOnly();
     public ArcShooterV1 arcShooter = new ArcShooterV1();
@@ -185,35 +187,20 @@ public class AllInOneTuning extends OpMode {
                 break;
             case LOG:
                 if(firstIteration) {
-                    String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-                    String file = path + "/hi.txt";
-                    if (logger.exists(file)) {
-                        int status = logger.openFile(file, false);
-                        logger.info("INIT");
-                        multipleTelemetry.addLine("File open status: " + status);
-                    } else {
-                        int status = logger.openFile(file, true);
-                        logger.info("HELLOWORLD");
-                        multipleTelemetry.addLine("File open status: " + status);
-                    }
-                    multipleTelemetry.update();
-                    for (String line : logger.readLines(file)) {
-                        multipleTelemetry.addLine(line);
-                        multipleTelemetry.update();
-                    }
-                    firstIteration = false;
+                    logger.open("robokailogs.txt");
+                    logger.info("This was written from AllInOneTuning.java.");
                 }
                 break;
             case CAMERA:
-                List<LLResultTypes.FiducialResult> latest = limelight.getFiducialResults();
-                if(!latest.isEmpty()) {
-                    LLResultTypes.FiducialResult latest_result = latest.get(latest.toArray().length - 1);
+                LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
+                if(latest_result != null) {
                     int latestID = latest_result.getFiducialId();
                     multipleTelemetry.addData("Latest: ", tagIDToAprilTag.getTag(latestID));
                     multipleTelemetry.addData("ID:", latestID);
                     multipleTelemetry.addData("X: ", latest_result.getTargetXDegrees());
                     multipleTelemetry.addData("Y: ", latest_result.getTargetYDegrees());
                     multipleTelemetry.addData("Pose: ", latest_result.getTargetPoseRobotSpace().getPosition().toString());
+                    multipleTelemetry.addData("Rotation: ", limelight.getLatestAprilTagRotation());
                     multipleTelemetry.update();
                 }
                 break;
