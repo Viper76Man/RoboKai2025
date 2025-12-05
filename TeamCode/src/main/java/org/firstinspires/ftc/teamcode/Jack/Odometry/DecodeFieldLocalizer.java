@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -38,5 +39,15 @@ public class DecodeFieldLocalizer {
 
     public double getHeadingErrorBlue(Pose pose){
         return Math.toDegrees(pose.getHeading()) - Math.toDegrees(blueGoalCenter.getHeading());
+    }
+
+     public void drawToPanels(Follower follower) {
+        try {
+            Drawing.drawRobot(follower.getPose());
+            Drawing.drawPoseHistory(follower.getPoseHistory());
+            Drawing.sendPacket();
+        } catch (Exception e) {
+            throw new RuntimeException("Drawing failed " + e);
+        }
     }
 }

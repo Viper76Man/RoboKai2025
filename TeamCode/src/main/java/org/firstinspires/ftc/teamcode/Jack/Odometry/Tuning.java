@@ -24,6 +24,9 @@ import com.pedropathing.util.*;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.MecanumDriveOnly;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,14 +128,20 @@ public class Tuning extends SelectableOpMode {
  * @version 1.0, 5/6/2024
  */
 class LocalizationTest extends OpMode {
+    public MecanumDriveOnly drive = new MecanumDriveOnly();
+    public GamepadV1 gamepad = new GamepadV1();
     @Override
-    public void init() {}
+    public void init() {
+        drive.init(hardwareMap, gamepad);
+        gamepad.init(gamepad1, 0.3);
+    }
 
     /** This initializes the PoseUpdater, the mecanum drive motors, and the Panels telemetry. */
     @Override
     public void init_loop() {
         telemetryM.debug("This will print your robot's position to telemetry while "
                 + "allowing robot control through a basic mecanum drive on gamepad 1.");
+        gamepad.update();
         telemetryM.update(telemetry);
         follower.update();
         drawCurrent();
@@ -150,9 +159,9 @@ class LocalizationTest extends OpMode {
      */
     @Override
     public void loop() {
-        follower.setTeleOpDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
         follower.update();
-
+        gamepad.update();
+        drive.drive();
         telemetryM.debug("x:" + follower.getPose().getX());
         telemetryM.debug("y:" + follower.getPose().getY());
         telemetryM.debug("heading:" + follower.getPose().getHeading());

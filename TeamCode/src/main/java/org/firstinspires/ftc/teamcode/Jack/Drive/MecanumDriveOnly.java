@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.R;
@@ -16,10 +17,14 @@ public class MecanumDriveOnly {
     private DcMotor frontRightMotor;
     private DcMotor backLeftMotor;
     private DcMotor backRightMotor;
+    public HardwareMap hardwareMap;
     public GamepadV1 gamepad1 = new GamepadV1();
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
+    public LimelightV1 limelight = new LimelightV1();
+    public boolean firstIteration = true;
 
     public void init(HardwareMap hardwareMap, Gamepad gamepad) {
+        this.hardwareMap = hardwareMap;
         gamepad1.init(gamepad, 0.3);
         frontLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontLeft);
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
@@ -38,6 +43,7 @@ public class MecanumDriveOnly {
     }
 
     public void init(HardwareMap hardwareMap, GamepadV1 gamepad) {
+        this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad;
         frontLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontLeft);
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
@@ -73,22 +79,37 @@ public class MecanumDriveOnly {
         backRightMotor.setPower(backRightPower);
     }
 
-    public void driveWithRotationLock(Robot.Alliance team, Pose pose){
+    public void driveWithRotationLock(Robot.Alliance team, Pose pose, Telemetry telemetry, boolean useCamera){
+        if(firstIteration && useCamera){
+            limelight.init(hardwareMap, telemetry);
+        }
         double kP = RobotConstantsV1.rotationalPIDs.p;
-        double y = gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
+        double y = -gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
+        double x = -gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
         double rx = -gamepad1.gamepad.right_stick_x;
-        if(localizer.isRobotInBackLaunchZone(pose)) {
-            switch (team) {
-                case TEST:
-                    rx = -(kP * localizer.getHeadingErrorFromGoalDegrees(pose));
-                    break;
-                case BLUE:
-                    rx = -(kP * localizer.getHeadingErrorBlue(pose));
-                    break;
-                case RED:
-                    rx = -(kP * localizer.getHeadingErrorRed(pose));
-                    break;
+        if(!useCamera) {
+            if (localizer.isRobotInBackLaunchZone(pose)) {
+                switch (team) {
+                    case TEST:
+                        rx = -(kP * localizer.getHeadingErrorFromGoalDegrees(pose));
+                        break;
+                    case BLUE:
+                        rx = -(kP * localizer.getHeadingErrorBlue(pose));
+                        break;
+                    case RED:
+                        rx = -(kP * localizer.getHeadingErrorRed(pose));
+                        break;
+                }
+            }
+        }
+        else {
+            if (localizer.isRobotInBackLaunchZone(pose) && limelight.getLatestAprilTagResult() != null) {
+                telemetry.addLine("All clear.");
+                rx = -(kP * limelight.getLatestAprilTagResult().getTargetXDegrees());
+            }
+            else{
+                telemetry.addData("Distance: ", localizer.getDistanceFromLaunchZone(pose));
+                telemetry.addData("Apriltag Result is null?", limelight.getLatestAprilTagResult() == null);
             }
         }
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);

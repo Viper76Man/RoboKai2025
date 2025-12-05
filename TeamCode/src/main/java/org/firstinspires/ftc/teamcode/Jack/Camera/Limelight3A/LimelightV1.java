@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A;
 
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -8,16 +7,27 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PropertyPermission;
 
 
 public class LimelightV1 {
     public HardwareMap hardwareMap;
     public Telemetry telemetry;
+    public Pipeline pipeline;
 
     public Limelight3A limelight;
+
+    public enum Pipeline {
+        RED_GOAL,
+        BLUE_GOAL,
+        OBELISK
+    }
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry){
         this.hardwareMap = hardwareMap;
@@ -49,8 +59,25 @@ public class LimelightV1 {
         return limelight.isRunning();
     }
 
-    public boolean setPipeline(int index){
-        return limelight.pipelineSwitch(index);
+    public boolean setPipeline(Pipeline pipeline){
+        int index = -1;
+        switch (pipeline){
+            case BLUE_GOAL:
+                index = 1;
+                break;
+            case RED_GOAL:
+                index = 2;
+                break;
+            case OBELISK:
+                index = 0;
+                break;
+        }
+        if(index != -1) {
+            return limelight.pipelineSwitch(index);
+        }
+        else {
+            return false;
+        }
     }
 
     public LLResult getLatestResult(){
@@ -74,7 +101,7 @@ public class LimelightV1 {
         return limelight.deleteSnapshot(snapshotName);
     }
 
-    public void restart(int pipelineToSet){
+    public void restart(Pipeline pipelineToSet){
         limelight.close();
         startStreaming();
         setPipeline(pipelineToSet);
@@ -101,9 +128,6 @@ public class LimelightV1 {
         if (limelight.getLatestResult() != null) {
             list = limelight.getLatestResult().getFiducialResults();
         }
-        if (list.size() > 10) {
-            list.remove(1);
-        }
         return list;
     }
     public LLResultTypes.ColorResult getColorResultFromList(List<LLResultTypes.ColorResult> list, int index){
@@ -111,10 +135,36 @@ public class LimelightV1 {
     }
 
     public double getLatestAprilTagRotation(){
-        return getFiducialResults().get(getFiducialResults().size() -1).getTargetPoseRobotSpace().getOrientation().getPitch();
+        if(getLatestAprilTagResult() == null){
+            return 9999;
+        }
+        return getLatestAprilTagResult().getTargetPoseRobotSpace().getOrientation().getPitch(AngleUnit.DEGREES);
+    }
+
+    public double getLatestBotRotation(){
+        if(getLatestAprilTagResult() == null){
+            return 9999;
+        }
+        return getLatestAprilTagResult().getTargetPoseRobotSpace().getOrientation().getPitch(AngleUnit.DEGREES);
     }
 
     public LLResultTypes.FiducialResult getLatestAprilTagResult(){
-        return getFiducialResults().get(getFiducialResults().size() - 1);
+        if (!(getFiducialResults().size() <= 0)){
+            return getFiducialResults().get(getFiducialResults().size() - 1);
+        }
+        else {
+            return null;
+        }
+    }
+
+    public double getTargetDistance(){
+        if(getLatestAprilTagResult() != null) {
+            double angleToGoalDegrees = getLatestAprilTagResult().getTargetYDegrees();
+            double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
+            double goalHeightInches = 29.5;
+            //calculate distance
+            return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
+        }
+        return -1000000;
     }
 }

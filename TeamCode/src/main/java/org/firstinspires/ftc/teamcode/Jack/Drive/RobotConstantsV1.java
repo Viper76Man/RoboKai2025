@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.field.CanvasRotation;
 import com.pedropathing.control.FilteredPIDFCoefficients;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -34,11 +35,11 @@ public class RobotConstantsV1 {
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
-    public static double forwardPodY = -76.2;
+    public static double forwardPodY = -3;
     public static double strafePodX = 0;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+    public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
     public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
     public static double xVelocity = 49.88;
@@ -57,7 +58,7 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
-    public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.102, 0.00065,0.00001);
+    public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
 
@@ -68,12 +69,14 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
+    public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
+
 
     public static double FLICKER_SERVO_UP = 1;
     public static double FLICKER_SERVO_DOWN = 0;
 
 
-    public static double maxLaunchZoneDistance = 18; //inches
+    public static double maxLaunchZoneDistance = 13; //inches
 
 
 
@@ -86,6 +89,9 @@ public class RobotConstantsV1 {
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;
+
+    public static CanvasRotation panelsFieldRotation = CanvasRotation.DEG_270;
+
     public static double defaultShooterRPM = SHOOTER_TARGET_RPM;
     public static double velocityUpStep = 0.1;
     public static double velocityDownStep = 0.1;

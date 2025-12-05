@@ -6,6 +6,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.constants.DriveEncoderConstants;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -15,6 +16,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
 public class Constants {
+
+    public static DriveEncoderConstants encoderConstants = new DriveEncoderConstants()
+            .forwardTicksToInches(9364);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(RobotConstantsV1.robotMassKG)

@@ -111,7 +111,7 @@ public class Robot {
 
     public void drive(){
         if(inLaunchZone()){
-            drive.driveWithRotationLock(alliance, pinpoint.getPose());
+            drive.driveWithRotationLock(alliance, pinpoint.getPose(), telemetry, true);
         }
         else {
             drive.drive();
