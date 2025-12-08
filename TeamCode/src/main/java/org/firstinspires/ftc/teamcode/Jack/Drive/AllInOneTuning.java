@@ -183,6 +183,7 @@ public class AllInOneTuning extends OpMode {
                 }
                 localizer.drawToPanels(follower);
                 multipleTelemetry.addData("Pose: ", follower.getPose());
+                multipleTelemetry.addData("Locked on: ", limelight.lockedOnTarget(Robot.Alliance.BLUE));
                 mecDrive.log(multipleTelemetry);
                 mecDrive.driveWithRotationLock(Robot.Alliance.BLUE, follower.getPose(), telemetry, true);
                 break;
@@ -195,6 +196,7 @@ public class AllInOneTuning extends OpMode {
                 }
                 localizer.drawToPanels(follower);
                 multipleTelemetry.addData("Pose: ", follower.getPose());
+                multipleTelemetry.addData("Locked on: ", limelight.lockedOnTarget(Robot.Alliance.RED));
                 mecDrive.log(multipleTelemetry);
                 mecDrive.driveWithRotationLock(Robot.Alliance.RED, follower.getPose(), telemetry, true);
                 break;

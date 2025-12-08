@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A;
 
+import com.bylazar.limelightproxy.LimelightProxyConfig;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -8,7 +9,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 
 import java.nio.channels.Pipe;
 import java.util.ArrayList;
@@ -157,8 +160,8 @@ public class LimelightV1 {
         }
     }
 
-    public double getTargetDistance(){
-        if(getLatestAprilTagResult() != null) {
+    public double getTargetDistance() {
+        if (getLatestAprilTagResult() != null) {
             double angleToGoalDegrees = getLatestAprilTagResult().getTargetYDegrees();
             double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
             double goalHeightInches = 29.5;
@@ -166,5 +169,22 @@ public class LimelightV1 {
             return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
         }
         return -1000000;
+    }
+
+    public boolean lockedOnTarget(Robot.Alliance alliance){
+        Range redRange = new Range(RobotConstantsV1.shotAngleRedDegrees, RobotConstantsV1.degreeToleranceCamera);
+        Range blueRange = new Range(RobotConstantsV1.shotAngleRedDegrees, RobotConstantsV1.degreeToleranceCamera);
+        if(getLatestAprilTagResult() != null) {
+            switch (alliance) {
+                case RED:
+                    return redRange.isInRange(getLatestAprilTagResult().getTargetXDegrees());
+                case BLUE:
+                    return blueRange.isInRange(getLatestAprilTagResult().getTargetXDegrees());
+            }
+        }
+        else {
+            return false;
+        }
+        return false;
     }
 }

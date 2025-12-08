@@ -39,6 +39,10 @@ public class RobotConstantsV1 {
     public static double strafePodX = 0;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
+    public static int degreeToleranceCamera = 5;
+    public static double shotAngleBlueDegrees = 70;
+    public static double shotAngleRedDegrees = 110;
+
     public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
     public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
