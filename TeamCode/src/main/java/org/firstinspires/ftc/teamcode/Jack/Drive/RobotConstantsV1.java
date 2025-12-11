@@ -63,6 +63,7 @@ public class RobotConstantsV1 {
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
+    public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static double INTAKE_POWER = 1;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
 
@@ -76,7 +77,7 @@ public class RobotConstantsV1 {
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 
 
-    public static double FLICKER_SERVO_UP = 1;
+    public static double FLICKER_SERVO_UP = 0.4;
     public static double FLICKER_SERVO_DOWN = 0;
 
 

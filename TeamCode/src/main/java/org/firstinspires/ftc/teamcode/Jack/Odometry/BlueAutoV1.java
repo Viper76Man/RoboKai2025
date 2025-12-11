@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
@@ -7,9 +8,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
+import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
+import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
+
 @Autonomous(group="Pedro")
 public class BlueAutoV1 extends LinearOpMode {
     public BlueAutoPathsV1 paths = new BlueAutoPathsV1();
+    public Robot robot = new Robot();
+    public TagIDToAprilTag tagConverter = new TagIDToAprilTag();
 
     public enum PathStates {
         START,
@@ -17,12 +25,20 @@ public class BlueAutoV1 extends LinearOpMode {
         TO_FIRST_ARTIFACTS
     }
 
+    public enum AutoPath {
+        FRONT_FIRST,
+        MIDDLE_FIRST,
+        BACK_FIRST
+    }
+
 
     public ElapsedTime pathTimer = new ElapsedTime();
     public PathStates pathState = PathStates.START;
     public Follower follower;
+    public AutoPath path;
 
     public void autoPathUpdate(){
+        telemetry.addData("Detected path: ", path.name());
         follower.update();
         switch (pathState){
             case START:
@@ -39,14 +55,33 @@ public class BlueAutoV1 extends LinearOpMode {
         }
     }
 
+    public void initUpdate(){
+        if(robot.isObeliskResultValid() && robot.limelight.getLatestAprilTagResult() != null){
+           DecodeAprilTag latestTag = tagConverter.getTag(robot.limelight.getLatestAprilTagResult().getFiducialId());
+           if(latestTag == DecodeAprilTag.OBELISK_PPG){
+               path = AutoPath.FRONT_FIRST;
+           }
+           else if(latestTag == DecodeAprilTag.OBELISK_PGP){
+               path = AutoPath.MIDDLE_FIRST;
+           }
+           else {
+               path = AutoPath.BACK_FIRST;
+           }
+        }
+    }
+
 
     @Override
     public void runOpMode() {
         follower = Constants.createFollower(hardwareMap);
+        robot.init(Robot.Mode.AUTONOMOUS, Robot.Alliance.BLUE, hardwareMap, new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry()), gamepad1);
         paths.buildPaths();
         follower.setStartingPose(BlueAutoPathsV1.startPose);
+        while (opModeInInit() && !isStopRequested()){
+            initUpdate();
+        }
         waitForStart();
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !isStopRequested()) {
             autoPathUpdate();
         }
     }

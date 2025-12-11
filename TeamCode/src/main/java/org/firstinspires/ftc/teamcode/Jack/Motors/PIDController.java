@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -61,7 +62,40 @@ public class PIDController {
         return power;
     }
 
+    public double getOutput(double error){
+        previousPower = power;
+        updatePIDsFromConstants();
+        //Calculations
+        double errorChange = (error - previousError) / timer.seconds();
+        integralError = integralError + (error * timer.seconds());
+        //Calculate output
+        power = (error * kP) + (integralError * kI) + (errorChange * kD);
+        powerDrop = previousPower - power;
+        //Cleanup
+        previousError = error;
+        timer.reset();
+        if(power > 1){
+            power = 1;
+        }
+        if(power < -1){
+            power = -1;
+        }
+        return power;
+    }
+
     public double getError(){
         return error;
+    }
+
+    public void setConstants(double kP, double kI, double kD){
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+    }
+
+    public void setConstants(PIDCoefficients coefficients){
+        this.kP = coefficients.p;
+        this.kI = coefficients.i;
+        this.kD = coefficients.d;
     }
 }

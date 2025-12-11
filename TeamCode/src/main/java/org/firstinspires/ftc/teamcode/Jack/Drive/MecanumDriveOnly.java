@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.R;
@@ -22,10 +24,13 @@ public class MecanumDriveOnly {
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
     public LimelightV1 limelight = new LimelightV1();
     public boolean firstIteration = true;
+    public PIDController controller;
+    public double rotationalError;
 
     public void init(HardwareMap hardwareMap, Gamepad gamepad) {
         this.hardwareMap = hardwareMap;
-        gamepad1.init(gamepad, 0.3);
+        this.gamepad1.init(gamepad, 0.3);
+        controller = new PIDController(RobotConstantsV1.rotationalPIDs.p, RobotConstantsV1.rotationalPIDs.i, RobotConstantsV1.rotationalPIDs.d);
         frontLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontLeft);
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
         backLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backLeft);
@@ -79,39 +84,7 @@ public class MecanumDriveOnly {
         backRightMotor.setPower(backRightPower);
     }
 
-    public void driveWithRotationLock(Robot.Alliance team, Pose pose, Telemetry telemetry, boolean useCamera){
-        if(firstIteration && useCamera){
-            limelight.init(hardwareMap, telemetry);
-        }
-        double kP = RobotConstantsV1.rotationalPIDs.p;
-        double y = -gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
-        double x = -gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
-        double rx = -gamepad1.gamepad.right_stick_x;
-        if(!useCamera) {
-            if (localizer.isRobotInBackLaunchZone(pose)) {
-                switch (team) {
-                    case TEST:
-                        rx = -(kP * localizer.getHeadingErrorFromGoalDegrees(pose));
-                        break;
-                    case BLUE:
-                        rx = -(kP * localizer.getHeadingErrorBlue(pose));
-                        break;
-                    case RED:
-                        rx = -(kP * localizer.getHeadingErrorRed(pose));
-                        break;
-                }
-            }
-        }
-        else {
-            if (localizer.isRobotInBackLaunchZone(pose) && limelight.getLatestAprilTagResult() != null) {
-                telemetry.addLine("All clear.");
-                rx = -(kP * limelight.getLatestAprilTagResult().getTargetXDegrees());
-            }
-            else{
-                telemetry.addData("Distance: ", localizer.getDistanceFromLaunchZone(pose));
-                telemetry.addData("Apriltag Result is null?", limelight.getLatestAprilTagResult() == null);
-            }
-        }
+    public void drive(double y, double x, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (-y + x + rx) / denominator;
         double backLeftPower = (-y - x + rx) / denominator;
@@ -122,6 +95,50 @@ public class MecanumDriveOnly {
         backLeftMotor.setPower(backLeftPower);
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
+    }
+
+    public void driveWithRotationLock(Robot.Alliance team, Pose pose, Telemetry telemetry, boolean useCamera){
+        gamepad1.update();
+        if(firstIteration && useCamera){
+            controller.setConstants(RobotConstantsV1.rotationalPIDs);
+            limelight.init(hardwareMap, telemetry);
+            firstIteration = false;
+        }
+        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
+        double x = -gamepad1.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
+        double rx = -gamepad1.right_stick_x;
+        if(!useCamera) {
+            switch (team) {
+                case BLUE:
+                    rx = -controller.kP * localizer.getHeadingErrorBlue(pose);
+                    break;
+                case RED:
+                    rx = -controller.kP * localizer.getHeadingErrorRed(pose);
+                    break;
+                case TEST:
+                    rx = -controller.kP * localizer.getHeadingErrorFromGoalDegrees(pose);
+                    break;
+                }
+            telemetry.addLine("rx: " + rx);
+            drive(0,0, rx);
+        }
+        else {
+            LLResultTypes.FiducialResult result = limelight.getLatestAprilTagResult();
+            if (result != null) {
+                telemetry.addLine("All clear.");
+                rotationalError = result.getTargetXDegrees();
+                rx = -RobotConstantsV1.rotationalPIDs2.p * rotationalError;
+                rx = Math.min(Math.max(rx, -1), 1);
+                telemetry.addLine("rx: " + rx);
+                drive(y, x, rx);
+            }
+            else{
+                telemetry.addData("Distance: ", localizer.getDistanceFromLaunchZone(pose));
+                telemetry.addData("Apriltag Result is null?", limelight.getLatestAprilTagResult() == null);
+                telemetry.addLine("rx: " + rx);
+                drive(y, x, rx);
+            }
+        }
     }
 
 
@@ -144,6 +161,8 @@ public class MecanumDriveOnly {
         telemetry.addLine("Front Right Position: " + frontRightMotor.getCurrentPosition());
         telemetry.addLine("Back Left Position: " + backLeftMotor.getCurrentPosition());
         telemetry.addLine("Back Right Position: " + backRightMotor.getCurrentPosition());
+        telemetry.addLine("Error: " + rotationalError);
     }
+
 
 }

@@ -26,10 +26,17 @@ public class LimelightV1 {
 
     public Limelight3A limelight;
 
+    public int pipe = -1;
+
+    public int BLUE_GOAL = 1;
+    public int OBELISK = 0;
+    public int RED_GOAL = 2;
+
     public enum Pipeline {
         RED_GOAL,
         BLUE_GOAL,
-        OBELISK
+        OBELISK,
+        ERROR
     }
 
     public void init(HardwareMap hardwareMap, Telemetry telemetry){
@@ -63,24 +70,49 @@ public class LimelightV1 {
     }
 
     public boolean setPipeline(Pipeline pipeline){
-        int index = -1;
         switch (pipeline){
             case BLUE_GOAL:
-                index = 1;
+                pipe = BLUE_GOAL;
                 break;
             case RED_GOAL:
-                index = 2;
+                pipe = RED_GOAL;
                 break;
             case OBELISK:
-                index = 0;
+                pipe = OBELISK;
                 break;
         }
-        if(index != -1) {
-            return limelight.pipelineSwitch(index);
+        if(pipe != -1) {
+            return limelight.pipelineSwitch(pipe);
         }
         else {
             return false;
         }
+    }
+
+    public Pipeline getPipeline() {
+        if (pipe == BLUE_GOAL) {
+            return Pipeline.BLUE_GOAL;
+        }
+        else if(pipe == RED_GOAL){
+            return Pipeline.RED_GOAL;
+        }
+        else if(pipe == OBELISK){
+            return Pipeline.OBELISK;
+        }
+        return Pipeline.ERROR;
+    }
+
+    public Pipeline getPipelineFromID(int id) {
+        if (id == BLUE_GOAL) {
+            return Pipeline.BLUE_GOAL;
+        }
+        else if(id == RED_GOAL){
+            return Pipeline.RED_GOAL;
+        }
+        else if(id == OBELISK){
+            return Pipeline.OBELISK;
+        }
+        return Pipeline.ERROR;
     }
 
     public LLResult getLatestResult(){
@@ -152,8 +184,9 @@ public class LimelightV1 {
     }
 
     public LLResultTypes.FiducialResult getLatestAprilTagResult(){
-        if (!(getFiducialResults().size() <= 0)){
-            return getFiducialResults().get(getFiducialResults().size() - 1);
+        List<LLResultTypes.FiducialResult> results = getFiducialResults();
+        if (!results.isEmpty()){
+            return results.get(results.size()  - 1);
         }
         else {
             return null;

@@ -60,7 +60,7 @@ public class AllInOneTuning extends OpMode {
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
     public MultipleTelemetry multipleTelemetry;
     public LoggerV1 logger = new LoggerV1();
-    public GamepadV1 gamepad2 = new GamepadV1();
+    public GamepadV1 gamepad4 = new GamepadV1();
 
     public StorageServoV1 storageServo = new StorageServoV1();
     public SlotColorSensorV1 slot1Sensor = new SlotColorSensorV1();
@@ -107,8 +107,6 @@ public class AllInOneTuning extends OpMode {
         limelight.limelight.pipelineSwitch(0);
         slot1Sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
-        Gamepad gamepad3 = PanelsGamepad.INSTANCE.getFirstManager().asCombinedFTCGamepad(gamepad1);
-        gamepad2.init(gamepad3, 0.3);
         FieldPresetParams params = new FieldPresetParams();
         FieldPluginConfig config = new FieldPluginConfig();
         config.setExtraPresets(Collections.singletonList(params));
@@ -118,7 +116,12 @@ public class AllInOneTuning extends OpMode {
 
     @Override
     public void init_loop(){
-        arcShooter.graph(multipleTelemetry);
+        Gamepad gamepad3 = PanelsGamepad.INSTANCE.getFirstManager().asCombinedFTCGamepad(gamepad1);
+        if(gamepad3.circle){
+            multipleTelemetry.addLine("PANELS GAMEPAD DETECTED");
+            multipleTelemetry.update();
+            usePanelsGamepad = true;
+        }
     }
 
     @Override
@@ -128,13 +131,16 @@ public class AllInOneTuning extends OpMode {
 
     @Override
     public void loop() {
+        Gamepad gamepad3 = PanelsGamepad.INSTANCE.getFirstManager().asCombinedFTCGamepad(gamepad1);
+        GamepadV1 gamepad4 = new GamepadV1();
+        gamepad4.init(gamepad3, 0.3);
         if(isModeSelected == modeSelected.NOT_SELECTED) {
             menuSelectUpdate(gamepad);
-            menuSelectUpdate(gamepad2);
+            menuSelectUpdate(gamepad4);
         }
         else {
             if(usePanelsGamepad) {
-                tuningUpdate(gamepad2);
+                tuningUpdate(gamepad4);
             }
             else {
                 tuningUpdate(gamepad);
@@ -157,9 +163,6 @@ public class AllInOneTuning extends OpMode {
                 gamepad_.resetTimer();
             }
             if (gamepad_.circle) {
-                if(gamepad_.gamepad.id == gamepad2.gamepad.id){
-                    usePanelsGamepad = true;
-                }
                 isModeSelected = modeSelected.SELECTED;
                 gamepad_.resetTimer();
             }
@@ -226,6 +229,7 @@ public class AllInOneTuning extends OpMode {
                 }
                 if(gamepad.isGamepadReady() && gamepad.circle){
                     flicker.switchPositions();
+                    gamepad.resetTimer();
                 }
                 flicker.log(multipleTelemetry);
                 break;
