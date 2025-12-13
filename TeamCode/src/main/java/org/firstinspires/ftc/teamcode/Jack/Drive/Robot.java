@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 import android.app.slice.SliceMetrics;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.modernrobotics.comm.ModernRoboticsDatagram;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -20,8 +21,10 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.ObeliskPattern;
+import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 public class Robot {
@@ -37,8 +40,9 @@ public class Robot {
     public GamepadV1 gamepad = new GamepadV1();
     public MultipleTelemetry multipleTelemetry;
     public IntakeV1 intake = new IntakeV1();
+    public FlickerServoV1 flicker1 = new FlickerServoV1();
     public LimelightV1 limelight = new LimelightV1();
-    public StorageServoV1 storage = new StorageServoV1();
+    public LoggerV1 loggerV1 = new LoggerV1();
     public ElapsedTime lockTimer = new ElapsedTime();
     public Alliance alliance = Alliance.TEST;
     public boolean lockOn = false;
@@ -69,9 +73,12 @@ public class Robot {
         shooter.init(hardwareMap);
         drive.init(hardwareMap, gamepad1);
         intake.init(hardwareMap);
+        flicker1.init(hardwareMap, RobotConstantsV1.flickerServoName);
         limelight.init(hardwareMap, telemetry);
         if(mode == Mode.AUTONOMOUS) {
             setCameraPipeline(LimelightV1.Pipeline.OBELISK);
+            loggerV1.saveSideToFile(alliance);
+
         }
         else {
             switch (alliance){
@@ -106,6 +113,13 @@ public class Robot {
                 lockTimer.reset();
                 gamepad.resetTimer();
             }
+            //TODO:Code function to do this to selected ball slot
+            if(gamepad.gamepad.right_trigger >= 0.2 && readyToFire()){
+                shootBall(getNextBall());
+            }
+            if(gamepad.right_trigger <= 0.2 && flicker1.timer.seconds() > RobotConstantsV1.ALL_FLICKER_DOWN_DELAY_SECONDS) {
+                flickerDown(1);
+            }
             if(lockTimer.seconds() > 2) {
                 lockOn = false;
             }
@@ -122,6 +136,39 @@ public class Robot {
         }
     }
 
+
+    public void flickerUp(int flicker){
+        switch (flicker){
+            case 1:
+                flicker1.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    public void flickerDown(int flicker){
+        switch (flicker){
+            case 1:
+                flicker1.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                break;
+            case 2:
+                break;
+        }
+    }
+
+    public void shootBall(int ball){
+        if(ball > 3 || ball < 1){
+            return;
+        }
+        switch(ball){
+            case 1:
+                flicker1.resetTimer();
+            case 2:
+                break;
+        }
+        flickerUp(ball);
+    }
     public void shootArtifact(int artifact){
         runShooterActive();
     }
@@ -139,6 +186,10 @@ public class Robot {
     }
 
     public void idToPattern(int id) {
+    }
+
+    public int getNextBall(){
+        return 1;
     }
 
     public void runIntakeReverse(){
@@ -159,8 +210,12 @@ public class Robot {
         shooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
     }
 
+    public boolean readyToFire(){
+       return getDistanceFromBackLaunchZone() < 20 && gamepad.isGamepadReady();
+    }
+
     public void arcUpdate(){
-        if(Math.abs(getDistanceFromLaunchZone()) < RobotConstantsV1.maxLaunchZoneDistance + 12){
+        if(Math.abs(getDistanceFromBackLaunchZone()) < RobotConstantsV1.maxLaunchZoneDistance + 12){
             runShooterActive();
         }
         else {
@@ -172,13 +227,14 @@ public class Robot {
         drive.drive();
     }
 
-    public double getDistanceFromLaunchZone(){
+    public double getDistanceFromBackLaunchZone(){
         return localizer.getDistanceFromLaunchZone(follower.getPose());
     }
 
     public boolean inLaunchZone(){
         return localizer.isRobotInBackLaunchZone(follower.getPose());
     }
+
 
     public void setCameraPipeline(LimelightV1.Pipeline pipeline){
         limelight.setPipeline(pipeline);

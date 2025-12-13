@@ -100,7 +100,7 @@ public class AllInOneTuning extends OpMode {
         multipleTelemetry = new MultipleTelemetry(telemetry, telemetryManager);
         storageServo.init(hardwareMap);
         //limelight.init(hardwareMap, telemetry);
-        flicker.init(hardwareMap);
+        flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
         intake.init(hardwareMap);
         logger.init(telemetry);
         limelight.init(hardwareMap, telemetry);

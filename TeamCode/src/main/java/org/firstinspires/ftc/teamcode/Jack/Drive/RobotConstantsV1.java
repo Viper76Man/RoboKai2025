@@ -35,8 +35,8 @@ public class RobotConstantsV1 {
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
-    public static double forwardPodY = -3;
-    public static double strafePodX = 0;
+    public static double forwardPodY = 7;
+    public static double strafePodX = -4;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 5;
@@ -44,7 +44,7 @@ public class RobotConstantsV1 {
     public static double shotAngleRedDegrees = 110;
 
     public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-    public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+    public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
 
     public static double xVelocity = 49.88;
     public static double yVelocity = 49.88;
@@ -78,8 +78,8 @@ public class RobotConstantsV1 {
 
 
     public static double FLICKER_SERVO_UP = 0.4;
-    public static double FLICKER_SERVO_DOWN = 0;
-
+    public static double FLICKER_SERVO_DOWN = 0.1;
+    public static double ALL_FLICKER_DOWN_DELAY_SECONDS = 1;
 
     public static double maxLaunchZoneDistance = 13; //inches
 

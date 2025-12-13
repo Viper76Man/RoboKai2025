@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
+import com.bylazar.field.PanelsField;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 
@@ -43,9 +44,11 @@ public class DecodeFieldLocalizer {
 
      public void drawToPanels(Follower follower) {
         try {
+            PanelsField field = PanelsField.INSTANCE;
             Drawing.drawRobot(follower.getPose());
             Drawing.drawPoseHistory(follower.getPoseHistory());
             Drawing.sendPacket();
+            field.getField().update();
         } catch (Exception e) {
             throw new RuntimeException("Drawing failed " + e);
         }

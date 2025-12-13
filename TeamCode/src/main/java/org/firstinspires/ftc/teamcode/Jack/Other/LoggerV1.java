@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -63,5 +64,18 @@ public class LoggerV1 {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
         return "[" + sdf.format(calendar.getTime()) + "]";
+    }
+
+    public void saveSideToFile(Robot.Alliance alliance){
+        File file_ = getFile("alliance.txt");
+        ReadWriteFile.writeFile(file_, alliance.name() + "\n");
+    }
+
+    public Robot.Alliance readSideFromFile(){
+        String[] types = ReadWriteFile.readFile(getFile("alliance.txt")).split("\n");
+        return Robot.Alliance.valueOf(types[types.length - 1]);
+    }
+    public File getFile(String filename){
+        return AppUtil.getInstance().getSettingsFile(filename);
     }
 }
