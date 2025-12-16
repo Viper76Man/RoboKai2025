@@ -81,9 +81,9 @@ public class RobotConstantsV1 {
     public static double FLICKER_SERVO_DOWN = 0.1;
     public static double ALL_FLICKER_DOWN_DELAY_SECONDS = 1;
 
-    public static double maxLaunchZoneDistance = 13; //inches
+    public static double maxLaunchZoneDistance = 15; //inches
 
-
+    public static double maxLaunchZoneArcShooterDistance = 24; //inches
 
 
     public static RGB greenRGB = new RGB(0, 255, 0);
@@ -94,6 +94,7 @@ public class RobotConstantsV1 {
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;
+    public static boolean panelsEnabled = true;
 
     public static CanvasRotation panelsFieldRotation = CanvasRotation.DEG_270;
 

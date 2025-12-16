@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import android.app.slice.SliceMetrics;
 
+import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.geometry.Pose;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.ObeliskPattern;
@@ -61,13 +63,15 @@ public class Robot {
         TEST
     }
 
-    public void init(Mode mode, Alliance alliance, HardwareMap hardwareMap, MultipleTelemetry multipleTelemetry, Gamepad gamepad1){
+    public void init(Mode mode, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1){
         this.mode = mode;
         this.hardwareMap = hardwareMap;
         this.telemetry = multipleTelemetry.telemetry;
         this.alliance = alliance;
-        this.multipleTelemetry = multipleTelemetry;
-        //TODO: Debug gamepad
+        if(RobotConstantsV1.panelsEnabled) {
+            this.multipleTelemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());
+            Drawing.init();
+        }
         this.gamepad.init(gamepad1, 0.3);
         follower = Constants.createFollower(hardwareMap);
         shooter.init(hardwareMap);
@@ -95,10 +99,19 @@ public class Robot {
             }
         }
     }
+    public void updatePanelsFieldRotation(){
+        if(RobotConstantsV1.panelsEnabled){
+            Drawing.setFieldRotation(RobotConstantsV1.panelsFieldRotation);
+        }
+    }
 
     public void systemStatesUpdate(){
         follower.update();
         localizer.drawToPanels(follower);
+        if(RobotConstantsV1.panelsEnabled){
+            Drawing.drawRobot(follower.getPose());
+            Drawing.drawPoseHistory(follower.getPoseHistory());
+        }
         arcUpdate();
         runIntake();
         multipleTelemetry.update();

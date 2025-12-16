@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.Optional;
+
 public class GamepadV1 {
     public Gamepad gamepad;
     public ElapsedTime buttonTimer = new ElapsedTime();
@@ -23,6 +25,7 @@ public class GamepadV1 {
     public boolean dpad_left = false;
     public boolean dpad_right = false;
     public boolean x = false;
+    public boolean options = false;
     public boolean y = false;
     public boolean a = false;
     public boolean b = false;
@@ -79,5 +82,6 @@ public class GamepadV1 {
         y = gamepad.y;
         a = gamepad.a;
         b = gamepad.b;
+        options = gamepad.options;
     }
 }

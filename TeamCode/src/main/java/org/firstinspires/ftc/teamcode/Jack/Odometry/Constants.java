@@ -17,9 +17,6 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
 public class Constants {
 
-    public static DriveEncoderConstants encoderConstants = new DriveEncoderConstants()
-            .forwardTicksToInches(9364);
-
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(RobotConstantsV1.robotMassKG)
             .forwardZeroPowerAcceleration(RobotConstantsV1.forwardZeroPowerAcceleration)    // was -18.4

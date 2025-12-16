@@ -98,4 +98,13 @@ public class PanelsToolkit {
     public void setDrawingEnabled(boolean enabled){
         this.enabled = enabled;
     }
+
+    public void setPanelsEnabled(boolean enabled){
+        if(enabled){
+            Panels.INSTANCE.enable();
+        }
+        else {
+            Panels.INSTANCE.disable();
+        }
+    }
 }

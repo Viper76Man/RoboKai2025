@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -72,8 +73,15 @@ public class LoggerV1 {
     }
 
     public Robot.Alliance readSideFromFile(){
-        String[] types = ReadWriteFile.readFile(getFile("alliance.txt")).split("\n");
-        return Robot.Alliance.valueOf(types[types.length - 1]);
+        try {
+            String[] types = ReadWriteFile.readFile(getFile("alliance.txt")).split("\n");
+            return Robot.Alliance.valueOf(types[types.length - 1]);
+        }
+        catch (Exception e){
+            telemetry.addLine("Please run an auto to choose your alliance.");
+            return null;
+        }
+
     }
     public File getFile(String filename){
         return AppUtil.getInstance().getSettingsFile(filename);
