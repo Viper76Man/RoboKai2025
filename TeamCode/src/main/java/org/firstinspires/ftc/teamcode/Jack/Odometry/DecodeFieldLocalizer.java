@@ -41,16 +41,4 @@ public class DecodeFieldLocalizer {
     public double getHeadingErrorBlue(Pose pose){
         return Math.toDegrees(pose.getHeading()) - Math.toDegrees(blueGoalCenter.getHeading());
     }
-
-     public void drawToPanels(Follower follower) {
-        try {
-            PanelsField field = PanelsField.INSTANCE;
-            Drawing.drawRobot(follower.getPose());
-            Drawing.drawPoseHistory(follower.getPoseHistory());
-            Drawing.sendPacket();
-            field.getField().update();
-        } catch (Exception e) {
-            throw new RuntimeException("Drawing failed " + e);
-        }
-    }
 }

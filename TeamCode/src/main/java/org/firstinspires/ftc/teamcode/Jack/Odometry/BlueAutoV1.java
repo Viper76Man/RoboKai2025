@@ -6,9 +6,12 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
@@ -16,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 @Autonomous(group="Pedro")
 public class BlueAutoV1 extends LinearOpMode {
     public BlueAutoPathsV1 paths = new BlueAutoPathsV1();
-    public Robot robot = new Robot();
+    public RobotV2 robot = new RobotV2();
     public TagIDToAprilTag tagConverter = new TagIDToAprilTag();
 
     public enum PathStates {
@@ -33,6 +36,7 @@ public class BlueAutoV1 extends LinearOpMode {
 
 
     public ElapsedTime pathTimer = new ElapsedTime();
+    public ElapsedTime cameraTimer = new ElapsedTime();
     public PathStates pathState = PathStates.START;
     public Follower follower;
     public AutoPath path;
@@ -68,13 +72,18 @@ public class BlueAutoV1 extends LinearOpMode {
                path = AutoPath.BACK_FIRST;
            }
         }
+        else if(cameraTimer.seconds() > 4){
+            path = AutoPath.FRONT_FIRST;
+        }
     }
 
 
     @Override
     public void runOpMode() {
         follower = Constants.createFollower(hardwareMap);
-        robot.init(Robot.Mode.AUTONOMOUS, Robot.Alliance.BLUE, hardwareMap, new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry()), gamepad1);
+        GamepadV1 gamepadv1 = new GamepadV1();
+        gamepadv1.init(gamepad1, 0.3);
+        robot.init(RobotV2.Mode.AUTONOMOUS, Robot.Alliance.BLUE, hardwareMap, gamepadv1, telemetry);
         paths.buildPaths();
         follower.setStartingPose(BlueAutoPathsV1.startPose);
         while (opModeInInit() && !isStopRequested()){

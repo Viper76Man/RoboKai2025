@@ -32,11 +32,12 @@ public class RobotConstantsV1 {
     public static String flickerServoName = "flicker"; //Control Hub Servos Port 1
     public static String storageServoName = "storageServo"; //Control Hub Servos Port 0
     public static String colorSensor1 = "colorSensor1"; //I2C port 0
+    public static String spindexerMotorName = "spindexer"; //Expansion Hub Port 2
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
     public static double forwardPodY = 7;
-    public static double strafePodX = -4;
+    public static double strafePodX = 4;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 5;
@@ -91,6 +92,15 @@ public class RobotConstantsV1 {
     public static double STORAGE_BALL_1 = 0.1;
     public static double STORAGE_BALL_2 = 0.45;
     public static double STORAGE_BALL_3 = 0.85;
+
+
+    //TODO: Get these values
+    public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 0;
+    public static int SPINDEXER_MOTOR_BALL_2_INTAKE = 0;
+    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 0;
+    public static int SPINDEXER_MOTOR_BALL_3_INTAKE = 0;
+    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 0;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;

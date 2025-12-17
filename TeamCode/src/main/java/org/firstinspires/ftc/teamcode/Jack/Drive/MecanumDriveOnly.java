@@ -101,7 +101,7 @@ public class MecanumDriveOnly {
         gamepad1.update();
         if(firstIteration && useCamera){
             controller.setConstants(RobotConstantsV1.rotationalPIDs);
-            limelight.init(hardwareMap, telemetry);
+            limelight.init(hardwareMap);
             firstIteration = false;
         }
         double y = -gamepad1.left_stick_y; // Remember, this is reversed!

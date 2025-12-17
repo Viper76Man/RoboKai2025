@@ -39,9 +39,8 @@ public class LimelightV1 {
         ERROR
     }
 
-    public void init(HardwareMap hardwareMap, Telemetry telemetry){
+    public void init(HardwareMap hardwareMap){
         this.hardwareMap = hardwareMap;
-        this.telemetry = telemetry;
         this.limelight = this.hardwareMap.get(Limelight3A.class, "limelight");
     }
 

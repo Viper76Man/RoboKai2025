@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import android.os.Environment;
 import android.provider.Settings;
+import android.view.contentcapture.DataRemovalRequest;
 
 import com.bylazar.field.CanvasRotation;
 import com.bylazar.field.FieldPluginConfig;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
@@ -103,7 +105,7 @@ public class AllInOneTuning extends OpMode {
         flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
         intake.init(hardwareMap);
         logger.init(telemetry);
-        limelight.init(hardwareMap, telemetry);
+        limelight.init(hardwareMap);
         limelight.limelight.pipelineSwitch(0);
         slot1Sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
@@ -184,7 +186,9 @@ public class AllInOneTuning extends OpMode {
                     limelight.startStreaming();
                     firstIteration = false;
                 }
-                localizer.drawToPanels(follower);
+                Drawing.drawRobot(follower.getPose());
+                Drawing.drawPoseHistory(follower.getPoseHistory());
+                Drawing.sendPacket();
                 multipleTelemetry.addData("Pose: ", follower.getPose());
                 multipleTelemetry.addData("Locked on: ", limelight.lockedOnTarget(Robot.Alliance.BLUE));
                 mecDrive.log(multipleTelemetry);
@@ -197,7 +201,9 @@ public class AllInOneTuning extends OpMode {
                     limelight.startStreaming();
                     firstIteration = false;
                 }
-                localizer.drawToPanels(follower);
+                Drawing.drawRobot(follower.getPose());
+                Drawing.drawPoseHistory(follower.getPoseHistory());
+                Drawing.sendPacket();
                 multipleTelemetry.addData("Pose: ", follower.getPose());
                 multipleTelemetry.addData("Locked on: ", limelight.lockedOnTarget(Robot.Alliance.RED));
                 mecDrive.log(multipleTelemetry);

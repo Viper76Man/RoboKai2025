@@ -66,7 +66,7 @@ public class Robot {
     public void init(Mode mode, Alliance alliance, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1){
         this.mode = mode;
         this.hardwareMap = hardwareMap;
-        this.telemetry = multipleTelemetry.telemetry;
+        this.telemetry = telemetry;
         this.alliance = alliance;
         if(RobotConstantsV1.panelsEnabled) {
             this.multipleTelemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());
@@ -78,7 +78,7 @@ public class Robot {
         drive.init(hardwareMap, gamepad1);
         intake.init(hardwareMap);
         flicker1.init(hardwareMap, RobotConstantsV1.flickerServoName);
-        limelight.init(hardwareMap, telemetry);
+        limelight.init(hardwareMap);
         if(mode == Mode.AUTONOMOUS) {
             setCameraPipeline(LimelightV1.Pipeline.OBELISK);
             loggerV1.saveSideToFile(alliance);
@@ -107,14 +107,14 @@ public class Robot {
 
     public void systemStatesUpdate(){
         follower.update();
-        localizer.drawToPanels(follower);
         if(RobotConstantsV1.panelsEnabled){
             Drawing.drawRobot(follower.getPose());
             Drawing.drawPoseHistory(follower.getPoseHistory());
+            Drawing.sendPacket();
         }
         arcUpdate();
         runIntake();
-        multipleTelemetry.update();
+        telemetry.update();
         if(mode == Mode.TELEOP) {
             gamepad.update();
             if (gamepad.triangle && gamepad.isGamepadReady()) {
@@ -141,7 +141,6 @@ public class Robot {
             }
             else if(lockOn && limelight.getLatestAprilTagResult() != null){
                 drive.driveWithRotationLock(alliance, follower.getPose(), telemetry, true);
-                multipleTelemetry.addLine("wat??????????????????????????????????");
             }
             else if (!lockOn) {
                 drive();

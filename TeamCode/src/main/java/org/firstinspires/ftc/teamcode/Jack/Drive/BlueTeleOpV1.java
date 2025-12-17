@@ -12,7 +12,7 @@ public class BlueTeleOpV1 extends OpMode {
     public MultipleTelemetry multipleTelemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());
     @Override
     public void init() {
-        robot.init(Robot.Mode.TELEOP, Robot.Alliance.BLUE, hardwareMap, multipleTelemetry, gamepad1);
+        robot.init(Robot.Mode.TELEOP, Robot.Alliance.BLUE, hardwareMap, telemetry, gamepad1);
     }
 
     @Override
