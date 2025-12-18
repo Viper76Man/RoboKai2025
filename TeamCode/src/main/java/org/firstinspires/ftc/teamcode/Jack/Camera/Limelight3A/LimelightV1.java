@@ -11,7 +11,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
+import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 
 import java.nio.channels.Pipe;
 import java.util.ArrayList;
@@ -218,5 +220,17 @@ public class LimelightV1 {
             return false;
         }
         return false;
+    }
+    public DecodeAprilTag getLastObeliskTag(){
+        TagIDToAprilTag converter = new TagIDToAprilTag();
+        Pipeline pipeline_ = getPipeline();
+        if(pipeline_ != Pipeline.OBELISK){
+            setPipeline(Pipeline.OBELISK);
+        }
+        if(getLatestAprilTagResult() != null) {
+            int id = getLatestAprilTagResult().getFiducialId();
+            return converter.getTag(id);
+        }
+        return null;
     }
 }

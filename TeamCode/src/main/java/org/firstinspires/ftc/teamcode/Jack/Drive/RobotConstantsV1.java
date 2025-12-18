@@ -19,8 +19,8 @@ public class RobotConstantsV1 {
     public static String frontRight = "fr"; //Control Hub Port 1
     public static String backLeft = "bl"; //Control Hub Port 2
     public static String backRight = "br"; //Control Hub Port 3
-    public static DcMotorSimple.Direction frontLeftDirection = DcMotorSimple.Direction.FORWARD;
-    public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.FORWARD;
+    public static DcMotorSimple.Direction frontLeftDirection = DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction frontRightDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction backRightDirection = DcMotorSimple.Direction.FORWARD;
     public static boolean useBrakeInTeleOp = true;
@@ -36,8 +36,8 @@ public class RobotConstantsV1 {
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
-    public static double forwardPodY = 7;
-    public static double strafePodX = 4;
+    public static double forwardPodY = -3.5;
+    public static double strafePodX = 0;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 5;
@@ -59,7 +59,7 @@ public class RobotConstantsV1 {
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.3, 0, 0.01, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
-    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.025, 0, 0, 0.6, 0);
+    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.015, 0, 0, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
@@ -106,7 +106,7 @@ public class RobotConstantsV1 {
     public static boolean panelsDrawingEnabled = true;
     public static boolean panelsEnabled = true;
 
-    public static CanvasRotation panelsFieldRotation = CanvasRotation.DEG_270;
+    public static CanvasRotation panelsFieldRotation = CanvasRotation.DEG_90;
 
     public static double defaultShooterRPM = SHOOTER_TARGET_RPM;
     public static double velocityUpStep = 0.1;

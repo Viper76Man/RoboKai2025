@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Other;
 
+import android.provider.Settings;
+
 import com.bylazar.field.CanvasRotation;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.FieldPluginConfig;
@@ -13,6 +15,8 @@ import com.pedropathing.math.Vector;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.PoseHistory;
+
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,20 +59,19 @@ public class Drawing {
     }
 
     public static void setFieldRotation(CanvasRotation rotation_){
-        FieldManager field = PanelsField.INSTANCE.getField();
-        FieldPresets presets = PanelsField.INSTANCE.getPresets();
-        FieldPluginConfig config = new FieldPluginConfig();
-        FieldPresetParams params = new FieldPresetParams();
-        List<FieldPresetParams> params1 = new ArrayList<>(1);
-        if(rotation_ != null){
-            presets.getPANELS().setRotation(rotation_);
-            params.setRotation(rotation_);
-            params1.add(params);
-        }
-        config.setExtraPresets(params1);
-        presets.getAllPresets().add(params);
-        field.setConfig(config);
-        field.update();
+       FieldPresetParams params = PanelsField.INSTANCE.getPresets().getPEDRO_PATHING();
+       FieldManager field = PanelsField.INSTANCE.getField();
+       FieldPresets presets = PanelsField.INSTANCE.getPresets();
+       FieldPluginConfig config = new FieldPluginConfig();
+       List<FieldPresetParams> p1 = new ArrayList<>();
+       if(rotation_ != null){
+           p1.add(params);
+           presets.getPANELS().setRotation(rotation_);
+           params.setRotation(rotation_);
+           config.setExtraPresets(p1);
+       }
+       field.setConfig(config);
+       field.update();
     }
 
     /**
@@ -165,6 +168,12 @@ public class Drawing {
      */
     public static void drawPoseHistory(PoseHistory poseTracker) {
         drawPoseHistory(poseTracker, historyLook);
+    }
+
+    public static void updatePanelsFieldRotation(){
+        if(RobotConstantsV1.panelsEnabled){
+            setFieldRotation(RobotConstantsV1.panelsFieldRotation);
+        }
     }
 
     /**

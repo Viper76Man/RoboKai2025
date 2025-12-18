@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.TagIDToAprilTag;
 
-@Autonomous(group="Pedro")
+@Disabled
 public class BlueAutoV1 extends LinearOpMode {
     public BlueAutoPathsV1 paths = new BlueAutoPathsV1();
     public RobotV2 robot = new RobotV2();

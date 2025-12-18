@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.Jack.Other;
+package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 
-import java.util.Random;
+import org.firstinspires.ftc.teamcode.Jack.Other.IDGenerator;
 
 public class CustomPath {
     public double tValue;

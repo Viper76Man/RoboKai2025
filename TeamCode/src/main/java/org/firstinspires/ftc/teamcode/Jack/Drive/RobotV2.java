@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
-import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.Path;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,8 +10,9 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
-import org.firstinspires.ftc.teamcode.Jack.Other.CustomPath;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomPath;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
@@ -28,6 +27,7 @@ public class RobotV2 {
     public GamepadV1 gamepadV1 = new GamepadV1();
     public MecanumDriveOnly drive = new MecanumDriveOnly();
     public FlickerServoV1 flicker = new FlickerServoV1();
+    public CustomFollower customFollower;
     //VARIABLES-------------------------------------------------------------------------------------
     public enum Mode {
         TELEOP,
@@ -44,6 +44,7 @@ public class RobotV2 {
         initHardware(hardwareMap, gamepadV1);
         intake.setDirection(RobotConstantsV1.intakeDirection);
         follower = Constants.createFollower(hardwareMap);
+        customFollower = new CustomFollower(hardwareMap);
         //INIT-STUFF--------------------------------------------------------------------------------
         switch (mode){
             case AUTONOMOUS:
@@ -173,7 +174,7 @@ public class RobotV2 {
     }
 
     public void followPath(CustomPath path){
-
+        customFollower.setCurrentPath(path);
     }
 
     public void log(Telemetry telemetry){

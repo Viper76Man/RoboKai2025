@@ -1,21 +1,17 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.paths.Path;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.Jack.Other.CustomPath;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CustomFollower {
     public Follower follower;
-    public List<CustomPath> queue = new ArrayList<>();
-    public List<Path> pathQueue = new ArrayList<>();
-
-
     public CustomPath path = null;
+    private boolean busy = false;
     public List<Integer> whichList = new ArrayList<>();
 
     public enum State {
@@ -33,45 +29,59 @@ public class CustomFollower {
         this.follower = Constants.createFollower(hardwareMap);
     }
 
-    public void addToQueue(CustomPath path) {
+    public void setCurrentPath(CustomPath path) {
         //TODO: Clear queue?
-        queue.add(path);
+        this.path = path;
+        this.pathState = State.PATH_ONE;
     }
 
-    public void update() {
-        if (path == null && !queue.isEmpty()) {
-            path = queue.get(0);
-            queue.remove(0);
-            pathState = State.PATH_ONE;
-        }
-        switch (pathState) {
-            case PATH_ONE:
-                if (!follower.isBusy()) {
-                    follower.followPath(path.path);
-                } else {
-                    if (follower.getCurrentTValue() >= path.tValue) {
-                        if (path.pathToEnd != null) {
-                            pathState = State.PATH_TWO;
-                        } else {
-                            path = getNextQueuePath();
+    public void setStartingPose(Pose pose) {
+        follower.setStartingPose(pose);
+    }
+
+    public void setPose(Pose pose) {
+        follower.setPose(pose);
+    }
+
+    public void update(Telemetry telemetry) {
+        telemetry.update();
+        follower.update();
+        if (path != null){
+            switch (pathState) {
+                case PATH_ONE:
+                    if (!follower.isBusy()) {
+                        follower.followPath(path.path);
+                        busy = true;
+                    } else {
+                        if (follower.getCurrentTValue() >= path.tValue) {
+                            if (path.pathToEnd != null) {
+                                pathState = State.PATH_TWO;
+                                busy = true;
+                            } else {
+                                path = null;
+                                busy = false;
+                                return;
+                            }
                         }
                     }
-                }
-                break;
-            case PATH_TWO:
-                if (!follower.isBusy()) {
-                    follower.followPath(path.pathToEnd);
-                } else {
-                    if (follower.getCurrentTValue() >= path.endTValue) {
-                        path = getNextQueuePath();
+                    break;
+                case PATH_TWO:
+                    if (!follower.isBusy()) {
+                        follower.followPath(path.pathToEnd);
+                        busy = true;
+                    } else {
+                        if (follower.getCurrentTValue() >= path.endTValue) {
+                            path = null;
+                            busy = false;
+                            return;
+                        }
                     }
-                }
-                break;
+                    break;
+            }
         }
 
     }
-
-    public CustomPath getNextQueuePath() {
-        return queue.get(0);
+    public boolean isBusy(){
+        return busy;
     }
 }
