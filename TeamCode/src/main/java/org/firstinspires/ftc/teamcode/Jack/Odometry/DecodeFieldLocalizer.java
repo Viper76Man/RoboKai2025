@@ -41,4 +41,8 @@ public class DecodeFieldLocalizer {
     public double getHeadingErrorBlue(Pose pose){
         return Math.toDegrees(pose.getHeading()) - Math.toDegrees(blueGoalCenter.getHeading());
     }
+
+    public static Pose mirrorPose(Pose pose){
+        return new Pose(144 - pose.getX(), pose.getY(), Math.toRadians((180- Math.toDegrees(pose.getHeading())) % 360));
+    }
 }

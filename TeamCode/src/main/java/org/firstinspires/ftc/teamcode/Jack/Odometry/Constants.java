@@ -54,8 +54,8 @@ public class Constants {
             .strafeEncoderDirection(RobotConstantsV1.lateralPodDirection);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.995,
-            500,
+            0.975,
+            300,
             0.25,
             1
     );

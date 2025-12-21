@@ -223,12 +223,13 @@ public class LimelightV1 {
     }
     public DecodeAprilTag getLastObeliskTag(){
         TagIDToAprilTag converter = new TagIDToAprilTag();
+        LLResultTypes.FiducialResult result = getLatestAprilTagResult();
         Pipeline pipeline_ = getPipeline();
         if(pipeline_ != Pipeline.OBELISK){
             setPipeline(Pipeline.OBELISK);
         }
-        if(getLatestAprilTagResult() != null) {
-            int id = getLatestAprilTagResult().getFiducialId();
+        if(result != null) {
+            int id = result.getFiducialId();
             return converter.getTag(id);
         }
         return null;

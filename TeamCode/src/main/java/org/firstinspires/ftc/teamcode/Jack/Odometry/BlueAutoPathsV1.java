@@ -5,7 +5,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 
-@Configurable
 public class BlueAutoPathsV1 {
 
     public static Pose shootPose = new Pose(83.6, 17.4, Math.toRadians(70));

@@ -12,6 +12,7 @@ public class CustomPath {
     public Path pathToEnd = null;
     public double endTValue;
     private boolean multiplePaths = false;
+    public String name = "";
     public String id = "";
     public CustomPath(Path path, double minTValue){
         this.path = path;
@@ -21,16 +22,13 @@ public class CustomPath {
 
     public CustomPath(Pose startPoint, Pose endPoint, double minTValue){
         this.path = new Path(new BezierLine(startPoint, endPoint));
-        this.path.setLinearHeadingInterpolation(startPoint.getHeading(), endPoint.getHeading());
         this.tValue = minTValue;
         this.id = generateID();
     }
 
     public CustomPath(Pose startPoint, Pose endPoint, Pose overdrivePoint, double minTValue, double endTValue) {
         this.path = new Path(new BezierLine(startPoint, overdrivePoint));
-        this.path.setLinearHeadingInterpolation(startPoint.getHeading(), overdrivePoint.getHeading());
         this.pathToEnd = new Path(new BezierLine(overdrivePoint, endPoint));
-        this.pathToEnd.setLinearHeadingInterpolation(overdrivePoint.getHeading(), endPoint.getHeading());
         this.tValue = minTValue;
         this.endTValue = endTValue;
         this.multiplePaths = true;
@@ -50,7 +48,30 @@ public class CustomPath {
         }
     }
 
+    public void setLinearHeadingInterpolationPath1(double start, double end){
+        this.path.setLinearHeadingInterpolation(start, end);
+    }
+
+    public void setLinearHeadingInterpolationPath2(double start, double end){
+        this.pathToEnd.setLinearHeadingInterpolation(start, end);
+    }
+
+    public void setConstantHeadingInterpolationPath1(double headingRadians){
+        this.path.setConstantHeadingInterpolation(headingRadians);
+    }
+
+    public void setConstantHeadingInterpolationPath2(double headingRadians){
+        this.pathToEnd.setConstantHeadingInterpolation(headingRadians);
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+
     public String generateID(){
         return IDGenerator.getRandom(20);
+    }
+    public String getName(){
+        return this.name;
     }
 }

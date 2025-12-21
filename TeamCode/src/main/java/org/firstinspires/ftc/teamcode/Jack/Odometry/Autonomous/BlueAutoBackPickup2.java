@@ -9,12 +9,13 @@ import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
+import java.util.Objects;
+
 @Autonomous
-public class BlueAutoBackPickup1 extends LinearOpMode {
+public class BlueAutoBackPickup2 extends LinearOpMode {
     public CustomFollower follower;
     public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
@@ -32,17 +33,22 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         TO_SHOOT,
         SHOOT_SET_1,
         TO_PICKUP_1,
-        TURN_TO_PICKUP_1,
         PICKUP_1,
         BACK_TO_SHOOT_1,
-        SHOOT_SET_2
+        SHOOT_SET_2,
+        TO_PICKUP_2,
+        PICKUP_2,
+        BACK_TO_SHOOT_2
     }
 
     public enum ActionStates {
         DRIVE_TO_SHOOT,
         SHOOT_1,
-        DRIVE_TO_BALLS_1
+        DRIVE_TO_BALLS_1,
+        SHOOT_2,
+        DRIVE_TO_BALLS_2
     }
+
 
     public PathStates pathState;
     public ActionStates actionState;
@@ -104,12 +110,6 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                     setPathState(PathStates.PICKUP_1);
                 }
                 break;
-            case TURN_TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.turnTo(Math.toRadians(180));
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
             case PICKUP_1:
                 if(!follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.pickup1);
@@ -117,12 +117,32 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case BACK_TO_SHOOT_1:
-                if(!follower.isBusy()){
+                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
+                }
+                else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
                     follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
                     setPathState(PathStates.SHOOT_SET_2);
                 }
-                else {
-                    telemetry.addLine("busy");
+                break;
+            case SHOOT_SET_2:
+                if(!follower.isBusy() && actionState != ActionStates.DRIVE_TO_BALLS_2) {
+                    setActionState(ActionStates.SHOOT_2);
+                }
+                if(actionState == ActionStates.DRIVE_TO_BALLS_2){
+                    setPathState(PathStates.TO_PICKUP_2);
+                }
+                break;
+            case TO_PICKUP_2:
+                if(!follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.toSecondArtifacts);
+                    setPathState(PathStates.PICKUP_2);
+                }
+                break;
+            case PICKUP_2:
+                if(!follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.pickup2);
+                    setPathState(PathStates.BACK_TO_SHOOT_2);
                 }
                 break;
         }
@@ -138,6 +158,16 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 if(ballsFired >= 3){
                     setActionState(ActionStates.DRIVE_TO_BALLS_1);
+                    ballsFired = 3;
+                }
+                break;
+            case SHOOT_2:
+                if(ballsFired < 6 && ballTimer.seconds() > 1){
+                    fireBall();
+                }
+                if(ballsFired >= 6){
+                    setActionState(ActionStates.DRIVE_TO_BALLS_2);
+                    ballsFired = 6;
                 }
                 break;
         }
@@ -166,6 +196,10 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         telemetry.addLine("Action: " + actionState.name());
         telemetry.addLine("T-value: " + follower.follower.getCurrentTValue());
         telemetry.addLine("Busy? " + follower.isBusy());
+    }
+
+    public boolean isLastPathName(String name){
+        return Objects.equals(follower.lastPathName, name);
     }
 
 }
