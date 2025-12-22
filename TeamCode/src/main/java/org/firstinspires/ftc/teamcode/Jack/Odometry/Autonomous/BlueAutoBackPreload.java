@@ -14,12 +14,11 @@ import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
 @Autonomous
-public class BlueAutoBackPickup1 extends LinearOpMode {
+public class BlueAutoBackPreload extends LinearOpMode {
     public CustomFollower follower;
     public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
     public LimelightV1 limelight = new LimelightV1();
-
     //FAKE STUFF------------------------------------------------------------------------------------
     public int ballsFired = 0;
     public ElapsedTime ballTimer = new ElapsedTime();
@@ -94,33 +93,6 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 if(actionState == ActionStates.DRIVE_TO_BALLS_1){
                     setPathState(PathStates.TO_PICKUP_1);
-                }
-                break;
-            case TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case TURN_TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.turnTo(Math.toRadians(180));
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.pickup1);
-                    setPathState(PathStates.BACK_TO_SHOOT_1);
-                }
-                break;
-            case BACK_TO_SHOOT_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
-                    setPathState(PathStates.SHOOT_SET_2);
-                }
-                else {
-                    telemetry.addLine("busy");
                 }
                 break;
         }

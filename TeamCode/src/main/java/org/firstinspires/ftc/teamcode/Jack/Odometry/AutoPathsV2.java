@@ -16,6 +16,7 @@ public class AutoPathsV2 {
     public List<Points> pointsList = new ArrayList<>();
     private List<Pose> posesList = new ArrayList<>();
     private List<Double> tValuesList = new ArrayList<>();
+    private List<Runnable> actionsList = new ArrayList<>();
     public enum Points {
         START_BACK,
         START_FRONT,
@@ -42,13 +43,13 @@ public class AutoPathsV2 {
         public static Pose bottomArtifactsPickup = new Pose(47, 35.5, Math.toRadians(180));
 
 
-        public static Pose overdriveFirstBack = new Pose(56, 95.5, Math.toRadians(180));
+        public static Pose overdriveFirstBack = new Pose(56, 95.5, Math.toRadians(180)); //Closest set to the back
         public static Pose ballsPickup1Back = new Pose(26, 35.5, Math.toRadians(180));
         public static Pose overdriveBackToShootBack = new Pose(84, -50, Math.toRadians(110));
         public static Pose backToShoot1StartPointBack = new Pose(33, 17, Math.toRadians(110));
 
 
-        public static Pose overdriveSecondBack = new Pose(56, 119.5, Math.toRadians(180));
+        public static Pose overdriveSecondBack = new Pose(56, 119.5, Math.toRadians(180)); //Middle set
         public static Pose ballsPickup2Back = new Pose(26, 59.5, Math.toRadians(180));
         public static Pose overdriveBackToShoot2Back = new Pose(84, -50, Math.toRadians(110));
         public static Pose backToShoot2StartPointBack = new Pose(33, 41, Math.toRadians(110));
@@ -135,22 +136,36 @@ public class AutoPathsV2 {
                     }
                     break;
                 case ARTIFACTS_BACK_BLUE:
-                    addPose(BlueAutoPathsV2.bottomArtifactsPickup);
+                    switch (pointsList.get(pointsList.indexOf(p) - 1)) {
+                        case START_BACK:
+                            addPose(BlueAutoPathsV2.overdriveFirstBack, BlueAutoPathsV2.artifacts1TValue);
+                            break;
+                        case START_FRONT:
+                            break;
+                    }
+                    addPose(BlueAutoPathsV2.bottomArtifactsPickup, 1);
                     break;
                 case ARTIFACTS_MIDDLE_BLUE:
-                    addPose(BlueAutoPathsV2.middleArtifactsPickup);
+                    switch (pointsList.get(pointsList.indexOf(p) - 1)) {
+                        case START_BACK:
+                            addPose(BlueAutoPathsV2.overdriveSecondBack, BlueAutoPathsV2.artifacts1TValue);
+                            break;
+                        case START_FRONT:
+                            break;
+                    }
+                    addPose(BlueAutoPathsV2.middleArtifactsPickup, 1);
                     break;
                 case ARTIFACTS_FRONT_BLUE:
-                    addPose(BlueAutoPathsV2.topArtifactsPickup);
+                    addPose(BlueAutoPathsV2.topArtifactsPickup, 1);
                     break;
                 case ARTIFACTS_BACK_RED:
-                    addPose(RedAutoPathsV2.bottomArtifactsPickup);
+                    addPose(RedAutoPathsV2.bottomArtifactsPickup, 1);
                     break;
                 case ARTIFACTS_MIDDLE_RED:
-                    addPose(RedAutoPathsV2.middleArtifactsPickup);
+                    addPose(RedAutoPathsV2.middleArtifactsPickup, 1);
                     break;
                 case ARTIFACTS_FRONT_RED:
-                    addPose(RedAutoPathsV2.topArtifactsPickup);
+                    addPose(RedAutoPathsV2.topArtifactsPickup, 1);
                     break;
             }
         }

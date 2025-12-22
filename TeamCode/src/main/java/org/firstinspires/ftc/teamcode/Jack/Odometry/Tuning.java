@@ -53,6 +53,7 @@ public class Tuning extends SelectableOpMode {
     public Tuning() {
         super("Select a Tuning OpMode", s -> {
             s.folder("Localization", l -> {
+                l.add("Central Localization Test", CentralLocalizationTest::new);
                 l.add("Localization Test", LocalizationTest::new);
                 l.add("Forward Tuner", ForwardTuner::new);
                 l.add("Lateral Tuner", LateralTuner::new);
@@ -127,6 +128,52 @@ public class Tuning extends SelectableOpMode {
  * @author Baron Henderson - 20077 The Indubitables
  * @version 1.0, 5/6/2024
  */
+class CentralLocalizationTest extends OpMode {
+    public MecanumDriveOnly drive = new MecanumDriveOnly();
+    public GamepadV1 gamepad = new GamepadV1();
+    @Override
+    public void init() {
+        drive.init(hardwareMap, gamepad);
+        follower.setPose(new Pose(72, 72, Math.toRadians(90)));
+        gamepad.init(gamepad1, 0.3);
+    }
+
+    /** This initializes the PoseUpdater, the mecanum drive motors, and the Panels telemetry. */
+    @Override
+    public void init_loop() {
+        telemetryM.debug("This will print your robot's position to telemetry while "
+                + "allowing robot control through a basic mecanum drive on gamepad 1.");
+        gamepad.update();
+        telemetryM.update(telemetry);
+        follower.update();
+        drawCurrent();
+    }
+
+    @Override
+    public void start() {
+        follower.startTeleopDrive();
+        follower.update();
+    }
+
+    /**
+     * This updates the robot's pose estimate, the simple mecanum drive, and updates the
+     * Panels telemetry with the robot's position as well as draws the robot's position.
+     */
+    @Override
+    public void loop() {
+        follower.update();
+        gamepad.update();
+        follower.setTeleOpDrive(-gamepad.left_stick_y, -gamepad.left_stick_x, -gamepad.right_stick_x);
+        telemetryM.debug("x:" + follower.getPose().getX());
+        telemetryM.debug("y:" + follower.getPose().getY());
+        telemetryM.debug("heading:" + follower.getPose().getHeading());
+        telemetryM.debug("heading (deg):" + Math.toDegrees(follower.getPose().getHeading()));
+        telemetryM.debug("total heading:" + follower.getTotalHeading());
+        telemetryM.update(telemetry);
+
+        drawCurrentAndHistory();
+    }
+}
 class LocalizationTest extends OpMode {
     public MecanumDriveOnly drive = new MecanumDriveOnly();
     public GamepadV1 gamepad = new GamepadV1();

@@ -14,12 +14,11 @@ import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
 @Autonomous
-public class BlueAutoBackPickup1 extends LinearOpMode {
+public class BlueAutoFrontPreload extends LinearOpMode {
     public CustomFollower follower;
     public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
     public LimelightV1 limelight = new LimelightV1();
-
     //FAKE STUFF------------------------------------------------------------------------------------
     public int ballsFired = 0;
     public ElapsedTime ballTimer = new ElapsedTime();
@@ -49,7 +48,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         initHardware();
         pathState = PathStates.START;
         actionState = ActionStates.DRIVE_TO_SHOOT;
-        follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
+        follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
         limelight.startStreaming();
         while (opModeInInit()){
             obeliskTag = limelight.getLastObeliskTag();
@@ -77,50 +76,22 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     public void autoPathUpdate(){
         follower.update(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
-        switch (pathState){
+        switch (pathState) {
             case START:
                 setPathState(PathStates.TO_SHOOT);
                 break;
             case TO_SHOOT:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
+                if (!follower.isBusy()) {
+                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartClose);
                     setPathState(PathStates.SHOOT_SET_1);
                     break;
                 }
-                break;
             case SHOOT_SET_1:
-                if(!follower.isBusy() && actionState != ActionStates.DRIVE_TO_BALLS_1) {
+                if (!follower.isBusy() && actionState != ActionStates.DRIVE_TO_BALLS_1) {
                     setActionState(ActionStates.SHOOT_1);
                 }
-                if(actionState == ActionStates.DRIVE_TO_BALLS_1){
+                if (actionState == ActionStates.DRIVE_TO_BALLS_1) {
                     setPathState(PathStates.TO_PICKUP_1);
-                }
-                break;
-            case TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case TURN_TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.turnTo(Math.toRadians(180));
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.pickup1);
-                    setPathState(PathStates.BACK_TO_SHOOT_1);
-                }
-                break;
-            case BACK_TO_SHOOT_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
-                    setPathState(PathStates.SHOOT_SET_2);
-                }
-                else {
-                    telemetry.addLine("busy");
                 }
                 break;
         }

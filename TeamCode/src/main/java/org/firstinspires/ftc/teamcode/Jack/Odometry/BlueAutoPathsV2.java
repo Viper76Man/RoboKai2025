@@ -5,35 +5,61 @@ import com.pedropathing.geometry.Pose;
 
 @Configurable
 public class BlueAutoPathsV2 {
+    public static Pose startPoseClose = new Pose(24, 125, Math.toRadians(140));
+    public static Pose shootPoseClose = new Pose(55, 100, Math.toRadians(140));
+    //BACK=-----------------------------------------------------------------------------------------
     public static Pose startPoseFar = new Pose(62, 9.6, Math.toRadians(90));
     public static Pose shootPoseFar = new Pose(56, 15, Math.toRadians(110));
 
     public static Pose topArtifactsPickup = new Pose(47, 83.5, Math.toRadians(180));
-    public static Pose middleArtifactsPickup = new Pose(47, 59.5, Math.toRadians(180));
+    public static Pose middleArtifactsPickup = new Pose(47, 56.5, Math.toRadians(180));
     public static Pose bottomArtifactsPickup = new Pose(47, 35.5, Math.toRadians(180));
 
 
     public static Pose overdriveFirstBack = new Pose(56, 95.5, Math.toRadians(180));
-    public static Pose ballsPickup1Back = new Pose(26, 35.5, Math.toRadians(180));
+    public static Pose ballsPickup1Back = new Pose(20, 35.5, Math.toRadians(180));
     public static Pose overdriveBackToShootBack = new Pose(84, -50, Math.toRadians(110));
     public static Pose backToShoot1StartPointBack = new Pose(33, 17, Math.toRadians(110));
 
 
     public static Pose overdriveSecondBack = new Pose(56, 119.5, Math.toRadians(180));
-    public static Pose ballsPickup2Back = new Pose(26, 59.5, Math.toRadians(180));
+    public static Pose ballsPickup2Back = new Pose(20, 56.5, Math.toRadians(180));
     public static Pose overdriveBackToShoot2Back = new Pose(84, -50, Math.toRadians(110));
     public static Pose backToShoot2StartPointBack = new Pose(33, 41, Math.toRadians(110));
 
 
-    public static double toShootPoseFarTValue = 0.97;
+    public static double toShootPoseFarTValue = 0.95;
     public static double artifacts1TValue = 0.125;
-    public static double pickup1TValue = 0.97;
-    public static double backToShoot1OverdriveTValue = 0.2;
+    public static double pickup1TValue = 0.78;
+    public static double backToShoot1OverdriveTValue = 0.15;
+
+    public static double artifacts2TValue = 0.105;
+    public static double backToShoot2OverdriveTValue = 0.2;
+
+
+    //CLOSE-----------------------------------------------------------------------------------------
+    public static double toShootPoseCloseTValue = 0.95;
+    public static double artifacts1TValueClose = 0.125;
+    public static double pickup1TValueClose = 0.78;
+    public static double forwardToShoot1OverdriveTValue = 0.15;
+
+    public static double artifacts2TValueClose = 0.105;
+    public static double forwardToShoot2OverdriveTValue = 0.2;
+
+
+
+    public static CustomPath outOfStartClose, toFirstArtifactsClose, pickup1Close, overdriveForward1Close, backToShoot1Close;
+    public static CustomPath toSecondArtifactsClose, pickup2Close, overdriveForward2Close, backToShoot2Close;
 
 
     public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1;
-    public static CustomPath toSecondArtifacts, pickup2, overdriveBack2;
+    public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2;
     public void buildPaths() {
+
+        outOfStartClose = new CustomPath(startPoseClose, shootPoseClose, toShootPoseCloseTValue);
+        outOfStartClose.setConstantHeadingInterpolationPath1(shootPoseClose.getHeading());
+        outOfStartClose.setName("outOfStartClose");
+        //BACK--------------------------------------------------------------------------------------
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());
         outOfStartFar.setName("outOfStartFar");
@@ -47,13 +73,20 @@ public class BlueAutoPathsV2 {
         overdriveBack1 = new CustomPath(ballsPickup1Back, overdriveBackToShootBack, backToShoot1OverdriveTValue);
         overdriveBack1.setLinearHeadingInterpolationPath1(ballsPickup1Back.getHeading(), overdriveBackToShootBack.getHeading());
         overdriveBack1.setName("overdriveBack1");
-        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 1);
+        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 0.95);
         backToShoot1.setLinearHeadingInterpolationPath1(backToShoot1StartPointBack.getHeading(), shootPoseFar.getHeading());
         backToShoot1.setName("backToShoot1");
-        toSecondArtifacts = new CustomPath(shootPoseFar, middleArtifactsPickup, overdriveSecondBack, artifacts1TValue, 1);
+        toSecondArtifacts = new CustomPath(shootPoseFar, middleArtifactsPickup, overdriveSecondBack, artifacts2TValue, 1);
         toSecondArtifacts.setLinearHeadingInterpolationPath1(shootPoseFar.getHeading(), overdriveSecondBack.getHeading());
         toSecondArtifacts.setName("toSecondArtifacts");
         pickup2 = new CustomPath(middleArtifactsPickup, ballsPickup2Back, pickup1TValue);
         pickup2.setConstantHeadingInterpolationPath1(ballsPickup2Back.getHeading());
+        pickup2.setName("pickup2");
+        overdriveBack2 = new CustomPath(ballsPickup2Back, overdriveBackToShoot2Back, backToShoot2OverdriveTValue);
+        overdriveBack2.setLinearHeadingInterpolationPath1(ballsPickup1Back.getHeading(), overdriveBackToShootBack.getHeading());
+        overdriveBack2.setName("overdriveBack1");
+        backToShoot2 = new CustomPath(backToShoot2StartPointBack, shootPoseFar, 0.95);
+        backToShoot2.setLinearHeadingInterpolationPath1(backToShoot2StartPointBack.getHeading(), shootPoseFar.getHeading());
+        backToShoot2.setName("backToShoot2");
     }
 }
