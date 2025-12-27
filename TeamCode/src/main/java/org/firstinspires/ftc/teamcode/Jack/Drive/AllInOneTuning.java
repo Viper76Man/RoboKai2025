@@ -216,7 +216,7 @@ public class AllInOneTuning extends OpMode {
                     gamepad.resetTimer();
                 }
                 else if(gamepad.dpad_down && gamepad.isGamepadReady()) {
-                    arcShooter.setTargetRPM(arcShooter.getTargetVelocity() - RobotConstantsV1.velocityDownStep);
+                    arcShooter.setTargetRPM(arcShooter.getTargetRPM() - RobotConstantsV1.velocityDownStep);
                     gamepad.resetTimer();
                 }
                 arcShooter.graph(multipleTelemetry);

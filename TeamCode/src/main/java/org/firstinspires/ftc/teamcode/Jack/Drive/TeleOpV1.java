@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 
 @TeleOp(name = "TeleOpV1 [EXPERIMENTAL]")
-//TODO: Run gradle update
+//TODO: Test this!!!!
 public class TeleOpV1 extends OpMode {
     public RobotV2 robotv2 = new RobotV2();
     public LoggerV1 logger = new LoggerV1();

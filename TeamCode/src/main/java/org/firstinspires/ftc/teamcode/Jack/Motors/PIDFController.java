@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -34,14 +36,13 @@ public class PIDFController {
         return power;
     }
 
-    public void updatePIDsFromConstants(){
-        kF = RobotConstantsV1.arcPIDs.f;
-        controller.updatePIDsFromConstants();
+    public void updatePIDsFromConstants(PIDFCoefficients coefficients){
+        kF = coefficients.f;
+        controller.updatePIDsFromConstants(new PIDCoefficients(coefficients.p, coefficients.i, coefficients.d));
     }
 
     //@param currentPosition gets
     public double getOutput(int currentPosition, int target){
-        updatePIDsFromConstants();
         return controller.getOutput(currentPosition, target) + (kF * target);
     }
 

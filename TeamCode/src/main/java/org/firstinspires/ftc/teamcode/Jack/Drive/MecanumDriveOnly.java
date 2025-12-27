@@ -120,7 +120,7 @@ public class MecanumDriveOnly {
                     break;
                 }
             telemetry.addLine("rx: " + rx);
-            drive(0,0, rx);
+            drive(y,x, rx);
         }
         else {
             LLResultTypes.FiducialResult result = limelight.getLatestAprilTagResult();

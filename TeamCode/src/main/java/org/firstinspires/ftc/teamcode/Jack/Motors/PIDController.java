@@ -33,16 +33,15 @@ public class PIDController {
         return power;
     }
 
-    public void updatePIDsFromConstants(){
-        kP = RobotConstantsV1.arcPIDs.p;
-        kI = RobotConstantsV1.arcPIDs.i;
-        kD = RobotConstantsV1.arcPIDs.d;
+    public void updatePIDsFromConstants(PIDCoefficients coefficients){
+        kP = coefficients.p;
+        kI = coefficients.i;
+        kD = coefficients.d;
     }
 
     //@param currentPosition gets
     public double getOutput(int currentPosition, int target){
         previousPower = power;
-        updatePIDsFromConstants();
         //Calculations
         error = currentPosition - target;
         double errorChange = (error - previousError) / timer.seconds();
@@ -64,7 +63,6 @@ public class PIDController {
 
     public double getOutput(double error){
         previousPower = power;
-        updatePIDsFromConstants();
         //Calculations
         double errorChange = (error - previousError) / timer.seconds();
         integralError = integralError + (error * timer.seconds());

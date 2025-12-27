@@ -207,7 +207,7 @@ public class LimelightV1 {
 
     public boolean lockedOnTarget(Robot.Alliance alliance){
         Range redRange = new Range(RobotConstantsV1.shotAngleRedDegrees, RobotConstantsV1.degreeToleranceCamera);
-        Range blueRange = new Range(RobotConstantsV1.shotAngleRedDegrees, RobotConstantsV1.degreeToleranceCamera);
+        Range blueRange = new Range(RobotConstantsV1.shotAngleBlueDegrees, RobotConstantsV1.degreeToleranceCamera);
         if(getLatestAprilTagResult() != null) {
             switch (alliance) {
                 case RED:

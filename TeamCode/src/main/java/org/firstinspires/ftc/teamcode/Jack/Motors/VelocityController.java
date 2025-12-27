@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class VelocityController {
@@ -35,6 +36,10 @@ public class VelocityController {
     //@param currentPosition gets
     public double getOutput(double currentRPM, int targetRPM){
         return controller.getOutput((int) currentRPM, targetRPM);
+    }
+
+    public void updatePIDsFromConstants(PIDFCoefficients coefficients){
+        controller.updatePIDsFromConstants(coefficients);
     }
 
     public double getError(){

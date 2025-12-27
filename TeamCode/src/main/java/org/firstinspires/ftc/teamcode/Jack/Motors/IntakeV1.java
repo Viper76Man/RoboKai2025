@@ -40,6 +40,10 @@ public class IntakeV1{
         }
     }
 
+    public DcMotorSimple.Direction getDirection(){
+        return motor.getDirection();
+    }
+
     public void log(Telemetry telemetry){
         telemetry.addData("Intake Power: ", motor.getPower());
         telemetry.addData("Intake Motor Position: ", motor.getCurrentPosition());

@@ -22,6 +22,9 @@ public class SlotColorSensorV1 {
     public RGB getRGB() {
         return new RGB(sensor.red(), sensor.green(), sensor.blue());
     }
+    public RGB getNormalizedRGB() {
+        return new RGB((sensor.getNormalizedColors().red / sensor.getNormalizedColors().alpha), (sensor.getNormalizedColors().green/ sensor.getNormalizedColors().alpha), sensor.getNormalizedColors().blue/ (sensor.getNormalizedColors().alpha));
+    }
     public boolean isGreen(){
         return RobotConstantsV1.greenRGB.isInRange(getRGB(), 5, 5);
     }

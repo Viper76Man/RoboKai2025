@@ -81,6 +81,19 @@ public class RobotV2 {
     }
     public void shooterRun(){
         if(activateShooter()) {
+            gamepadV1.update();
+            arcShooter.run();
+            if(gamepadV1.dpad_up && gamepadV1.isGamepadReady()){
+                arcShooter.setTargetRPM(arcShooter.getTargetRPM() + RobotConstantsV1.velocityUpStep);
+                gamepadV1.resetTimer();
+            }
+            else if(gamepadV1.dpad_down && gamepadV1.isGamepadReady()) {
+                arcShooter.setTargetRPM(arcShooter.getTargetRPM() - RobotConstantsV1.velocityDownStep);
+                gamepadV1.resetTimer();
+            }
+        }
+        else {
+            arcShooter.setTargetRPM(2000);
             arcShooter.run();
         }
     }
@@ -105,6 +118,7 @@ public class RobotV2 {
         shooterOn = !shooterOn;
     }
 
+    //TODO: Remember button presses maybe?
     public void shootBall(int ball){
         if(!spindexer.isReady()) {
             switch (ball) {
@@ -118,6 +132,7 @@ public class RobotV2 {
                     spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
                     break;
             }
+            flicker.resetTimer();
         }
         else {
             if(flicker.timer.seconds() < 2) {
@@ -178,8 +193,15 @@ public class RobotV2 {
     }
 
     public void log(Telemetry telemetry){
-        MultipleTelemetry telemetry1 = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());
-        telemetry1.addLine("Alliance: " + alliance.name());
-        telemetry1.update();
+        if(RobotConstantsV1.panelsEnabled) {
+            MultipleTelemetry telemetry1 = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());
+            telemetry1.addLine("Alliance: " + alliance.name());
+            arcShooter.graph(telemetry1);
+            telemetry1.update();
+        }
+        else {
+            telemetry.addLine("Alliance: " + alliance.name());
+            arcShooter.graph(telemetry);
+        }
     }
 }

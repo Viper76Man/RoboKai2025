@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
@@ -16,6 +17,8 @@ public class ArcShooterV1 {
     public HardwareMap hardwareMap;
     public DcMotor motor;
     public DcMotorEx shooter;
+    public DcMotor motor2;
+    public DcMotorEx shooter2;
     public double velocity = 0;
     public double error = 0;
     public double targetRPM = RobotConstantsV1.defaultShooterRPM;
@@ -37,20 +40,30 @@ public class ArcShooterV1 {
     public void init(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
+        motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
         shooter = (DcMotorEx) motor;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        setDirection(DcMotorSimple.Direction.FORWARD);
+        setDirection(RobotConstantsV1.rightShooterDirection);
+        shooter2 = (DcMotorEx) motor2;
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(RobotConstantsV1.leftShooterDirection);
         this.usingPID = false;
     }
 
     public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
+        motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
         shooter = (DcMotorEx) motor;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        setDirection(DcMotorSimple.Direction.FORWARD);
+        setDirection(RobotConstantsV1.rightShooterDirection);
+        shooter2 = (DcMotorEx) motor2;
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(RobotConstantsV1.leftShooterDirection);
         this.kP = kP;
         this.kI = kI;
         this.kD = kD;
@@ -62,10 +75,15 @@ public class ArcShooterV1 {
     public void init(HardwareMap hardwareMap, PIDFCoefficients pidfCoefficients) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
+        motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
         shooter = (DcMotorEx) motor;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        setDirection(DcMotorSimple.Direction.FORWARD);
+        setDirection(RobotConstantsV1.rightShooterDirection);
+        shooter2 = (DcMotorEx) motor2;
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(RobotConstantsV1.leftShooterDirection);
         this.kP = pidfCoefficients.p;
         this.kI = pidfCoefficients.i;
         this.kD = pidfCoefficients.d;
@@ -102,8 +120,9 @@ public class ArcShooterV1 {
 
     public void run(){
         //targetRPM = 2000 * Math.sin(tickTimer2.seconds());
-        error = controller.getError();
-        shooter.setPower(runToVelocity(getVelocityRPM(), (int) targetRPM));
+        double power = runToVelocity(getVelocityRPM(), (int) targetRPM);
+        shooter.setPower(power);
+        shooter2.setPower(power);
     }
 
     public double getTargetVelocity(){
@@ -150,6 +169,12 @@ public class ArcShooterV1 {
         shooter.setVelocity(velocity);
     }
 
+    public void updatePIDsFromConstants(){
+        if(usingPID) {
+            controller.updatePIDsFromConstants(RobotConstantsV1.arcPIDs);
+        }
+    }
+
     public double runToVelocity(double currentRPM, int targetRPM){
         if(!usingPID){
             return 0.0;
@@ -179,12 +204,15 @@ public class ArcShooterV1 {
         telemetry.addData("RPM", getVelocityRPM());
         telemetry.addData("Pos", shooter.getCurrentPosition());
         telemetry.addData("Power drop", controller.controller.powerDrop);
-        telemetry.update();
     }
 
     public void graph(Telemetry telemetry){
-        telemetry.addData("Target Velocity: ", getTargetVelocity());
-        telemetry.addData("RPM: ", getVelocityRPM());
+        telemetry.addData("Error", error);
+        telemetry.addData("Power", shooter.getPower());
+        telemetry.addData("Target RPM", targetRPM);
+        telemetry.addData("RPM", getVelocityRPM());
+        telemetry.addData("Pos", shooter.getCurrentPosition());
+        telemetry.addData("Power drop", controller.controller.powerDrop);
     }
 
 }
