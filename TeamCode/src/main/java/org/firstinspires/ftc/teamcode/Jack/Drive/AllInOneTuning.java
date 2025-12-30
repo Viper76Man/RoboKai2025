@@ -14,6 +14,7 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.andymark.AndyMarkColorSensor;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -41,7 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-@TeleOp
+@Disabled
 public class AllInOneTuning extends OpMode {
     private static final Logger log = LoggerFactory.getLogger(AllInOneTuning.class);
     public GamepadV1 gamepad = new GamepadV1();

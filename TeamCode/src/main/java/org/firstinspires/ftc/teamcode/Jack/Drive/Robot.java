@@ -130,7 +130,7 @@ public class Robot {
             if(gamepad.gamepad.right_trigger >= 0.2 && readyToFire()){
                 shootBall(getNextBall());
             }
-            if(gamepad.right_trigger <= 0.2 && flicker1.timer.seconds() > RobotConstantsV1.ALL_FLICKER_DOWN_DELAY_SECONDS) {
+            if(gamepad.right_trigger <= 0.2 && flicker1.timer.seconds() > RobotConstantsV1.FLICKER_UP_TIME) {
                 flickerDown(1);
             }
             if(lockTimer.seconds() > 2) {

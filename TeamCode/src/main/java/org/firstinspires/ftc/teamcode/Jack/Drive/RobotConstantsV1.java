@@ -31,7 +31,7 @@ public class RobotConstantsV1 {
     public static String intakeMotorName = "intake"; //Expansion Hub Port 0
     public static String flickerServoName = "flicker"; //Control Hub Servos Port 1
     public static String storageServoName = "storageServo"; //Control Hub Servos Port 0
-    public static String colorSensor1 = "colorSensor1"; //I2C port 0
+    public static String colorSensor1 = "colorSensor1"; //Expansion Hub I2C port 0
     public static String spindexerMotorName = "spindexer"; //Expansion Hub Port 2
     public static String turretServoName = "turretServo";
 
@@ -66,10 +66,9 @@ public class RobotConstantsV1 {
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
-    public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.0001);
-    public static PIDCoefficients spindexerPIDs2 = new PIDCoefficients(0.03, 0, 0);
+    public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
     public static PIDFCoefficients turretPIDs = new PIDFCoefficients(0.001, 0, 0, 0);
-    public static double INTAKE_POWER = 1;
+    public static double INTAKE_POWER = 0.9;
     public static double turretServoPower = 0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction leftShooterDirection = DcMotorSimple.Direction.REVERSE;
@@ -80,7 +79,8 @@ public class RobotConstantsV1 {
 
     public static double TURRET_SERVO_MAX_ANGLE_DEG = TURRET_INPUT_VALUE * ((double) 355 / 255);
 
-    public static double SHOOTER_TARGET_RPM = 5000;
+    public static double SHOOTER_TARGET_RPM = 4440;
+    public static double SHOOTER_FRONT_RPM = 3700;
     public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_ANGULAR_VELOCITY = 0;
@@ -91,9 +91,12 @@ public class RobotConstantsV1 {
 
     public static int SPINDEXER_TOLERANCE = 1000;
 
+    public static double MIN_G_VALUE_COLOR_SENSOR = 165;
+    public static double MAX_DISTANCE_COLOR_SENSOR = 32;
+
     public static double FLICKER_SERVO_UP = 0.6;
     public static double FLICKER_SERVO_DOWN = 1;
-    public static double ALL_FLICKER_DOWN_DELAY_SECONDS = 1;
+    public static double FLICKER_UP_TIME = 0.75;
 
     public static double maxLaunchZoneDistance = 15; //inches
 
@@ -116,11 +119,11 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
-    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 365;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 380;
     public static int SPINDEXER_MOTOR_BALL_2_INTAKE = 240;
-    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 607;
+    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 632;
     public static int SPINDEXER_MOTOR_BALL_3_INTAKE = 485;
-    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 110;
+    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 122;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;

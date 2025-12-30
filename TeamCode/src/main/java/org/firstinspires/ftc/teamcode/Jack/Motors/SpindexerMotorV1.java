@@ -25,11 +25,11 @@ import java.util.List;
 public class SpindexerMotorV1 {
     public enum State {
         BALL_1_INTAKE,
-        BALL_3_SHOOT,
         BALL_2_INTAKE,
-        BALL_1_SHOOT,
         BALL_3_INTAKE,
+        BALL_1_SHOOT,
         BALL_2_SHOOT,
+        BALL_3_SHOOT,
     }
 
     public enum EncoderMeasurementMethod {
@@ -47,7 +47,7 @@ public class SpindexerMotorV1 {
     public Range motorRange;
     public double lastRPM = 0;
     public ElapsedTime zeroTimer = new ElapsedTime();
-    public EncoderMeasurementMethod method = EncoderMeasurementMethod.ELC2;
+    public EncoderMeasurementMethod method = EncoderMeasurementMethod.MOTOR;
     public DigitalChannel channel;
 
     public int index = 0;
@@ -69,20 +69,20 @@ public class SpindexerMotorV1 {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.spindexerMotorName);
         spindexer = (DcMotorEx) motor;
-        encoderv1.init(hardwareMap);
+        //encoderv1.init(hardwareMap);
         encoder = hardwareMap.get(AnalogInput.class, "spindexerEncoder");
         spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setDirection(DcMotorSimple.Direction.FORWARD);
         setState(State.BALL_1_INTAKE);
-        controller_ = new PIDController(RobotConstantsV1.spindexerPIDs.p, RobotConstantsV1.spindexerPIDs.i, RobotConstantsV1.spindexerPIDs.d);
-        this.usingPID = false;
+        controller = new PIDController(RobotConstantsV1.spindexerPIDs.p, RobotConstantsV1.spindexerPIDs.i, RobotConstantsV1.spindexerPIDs.d);
+        this.usingPID = true;
     }
 
     public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.spindexerMotorName);
         spindexer = (DcMotorEx) motor;
-        encoderv1.init(hardwareMap);
+        //encoderv1.init(hardwareMap);
         spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setDirection(DcMotorSimple.Direction.FORWARD);
         encoder = hardwareMap.get(AnalogInput.class, "spindexerEncoder");
@@ -91,7 +91,6 @@ public class SpindexerMotorV1 {
         this.kD = kD;
         this.kF = kF;
         controller = new PIDController(this.kP, this.kI, this.kD);
-        setState(State.BALL_1_INTAKE);
         this.usingPID = true;
     }
 
@@ -107,7 +106,6 @@ public class SpindexerMotorV1 {
         this.kD = pidCoefficients.d;
         controller = new PIDController(this.kP, this.kI, this.kD);
         this.usingPID = true;
-        setState(State.BALL_1_INTAKE);
         //encoderv1.init(hardwareMap);
     }
 
@@ -154,7 +152,7 @@ public class SpindexerMotorV1 {
                     setMotorPower(power);
                 case MOTOR:
                     error = targetPositionEncoder - getCurrentPosition();
-                    double power2 = getPower(RobotConstantsV1.spindexerPIDs2.p, 0.3);
+                    double power2 = getControllerPower(error);
                     setMotorPower(power2);
             }
         }
@@ -180,11 +178,54 @@ public class SpindexerMotorV1 {
     }
 
     public State getNextState() {
-        int index_ = index + 1;
-        if(index_ > State.values().length - 1){
-            index_ = 0;
+       switch (state){
+           case BALL_1_INTAKE:
+               return State.BALL_2_INTAKE;
+           case BALL_2_INTAKE:
+               return State.BALL_3_INTAKE;
+           case BALL_3_INTAKE:
+               return State.BALL_1_INTAKE;
+           case BALL_1_SHOOT:
+               return State.BALL_2_SHOOT;
+           case BALL_2_SHOOT:
+               return State.BALL_3_SHOOT;
+           case BALL_3_SHOOT:
+               return State.BALL_1_SHOOT;
+       }
+       return State.BALL_1_INTAKE;
+    }
+    public State getPreviousState() {
+        switch (state){
+            case BALL_1_INTAKE:
+                return State.BALL_3_INTAKE;
+            case BALL_2_INTAKE:
+                return State.BALL_1_INTAKE;
+            case BALL_3_INTAKE:
+                return State.BALL_2_INTAKE;
+            case BALL_1_SHOOT:
+                return State.BALL_3_SHOOT;
+            case BALL_2_SHOOT:
+                return State.BALL_1_SHOOT;
+            case BALL_3_SHOOT:
+                return State.BALL_2_SHOOT;
         }
-        return State.values()[index_];
+        return State.BALL_1_INTAKE;
+    }
+
+
+    public void switchToShootOrIntake(){
+        switch (state){
+            case BALL_1_INTAKE:
+            case BALL_2_INTAKE:
+            case BALL_3_INTAKE:
+                setState(State.BALL_1_SHOOT);
+                break;
+            case BALL_1_SHOOT:
+            case BALL_2_SHOOT:
+            case BALL_3_SHOOT:
+                setState(State.BALL_1_INTAKE);
+                break;
+        }
     }
 
     public void update(){
@@ -229,6 +270,7 @@ public class SpindexerMotorV1 {
                         break;
                     case BALL_3_SHOOT:
                         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT, method);
+                        break;
                 }
         }
     }
@@ -240,7 +282,7 @@ public class SpindexerMotorV1 {
         spindexer.setVelocity(velocity);
     }
 
-    public double getError(){
+    public double getEncoderError(){
         return Math.abs((targetPosition - getCurrentPositionEncoder()));
     }
 
@@ -313,6 +355,16 @@ public class SpindexerMotorV1 {
         return list;
     }
 
+    public boolean isSpindexerReady(){
+        switch (method) {
+            case MOTOR:
+                return motorRange.isInRange(getCurrentPosition());
+            case ELC2:
+                return range.isInRange(getCurrentPositionEncoder());
+        }
+        return false;
+    }
+
     public double getPower(double kP, double maximumPower){
         double power = 0;
         maximumPower = Math.abs(maximumPower);
@@ -351,6 +403,45 @@ public class SpindexerMotorV1 {
                 p = -maximumPower;
             }
             return p;
+        }
+    }
+
+    public double getError(){
+        if(controller != null){
+            switch (method) {
+                case MOTOR:
+                    return targetPositionEncoder - getCurrentPosition();
+                case ELC2:
+                    return targetPosition - getCurrentPositionEncoder();
+            }
+        }
+        else {
+            return 0;
+        }
+        return 0;
+    }
+
+    public double getControllerPower(){
+        if(controller != null){
+            switch (method) {
+                case MOTOR:
+                    return controller.getOutput((int) targetPositionEncoder, (int) getCurrentPosition());
+                case ELC2:
+                    return controller.getOutput((int) targetPosition, (int) getCurrentPositionEncoder());
+            }
+        }
+        else {
+            return 0;
+        }
+        return 0;
+    }
+
+    public double getControllerPower(double error){
+        if(controller != null){
+            return controller.getOutput(error);
+        }
+        else {
+            return 0;
         }
     }
 

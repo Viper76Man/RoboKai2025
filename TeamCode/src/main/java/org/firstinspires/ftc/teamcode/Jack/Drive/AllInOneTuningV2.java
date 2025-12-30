@@ -4,6 +4,12 @@ import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrent;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrentAndHistory;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.follower;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.ColorSpace;
+import android.view.View;
+import android.widget.RelativeLayout;
+
 import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -21,6 +27,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.DigitalChannelImpl;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
@@ -29,12 +37,14 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
+import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
+import org.firstinspires.ftc.teamcode.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,10 +64,14 @@ public class AllInOneTuningV2 extends SelectableOpMode {
                 d.add("Rotation Lock Drive", RotationLockDrive::new);
             });
             s.folder("Hardware", h -> {
+                h.add("Pre-TeleOp Test", PreTeleOpTest::new);
                 h.folder("Intake", i -> {
+                    i.add("Automated Intake Test", AutomatedIntakeTest::new);
+                    i.add("Intake Subsystem Test", IntakeSubsystemTest::new);
                     i.add("Intake Test", IntakeTest::new);
                 });
                 h.folder("Spindexer", sp -> {
+                    sp.add("SPINDEXER ENCODER RESET", SpindexerResetEncoder::new);
                     sp.add("Spindexer Encoder Tuner", SpindexerReadEncoderTest::new);
                     sp.add("Spindexer Test", SpindexerTest::new);
                 });
@@ -372,10 +386,11 @@ public class AllInOneTuningV2 extends SelectableOpMode {
             telemetryM.addLine("Encoder measurement method: " + spindexer.getMeasurementMethod().name());
             telemetryM.addLine("Pos: " + spindexer.getCurrentPosition());
             telemetryM.addLine("Target pos (encoder): "+ spindexer.targetPositionEncoder);
+            telemetryM.addLine("Error: " + spindexer.getError());
             telemetryM.addLine("Target pos: "+ spindexer.targetPosition);
             telemetryM.addLine("Next state: " + spindexer.getNextState());
             telemetryM.addLine("Timer: "  + gamepad.buttonTimer.seconds());
-            telemetryM.addLine("Power: " + spindexer.spindexer.getPower());
+            telemetryM.addLine("Controller Power: " + spindexer.getControllerPower());
             spindexer.run();
             if(gamepad.circle && gamepad.isGamepadReady()) {
                 spindexer.setState(spindexer.getNextState());
@@ -576,12 +591,11 @@ class DeliverySubsystemsTest extends OpMode {
     public GamepadV1 gamepad = new GamepadV1();
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public boolean up = false;
+    public boolean front = false;
     public double pos = RobotConstantsV1.FLICKER_SERVO_DOWN;
     public ArcShooterV1 arcShooter = new ArcShooterV1();
     public MultipleTelemetry multipleTelemetry;
     public TurretServoV1 servo = new TurretServoV1();
-    public int latestID = -1;
-    public double rotationalError = 0;
     @Override
     public void init() {
         multipleTelemetry = new MultipleTelemetry(telemetry, telemetryM);
@@ -605,6 +619,8 @@ class DeliverySubsystemsTest extends OpMode {
         telemetryM.update(telemetry);
         gamepad.update();
         arcShooter.run();
+
+        arcShooter.updatePIDsFromConstants();
         if(gamepad.dpad_up && gamepad.isGamepadReady()){
             arcShooter.setTargetRPM(arcShooter.getTargetRPM() + RobotConstantsV1.velocityUpStep);
             gamepad.resetTimer();
@@ -613,12 +629,18 @@ class DeliverySubsystemsTest extends OpMode {
             arcShooter.setTargetRPM(arcShooter.getTargetRPM() - RobotConstantsV1.velocityDownStep);
             gamepad.resetTimer();
         }
-        arcShooter.graph(telemetry);
+        arcShooter.graph(multipleTelemetry);
         if(gamepad.isGamepadReady() && gamepad1.circle){
             pos = RobotConstantsV1.FLICKER_SERVO_UP;
             flicker.resetTimer();
             gamepad.resetTimer();
             up = true;
+        }
+        if(front){
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
+        }
+        else {
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
         }
         if(gamepad.isGamepadReady() && gamepad.left_bumper){
             servo.setPosition(servo.getPosition() + 0.05);
@@ -630,7 +652,12 @@ class DeliverySubsystemsTest extends OpMode {
             gamepad.resetTimer();
         }
 
-        if(flicker.timer.seconds() > 1.5 && up){
+        if(gamepad.isGamepadReady() && gamepad.options){
+            front = !front;
+            gamepad.resetTimer();
+        }
+
+        if(flicker.timer.seconds() > 1 && up){
             pos = RobotConstantsV1.FLICKER_SERVO_DOWN;
             up = false;
         }
@@ -656,9 +683,9 @@ class ColorSensorTest extends OpMode {
 
     @Override
     public void loop() {
-        dist = sensor.sensor.getDistance(DistanceUnit.INCH);
+        dist = sensor.sensor.getDistance(DistanceUnit.MM);
         RGB rgb = sensor.getRGB();
-        RGB norm = sensor.getNormalizedRGB();
+        NormalizedRGBA norm = sensor.getNormalizedRGB();
         gamepad.update();
         if(gamepad.dpad_up && gamepad.isGamepadReady()){
             gain += 1;
@@ -675,14 +702,506 @@ class ColorSensorTest extends OpMode {
         telemetryM.addLine("Red: " + rgb.r);
         telemetryM.addLine("Green: " + rgb.g);
         telemetryM.addLine("Blue: " + rgb.b);
-        telemetryM.addLine("NORM_Red: " + norm.r);
-        telemetryM.addLine("NORM_Green: " + norm.g);
-        telemetryM.addLine("NORM_Blue: " + norm.b);
+        telemetryM.addLine("NORM_Red: " + norm.red / norm.alpha);
+        telemetryM.addLine("NORM_Green: " + norm.green / norm.alpha);
+        telemetryM.addLine("NORM_Blue: " + norm.blue / norm.alpha);
+        telemetryM.addLine("NORM_ALPHA: " + norm.alpha);
         telemetryM.addLine("Gain: " + sensor.sensor.getGain());
         telemetryM.addLine("DISTANCE: " + dist);
         telemetryM.addLine("IS GREEN: " + sensor.isGreen());
         telemetryM.addLine("IS PURPLE: " + sensor.isPurple());
         telemetryM.update(telemetry);
+
+    }
+}
+class IntakeSubsystemTest extends OpMode {
+    public MecanumDriveOnly drive = new MecanumDriveOnly();
+    public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
+    public GamepadV1 gamepad = new GamepadV1();
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    public IntakeV1 intake = new IntakeV1();
+
+    @Override
+    public void init() {
+        spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
+        gamepad.init(gamepad1, 0.3);
+        drive.init(hardwareMap, gamepad1);
+        intake.init(hardwareMap);
+        intake.setDirection(RobotConstantsV1.intakeDirection);
+        telemetry.clear();
+        telemetryM.addLine("This OpMode will test the intake subsystem.");
+        telemetryM.addLine("\tPress CIRCLE to switch spindexer states.");
+        telemetryM.addLine("\tPress SQUARE to switch spindexer to shoot/intake positions.");
+        telemetryM.update(telemetry);
+        spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+    }
+
+    @Override
+    public void loop() {
+        gamepad.update();
+        drive.drive();
+        intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        telemetryM.update(telemetry);
+        telemetryM.addLine("Spindexer Pos: " + spindexer.getCurrentPosition());
+        telemetryM.addLine("Spindexer target pos (encoder): "+ spindexer.targetPositionEncoder);
+        telemetryM.addLine("Error: " + spindexer.getError());
+        telemetryM.addLine("Next state: " + spindexer.getNextState());
+        telemetryM.addLine("Button Timer: "  + gamepad.buttonTimer.seconds());
+        telemetryM.addLine("Controller Power: " + spindexer.getControllerPower());
+        spindexer.run();
+        if(gamepad.circle && gamepad.isGamepadReady()) {
+            spindexer.setState(spindexer.getNextState());
+            gamepad.resetTimer();
+        }
+        if(gamepad.square && gamepad.isGamepadReady()) {
+            intake.switchDirection();
+            gamepad.resetTimer();
+        }
+        if(gamepad.left_trigger > 0.05 && gamepad.isGamepadReady()) {
+            spindexer.switchToShootOrIntake();
+            gamepad.resetTimer();
+        }
+        if(gamepad.dpad_up && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() + 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+        if(gamepad.dpad_down && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() - 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+    }
+}
+
+class AutomatedIntakeTest extends OpMode {
+    public MecanumDriveOnly drive = new MecanumDriveOnly();
+    public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
+    public GamepadV1 gamepad = new GamepadV1();
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+    public ArtifactColor slot1 = ArtifactColor.NONE;
+    public ArtifactColor slot2 = ArtifactColor.NONE;
+    public ArtifactColor slot3 = ArtifactColor.NONE;
+    public SlotColorSensorV1 sensor = new SlotColorSensorV1();
+    public IntakeV1 intake = new IntakeV1();
+    public ElapsedTime captureTimer = new ElapsedTime();
+    public double green = 0;
+    public double lastGreen = 0;
+    public double loops = 0;
+    public double avgGreen = 0;
+    public boolean finished = false;
+    public double dist = 0;
+
+    @Override
+    public void init() {
+        spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
+        sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
+        gamepad.init(gamepad1, 0.3);
+        drive.init(hardwareMap, gamepad);
+        intake.init(hardwareMap);
+        spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+        intake.setDirection(RobotConstantsV1.intakeDirection);
+        dist = sensor.sensor.getDistance(DistanceUnit.MM);
+    }
+
+    @Override
+    public void init_loop(){
+        telemetry.clear();
+        telemetryM.addLine("This OpMode will automate the intake subsystem using the color sensor.");
+        telemetryM.update(telemetry);
+    }
+
+    @Override
+    public void loop() {
+        drive.drive();
+        dist = sensor.sensor.getDistance(DistanceUnit.MM);
+        if(loops > 0) {
+            avgGreen = green / loops;
+        }
+        else {
+            avgGreen = 0;
+        }
+
+        gamepad.update();
+       /* telemetryM.addLine("Distance: " + dist);
+        telemetryM.addLine("Has ball? " + (RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist));
+        telemetryM.addLine("Is not too close?: " + (dist > 26));
+        telemetryM.addLine("Green captures: " + loops);
+        telemetryM.addLine("Total green: " + green);
+        telemetryM.addLine("Avg green: " + avgGreen);
+        telemetryM.addLine("\n");
+        telemetryM.addLine("Red: " + sensor.sensor.red());
+        telemetryM.addLine("Green: "+ sensor.sensor.green());
+        telemetryM.addLine("Blue: "+ sensor.sensor.blue());
+        telemetryM.addLine("\n");
+        telemetryM.addLine("SLOT: " + spindexer.state.name());
+        telemetryM.addLine("Is green? : " + sensor.isGreen());
+        telemetryM.addLine("Is purple? : " + sensor.isPurple());
+        telemetryM.addLine("Is ready? : " + spindexer.isSpindexerReady());
+        */
+        telemetryM.setUpdateInterval(100);
+        telemetryM.addLine("SLOT 1: " + slot1.name());
+        telemetryM.addLine("SLOT 2: " + slot2.name());
+        telemetryM.addLine("SLOT 3: " + slot3.name());
+
+        telemetryM.update(telemetry);
+
+        spindexer.run();
+
+        if(spindexer.isSpindexerReady()) {
+            if(slot1 == ArtifactColor.NONE){
+                intake.setPower(RobotConstantsV1.INTAKE_POWER);
+            }
+            else if(slot2 == ArtifactColor.NONE){
+                intake.setPower(RobotConstantsV1.INTAKE_POWER);
+            }
+            else if(slot3 == ArtifactColor.NONE){
+                intake.setPower(RobotConstantsV1.INTAKE_POWER);
+            }
+            else {
+                if(finished) {
+                    spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
+                    intake.setPower(RobotConstantsV1.INTAKE_POWER * 0.9);
+                }
+            }
+            switch (spindexer.state) {
+                case BALL_1_INTAKE:
+                    if(slot1 != ArtifactColor.NONE) {
+                        spindexer.setState(spindexer.getNextState());
+                        break;
+                    }
+                    break;
+                case BALL_2_INTAKE:
+                    if(slot2 != ArtifactColor.NONE) {
+                        spindexer.setState(spindexer.getNextState());
+                        break;
+                    }
+                    break;
+                case BALL_3_INTAKE:
+                    if(slot3 != ArtifactColor.NONE) {
+                        finished = true;
+                        break;
+                    }
+                    break;
+
+            }
+        }
+        if(avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 2){
+            switch (spindexer.state){
+                case BALL_1_INTAKE:
+                    slot1 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_2_INTAKE:
+                    slot2 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_3_INTAKE:
+                    slot3 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+            }
+        }
+        else if(avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 2){
+            switch (spindexer.state){
+                case BALL_1_INTAKE:
+                    slot1 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_2_INTAKE:
+                    slot2 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_3_INTAKE:
+                    slot3 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+            }
+        }
+        //change 26 to 10
+        else if(loops < 2 && captureTimer.seconds() > 0.03 && spindexer.isSpindexerReady() && RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist && dist > 10 && !finished){
+            lastGreen = sensor.sensor.green();
+            double brightness = sensor.sensor.red() +
+                    lastGreen +
+                    sensor.sensor.blue();
+            if(brightness > 185) {
+                green = green + lastGreen;
+                lastGreen = 0;
+                loops = loops + 1;
+                captureTimer.reset();
+            }
+        }
+        if(gamepad.dpad_up && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() + 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+        if(gamepad.dpad_down && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() - 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+    }
+}
+
+class PreTeleOpTest extends OpMode {
+    public MecanumDriveOnly drive = new MecanumDriveOnly();
+    public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
+    public GamepadV1 gamepad = new GamepadV1();
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+    public ArtifactColor slot1 = ArtifactColor.NONE;
+    public ArtifactColor slot2 = ArtifactColor.NONE;
+    public ArtifactColor slot3 = ArtifactColor.NONE;
+    public SlotColorSensorV1 sensor = new SlotColorSensorV1();
+    public IntakeV1 intake = new IntakeV1();
+    public ElapsedTime captureTimer = new ElapsedTime();
+    public double green = 0;
+    public double lastGreen = 0;
+    public double loops = 0;
+    public double avgGreen = 0;
+    public boolean finished = false;
+    public double dist = 0;public FlickerServoV1 flicker = new FlickerServoV1();
+    public boolean up = false;
+    public boolean front = false;
+    public double pos = RobotConstantsV1.FLICKER_SERVO_DOWN;
+    public ArcShooterV1 arcShooter = new ArcShooterV1();
+    public MultipleTelemetry multipleTelemetry;
+    public TurretServoV1 servo = new TurretServoV1();
+    public enum Mode {
+        SHOOT,
+        INTAKE
+    }
+    public Mode mode = Mode.INTAKE;
+
+
+    @Override
+    public void init() {
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        multipleTelemetry = new MultipleTelemetry(telemetry, telemetryM);
+        spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
+        sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
+        servo.init(hardwareMap, false);
+        gamepad.init(gamepad1, 0.3);
+        drive.init(hardwareMap, gamepad);
+        intake.init(hardwareMap);
+        spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+        intake.setDirection(RobotConstantsV1.intakeDirection);
+        dist = sensor.sensor.getDistance(DistanceUnit.MM);
+        flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
+        gamepad.init(gamepad1, 0.3);
+        arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
+    }
+
+    @Override
+    public void init_loop(){
+        telemetry.clear();
+        telemetryM.addLine("This OpMode will automate the intake subsystem using the color sensor.");
+        telemetryM.update(telemetry);
+    }
+
+    @Override
+    public void loop() {
+        drive.drive();
+        dist = sensor.sensor.getDistance(DistanceUnit.MM);
+        if(loops > 0) {
+            avgGreen = green / loops;
+        }
+        else {
+            avgGreen = 0;
+        }
+
+        gamepad.update();
+       /* telemetryM.addLine("Distance: " + dist);
+        telemetryM.addLine("Has ball? " + (RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist));
+        telemetryM.addLine("Is not too close?: " + (dist > 26));
+        telemetryM.addLine("Green captures: " + loops);
+        telemetryM.addLine("Total green: " + green);
+        telemetryM.addLine("Avg green: " + avgGreen);
+        telemetryM.addLine("\n");
+        telemetryM.addLine("Red: " + sensor.sensor.red());
+        telemetryM.addLine("Green: "+ sensor.sensor.green());
+        telemetryM.addLine("Blue: "+ sensor.sensor.blue());
+        telemetryM.addLine("\n");
+        telemetryM.addLine("SLOT: " + spindexer.state.name());
+        telemetryM.addLine("Is green? : " + sensor.isGreen());
+        telemetryM.addLine("Is purple? : " + sensor.isPurple());
+        telemetryM.addLine("Is ready? : " + spindexer.isSpindexerReady());
+        */
+        telemetryM.setUpdateInterval(100);
+        telemetryM.addLine("SLOT 1: " + slot1.name());
+        telemetryM.addLine("SLOT 2: " + slot2.name());
+        telemetryM.addLine("SLOT 3: " + slot3.name());
+
+        telemetryM.update(telemetry);
+
+        spindexer.run();
+        if(mode == Mode.INTAKE){
+            intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
+        else {
+            intake.setPower(0.3);
+        }
+
+        if(spindexer.isSpindexerReady()) {
+            switch (spindexer.state) {
+                case BALL_1_INTAKE:
+                    if(slot1 != ArtifactColor.NONE) {
+                        spindexer.setState(spindexer.getNextState());
+                        break;
+                    }
+                    break;
+                case BALL_2_INTAKE:
+                    if(slot2 != ArtifactColor.NONE) {
+                        spindexer.setState(spindexer.getNextState());
+                        break;
+                    }
+                    break;
+                case BALL_3_INTAKE:
+                    if(slot3 != ArtifactColor.NONE) {
+                        finished = true;
+                        break;
+                    }
+                    break;
+
+            }
+        }
+        if(avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5){
+            switch (spindexer.state){
+                case BALL_1_INTAKE:
+                    slot1 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_2_INTAKE:
+                    slot2 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_3_INTAKE:
+                    slot3 = ArtifactColor.PURPLE;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+            }
+        }
+        else if(avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5){
+            switch (spindexer.state){
+                case BALL_1_INTAKE:
+                    slot1 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_2_INTAKE:
+                    slot2 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+                case BALL_3_INTAKE:
+                    slot3 = ArtifactColor.GREEN;
+                    loops = 0;
+                    green = 0;
+                    avgGreen = 0;
+                    break;
+            }
+        }
+        //change 26 to 10
+        else if(loops < 5 && captureTimer.seconds() > 0.03 && spindexer.isSpindexerReady() && RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist && dist > 10 && !finished){
+            lastGreen = sensor.sensor.green();
+            double brightness = sensor.sensor.red() +
+                    lastGreen +
+                    sensor.sensor.blue();
+            if(brightness > 185) {
+                green = green + lastGreen;
+                lastGreen = 0;
+                loops = loops + 1;
+                captureTimer.reset();
+            }
+        }
+        if(gamepad.dpad_up && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() + 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+        if(gamepad.dpad_down && gamepad.isGamepadReady()){
+            spindexer.setTargetPos(spindexer.getTargetPos() - 1000, spindexer.getMeasurementMethod());
+            gamepad.resetTimer();
+        }
+        gamepad.update();
+        if(spindexer.state == SpindexerMotorV1.State.BALL_1_SHOOT || spindexer.state == SpindexerMotorV1.State.BALL_2_SHOOT || spindexer.state == SpindexerMotorV1.State.BALL_3_SHOOT) {
+            arcShooter.run();
+        }
+        else {
+            arcShooter.setTargetRPM(2000);
+            arcShooter.run();
+        }
+
+        arcShooter.updatePIDsFromConstants();
+        if(gamepad.dpad_up && gamepad.isGamepadReady()){
+            arcShooter.setTargetRPM(arcShooter.getTargetRPM() + RobotConstantsV1.velocityUpStep);
+            gamepad.resetTimer();
+        }
+        else if(gamepad.dpad_down && gamepad.isGamepadReady()) {
+            arcShooter.setTargetRPM(arcShooter.getTargetRPM() - RobotConstantsV1.velocityDownStep);
+            gamepad.resetTimer();
+        }
+        arcShooter.graph(multipleTelemetry);
+        if(gamepad.isGamepadReady() && gamepad1.circle){
+            pos = RobotConstantsV1.FLICKER_SERVO_UP;
+            flicker.resetTimer();
+            gamepad.resetTimer();
+            up = true;
+        }
+        if(gamepad.isGamepadReady() && gamepad.options){
+            spindexer.switchToShootOrIntake();
+            if(mode == Mode.SHOOT){
+                mode = Mode.INTAKE;
+            }
+            else {
+                mode  = Mode.SHOOT;
+            }
+            gamepad.resetTimer();
+        }
+        if(front){
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
+        }
+        else {
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+        }
+        if(gamepad.isGamepadReady() && gamepad.left_bumper){
+            servo.setPosition(servo.getPosition() + 0.05);
+            gamepad.resetTimer();
+        }
+
+        if(gamepad.isGamepadReady() && gamepad.right_bumper){
+            servo.setPosition(servo.getPosition() - 0.05);
+            gamepad.resetTimer();
+        }
+
+        if(gamepad.isGamepadReady() && gamepad.options){
+            front = !front;
+            gamepad.resetTimer();
+        }
+
+        if(flicker.timer.seconds() > 1 && up){
+            pos = RobotConstantsV1.FLICKER_SERVO_DOWN;
+            spindexer.setState(spindexer.getNextState());
+            up = false;
+        }
+        flicker.setPosition(pos);
     }
 }
 
