@@ -42,6 +42,10 @@ public class SlotColorSensorV1 {
 
     public void update(SpindexerMotorV1.State state, boolean spindexerReady) {
         dist = sensor.getDistance(DistanceUnit.MM);
+        if(!spindexerReady){
+            clear();
+            return;
+        }
         if (loops > 0) {
             avgGreen = green / loops;
         } else {
@@ -70,7 +74,7 @@ public class SlotColorSensorV1 {
             }
         }
         //change 26 to 10
-        else if (loops < 5 && captureTimer.seconds() > 0.03 && spindexerReady && RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist && dist > 10) {
+        else if (loops < 5 && captureTimer.seconds() > 0.03 && spindexerReady && RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist && dist > RobotConstantsV1.MIN_DISTANCE_COLOR_SENSOR) {
             lastGreen = sensor.green();
             double brightness = sensor.red() +
                     lastGreen +
@@ -106,16 +110,34 @@ public class SlotColorSensorV1 {
     }
 
     public void log(TelemetryManager telemetryM, Telemetry telemetry){
-        telemetryM.addLine("Has ball? " + (RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist));
-        telemetryM.addLine("Distance: " + dist);
-        telemetryM.addLine("Is not too close?: " + (dist > 26));
-        telemetryM.addLine("Green captures: " + loops);
-        telemetryM.addLine("Total green: " + green);
-        telemetryM.addLine("Avg green: " + avgGreen);
-        telemetryM.addLine("\n");
-        telemetryM.addLine("Red: " + sensor.red());
-        telemetryM.addLine("Green: "+ sensor.green());
-        telemetryM.addLine("Blue: "+ sensor.blue());
-        telemetryM.addLine("\n");
+        if(RobotConstantsV1.panelsEnabled) {
+            telemetryM.addLine("Has ball? " + (RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist));
+            telemetryM.addLine("Distance: " + dist);
+            telemetryM.addLine("Is not too close?: " + (dist > 10));
+            telemetryM.addLine("Green captures: " + loops);
+            telemetryM.addLine("Total green: " + green);
+            telemetryM.addLine("Avg green: " + avgGreen);
+            telemetryM.addLine("Color sensor state: " + getCurrent().name());
+            telemetryM.addLine("\n");
+            if(dist > 10) {
+                telemetryM.addLine("Red: " + sensor.red());
+                telemetryM.addLine("Green: " + lastGreen);
+                telemetryM.addLine("Blue: " + sensor.blue());
+                telemetryM.addLine("\n");
+            }
+        }
+        else {
+            telemetry.addLine("Has ball? " + (RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist));
+            telemetry.addLine("Distance: " + dist);
+            telemetry.addLine("Is not too close?: " + (dist > 26));
+            telemetry.addLine("Green captures: " + loops);
+            telemetry.addLine("Total green: " + green);
+            telemetry.addLine("Avg green: " + avgGreen);
+            telemetry.addLine("\n");
+            telemetry.addLine("Red: " + sensor.red());
+            telemetry.addLine("Green: " + lastGreen);
+            telemetry.addLine("Blue: " + sensor.blue());
+            telemetry.addLine("\n");
+        }
     }
 }

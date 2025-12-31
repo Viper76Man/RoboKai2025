@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -200,19 +201,28 @@ public class ArcShooterV1 {
     public void graph(MultipleTelemetry telemetry){
         telemetry.addData("Error", error);
         telemetry.addData("Power", shooter.getPower());
+        telemetry.addData("Power 2", shooter2.getPower());
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
         telemetry.addData("Pos", shooter.getCurrentPosition());
-        telemetry.addData("Power drop", controller.controller.powerDrop);
+    }
+
+    public void graph(TelemetryManager telemetry){
+        telemetry.addData("Error", error);
+        telemetry.addData("Power", shooter.getPower());
+        telemetry.addData("Power 2", shooter2.getPower());
+        telemetry.addData("Target RPM", targetRPM);
+        telemetry.addData("RPM", getVelocityRPM());
+        telemetry.addData("Pos", shooter.getCurrentPosition());
     }
 
     public void graph(Telemetry telemetry){
         telemetry.addData("Error", error);
         telemetry.addData("Power", shooter.getPower());
+        telemetry.addData("Power 2", shooter2.getPower());
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
         telemetry.addData("Pos", shooter.getCurrentPosition());
-        telemetry.addData("Power drop", controller.controller.powerDrop);
     }
 
 }

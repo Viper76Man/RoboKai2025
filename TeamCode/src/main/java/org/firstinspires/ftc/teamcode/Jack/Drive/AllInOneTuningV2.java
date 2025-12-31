@@ -4,29 +4,15 @@ import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrent;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrentAndHistory;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.follower;
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.graphics.ColorSpace;
-import android.view.View;
-import android.widget.RelativeLayout;
-
-import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.telemetry.Folder;
-import com.pedropathing.telemetry.SelectScope;
 import com.pedropathing.telemetry.SelectableOpMode;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DigitalChannelController;
-import com.qualcomm.robotcore.hardware.DigitalChannelImpl;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -38,6 +24,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
+import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
@@ -45,6 +32,8 @@ import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
 import org.firstinspires.ftc.teamcode.R;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +82,9 @@ public class AllInOneTuningV2 extends SelectableOpMode {
             s.folder("Localization", l -> {
                 l.add("Localization Test", LocalizationTest::new);
                 l.add("Central Localization Test", CentralLocalizationTest::new);
+            });
+            s.folder("Logging", logs->{
+                logs.add("Log Reader", LogReader::new);
             });
 
         });
@@ -669,6 +661,8 @@ class ColorSensorTest extends OpMode {
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public MultipleTelemetry multipleTelemetry;
     public SlotColorSensorV1 sensor = new SlotColorSensorV1();
+    public IntakeV1 intake = new IntakeV1();
+    public boolean intakeOn = true;
     public double dist = 0;
     public double gain = 1;
 
@@ -677,6 +671,7 @@ class ColorSensorTest extends OpMode {
         multipleTelemetry = new MultipleTelemetry(telemetry, telemetryM);
         gamepad.init(gamepad1, 0.3);
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
+        intake.init(hardwareMap);
         sensor.sensor.setGain(1);
         telemetryM.addLine("This OpMode reads the value from the robot's color sensor. ");
     }
@@ -684,6 +679,13 @@ class ColorSensorTest extends OpMode {
     @Override
     public void loop() {
         dist = sensor.sensor.getDistance(DistanceUnit.MM);
+        if(intakeOn) {
+            intake.setDirection(RobotConstantsV1.intakeDirection);
+            intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
+        else {
+            intake.setPower(0);
+        }
         RGB rgb = sensor.getRGB();
         NormalizedRGBA norm = sensor.getNormalizedRGB();
         gamepad.update();
@@ -693,6 +695,10 @@ class ColorSensorTest extends OpMode {
         }
         if(gamepad.dpad_down && gamepad.isGamepadReady()){
             gain -= 1;
+            gamepad.resetTimer();
+        }
+        if(gamepad.circle && gamepad.isGamepadReady()){
+            intakeOn = !intakeOn;
             gamepad.resetTimer();
         }
         if(gain < 1){
@@ -970,7 +976,8 @@ class PreTeleOpTest extends OpMode {
     public double loops = 0;
     public double avgGreen = 0;
     public boolean finished = false;
-    public double dist = 0;public FlickerServoV1 flicker = new FlickerServoV1();
+    public double dist = 0;
+    public FlickerServoV1 flicker = new FlickerServoV1();
     public boolean up = false;
     public boolean front = false;
     public double pos = RobotConstantsV1.FLICKER_SERVO_DOWN;
@@ -1012,6 +1019,7 @@ class PreTeleOpTest extends OpMode {
     @Override
     public void loop() {
         drive.drive();
+        drive.log(telemetry);
         dist = sensor.sensor.getDistance(DistanceUnit.MM);
         if(loops > 0) {
             avgGreen = green / loops;
@@ -1202,6 +1210,28 @@ class PreTeleOpTest extends OpMode {
             up = false;
         }
         flicker.setPosition(pos);
+    }
+}
+
+class LogReader extends OpMode {
+    public LoggerV1 logger = new LoggerV1();
+    public String[] lines;
+    @Override
+    public void init() {
+        logger.init(telemetry);
+        lines = logger.read("robotLogNewest.txt");
+    }
+
+    @Override
+    public void loop() {
+        if(lines != null) {
+            for (String line : lines) {
+                telemetry.addLine(line);
+            }
+        }
+        else {
+            telemetry.addLine("Logfile is null.");
+        }
     }
 }
 

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
@@ -56,6 +57,10 @@ public class IntakeV1{
         telemetry.addData("Intake Motor Position: ", motor.getCurrentPosition());
         telemetry.addData("Intake Direction: " , motor.getDirection());
         telemetry.update();
+    }
+
+    public double getCurrent(){
+        return ((DcMotorEx) motor).getCurrent(CurrentUnit.AMPS);
     }
 
 }

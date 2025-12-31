@@ -35,16 +35,18 @@ public class MecanumDriveOnly {
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
         backLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backLeft);
         backRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backRight);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeftMotor.setDirection(RobotConstantsV1.frontLeftDirection);
         backLeftMotor.setDirection(RobotConstantsV1.backLeftDirection);
         frontRightMotor.setDirection(RobotConstantsV1.frontRightDirection);
         backRightMotor.setDirection(RobotConstantsV1.backRightDirection);
-        if(RobotConstantsV1.useBrakeInTeleOp) {
-            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void init(HardwareMap hardwareMap, GamepadV1 gamepad) {
@@ -54,16 +56,29 @@ public class MecanumDriveOnly {
         frontRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.frontRight);
         backLeftMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backLeft);
         backRightMotor = hardwareMap.get(DcMotor.class, RobotConstantsV1.backRight);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontLeftMotor.setDirection(RobotConstantsV1.frontLeftDirection);
         backLeftMotor.setDirection(RobotConstantsV1.backLeftDirection);
         frontRightMotor.setDirection(RobotConstantsV1.frontRightDirection);
         backRightMotor.setDirection(RobotConstantsV1.backRightDirection);
-        if(RobotConstantsV1.useBrakeInTeleOp) {
-            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void setToBrake(){
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
 
@@ -151,6 +166,10 @@ public class MecanumDriveOnly {
         telemetry.addLine("Front Right Position: " + frontRightMotor.getCurrentPosition());
         telemetry.addLine("Back Left Position: " + backLeftMotor.getCurrentPosition());
         telemetry.addLine("Back Right Position: " + backRightMotor.getCurrentPosition());
+        telemetry.addLine("FL Mode: " + frontLeftMotor.getZeroPowerBehavior());
+        telemetry.addLine("BL Mode: " + backLeftMotor.getZeroPowerBehavior());
+        telemetry.addLine("FR Mode: " + frontRightMotor.getZeroPowerBehavior());
+        telemetry.addLine("BR Mode: " + backRightMotor.getZeroPowerBehavior());
     }
     public void log(MultipleTelemetry telemetry){
         telemetry.addLine("Front Left Power: " + frontLeftMotor.getPower());
@@ -161,6 +180,10 @@ public class MecanumDriveOnly {
         telemetry.addLine("Front Right Position: " + frontRightMotor.getCurrentPosition());
         telemetry.addLine("Back Left Position: " + backLeftMotor.getCurrentPosition());
         telemetry.addLine("Back Right Position: " + backRightMotor.getCurrentPosition());
+        telemetry.addLine("FL Mode: " + frontLeftMotor.getZeroPowerBehavior());
+        telemetry.addLine("BL Mode: " + backLeftMotor.getZeroPowerBehavior());
+        telemetry.addLine("FR Mode: " + frontRightMotor.getZeroPowerBehavior());
+        telemetry.addLine("BR Mode: " + backRightMotor.getZeroPowerBehavior());
         telemetry.addLine("Error: " + rotationalError);
     }
 

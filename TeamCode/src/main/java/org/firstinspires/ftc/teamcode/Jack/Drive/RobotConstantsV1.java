@@ -37,8 +37,8 @@ public class RobotConstantsV1 {
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
-    public static double forwardPodY = -3.5;
-    public static double strafePodX = 0;
+    public static double forwardPodY = 2;
+    public static double strafePodX = 6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 5;
@@ -63,7 +63,7 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.015, 0, 0, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.000197);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00003, 0, 0, 0.0002);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
@@ -79,7 +79,7 @@ public class RobotConstantsV1 {
 
     public static double TURRET_SERVO_MAX_ANGLE_DEG = TURRET_INPUT_VALUE * ((double) 355 / 255);
 
-    public static double SHOOTER_TARGET_RPM = 4440;
+    public static double SHOOTER_TARGET_RPM = 5000;
     public static double SHOOTER_FRONT_RPM = 3700;
     public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
@@ -93,10 +93,11 @@ public class RobotConstantsV1 {
 
     public static double MIN_G_VALUE_COLOR_SENSOR = 165;
     public static double MAX_DISTANCE_COLOR_SENSOR = 32;
+    public static double MIN_DISTANCE_COLOR_SENSOR = 13;
 
-    public static double FLICKER_SERVO_UP = 0.6;
+    public static double FLICKER_SERVO_UP = 0.7;
     public static double FLICKER_SERVO_DOWN = 1;
-    public static double FLICKER_UP_TIME = 0.75;
+    public static double FLICKER_UP_TIME = 0.35;
 
     public static double maxLaunchZoneDistance = 15; //inches
 

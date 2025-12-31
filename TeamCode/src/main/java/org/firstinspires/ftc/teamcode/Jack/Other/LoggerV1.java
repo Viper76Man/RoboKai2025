@@ -50,6 +50,15 @@ public class LoggerV1 {
         }
     }
 
+    public void clear(String file){
+        try {
+            File file_ = getFile(file);
+            ReadWriteFile.writeFile(file_, "");
+        } catch (Exception e){
+            logToTelemetry(String.valueOf(e.getMessage()));
+        }
+    }
+
     public void logToTelemetry(String line){
         if(telemetry == null){
             multipleTelemetry.addLine(line);
@@ -72,16 +81,24 @@ public class LoggerV1 {
         ReadWriteFile.writeFile(file_, alliance.name() + "\n");
     }
 
-    public Robot.Alliance readSideFromFile(){
+    public Robot.Alliance readSideFromFile() {
         try {
             String[] types = ReadWriteFile.readFile(getFile("alliance.txt")).split("\n");
             return Robot.Alliance.valueOf(types[types.length - 1]);
-        }
-        catch (Exception e){
-            telemetry.addLine("Please run an auto to choose your alliance.");
+        } catch (Exception e) {
+           logToTelemetry("Please run an auto to choose your alliance.");
             return null;
         }
+    }
 
+    public String[] read(String file){
+        try {
+
+            return ReadWriteFile.readFile(getFile(file)).split("\n");
+        }
+        catch (Exception e){
+            return null;
+        }
     }
     public File getFile(String filename){
         return AppUtil.getInstance().getSettingsFile(filename);

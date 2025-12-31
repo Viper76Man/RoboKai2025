@@ -14,7 +14,11 @@ public class FlickerServoV1 {
         DOWN
     }
     public State state = State.DOWN;
+    public ElapsedTime downForTimer = new ElapsedTime();
+    public double position = RobotConstantsV1.FLICKER_SERVO_DOWN;
+    public boolean up = false;
     public ElapsedTime timer = new ElapsedTime();
+    public ElapsedTime travelTimer = new ElapsedTime();
     public void init(HardwareMap hardwareMap, String servoName){
         flicker = hardwareMap.get(Servo.class, servoName);
     }
@@ -22,24 +26,58 @@ public class FlickerServoV1 {
     public void log(MultipleTelemetry telemetry){
         telemetry.addData("Flicker pos: ", flicker.getPosition());
     }
-    public void setPosition(double position){
-        if(position == RobotConstantsV1.FLICKER_SERVO_UP){
+    public void setPosition(double position_){
+        resetTravelTimer();
+        this.position = position_;
+    }
+
+    public void up(){
+        resetTravelTimer();
+        flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+        this.position = RobotConstantsV1.FLICKER_SERVO_UP;
+        up = true;
+    }
+
+    public void down(){
+        resetTravelTimer();
+        flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+        this.position = RobotConstantsV1.FLICKER_SERVO_DOWN;
+        up = false;
+    }
+
+    public void update(){
+        flicker.setPosition(position);
+        if(position == RobotConstantsV1.FLICKER_SERVO_UP && travelTimer.seconds() > 0.4){
             state = State.UP;
         }
-        else if(position == RobotConstantsV1.FLICKER_SERVO_DOWN){
+        if(position == RobotConstantsV1.FLICKER_SERVO_UP){
+            up = true;
+        }
+        if(position == RobotConstantsV1.FLICKER_SERVO_DOWN){
+            up = false;
+        }
+        else if(position == RobotConstantsV1.FLICKER_SERVO_DOWN && travelTimer.seconds() > 0.4){
             state = State.DOWN;
         }
-        flicker.setPosition(position);
+        if(position == RobotConstantsV1.FLICKER_SERVO_UP){
+            downForTimer.reset();
+        }
+
+    }
+    public void resetTravelTimer(){
+        travelTimer.reset();
     }
     public void setPosition(State position){
         switch (position){
             case UP:
                 setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
-                state = State.UP;
+                this.position = RobotConstantsV1.FLICKER_SERVO_UP;
+                up = true;
                 break;
             case DOWN:
                 setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
-                state = State.DOWN;
+                this.position = RobotConstantsV1.FLICKER_SERVO_DOWN;
+                up = false;
                 break;
         }
     }
