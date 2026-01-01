@@ -361,7 +361,7 @@ public class RobotV3 {
     }
 
     public boolean isFlickerDown(){
-        return flicker.getState() == FlickerServoV2.State.DOWN;
+        return flicker.getState() == FlickerServoV2.State.DOWN && flicker.getStateTimerSeconds() > 0.5;
     }
 
     public void setFlickerUp(){

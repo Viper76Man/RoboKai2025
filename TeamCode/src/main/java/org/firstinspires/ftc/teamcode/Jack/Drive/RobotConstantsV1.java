@@ -67,7 +67,7 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDFCoefficients turretPIDs = new PIDFCoefficients(0.001, 0, 0, 0);
+    public static PIDFCoefficients turretPIDs = new PIDFCoefficients(0.01, 0, 0, 0);
     public static double INTAKE_POWER = 0.9;
     public static double turretServoPower = 0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;

@@ -56,6 +56,7 @@ public class FlickerServoV2 {
         }
         else if(position == RobotConstantsV1.FLICKER_SERVO_DOWN && stateTimer.seconds() > 0.5){
             setState(State.DOWN);
+            resetStateTimer();
         }
     }
 
@@ -87,5 +88,9 @@ public class FlickerServoV2 {
     }
     public void resetStateTimer(){
         stateTimer.reset();
+    }
+
+    public double getStateTimerSeconds(){
+        return stateTimer.seconds();
     }
 }

@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
+import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
 import org.firstinspires.ftc.teamcode.R;
 import org.slf4j.Logger;
@@ -66,6 +67,7 @@ public class AllInOneTuningV2 extends SelectableOpMode {
                 });
                 h.folder("Turret", t-> {
                     t.add("Turret PID Test", TurretServoTester::new);
+                    t.add("Turret Speed Tester", TurretSpeedTest::new);
                 });
                 h.folder("Shooter", sh -> {
                     sh.add("Shooter Subsystems test", DeliverySubsystemsTest::new);
@@ -529,11 +531,55 @@ class FlickerTest extends OpMode {
 }
 class TurretServoTester extends OpMode {
     public LimelightV1 limelight = new LimelightV1();
-    public TurretServoV1 servo = new TurretServoV1();
     public GamepadV1 gamepad = new GamepadV1();
+    public TurretServoCR turret = new TurretServoCR();
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public int latestID = -1;
     public double rotationalError = 0;
+    public double tx, targetAngle = 0;
+
+    @Override
+    public void init() {
+        limelight.init(hardwareMap);
+        turret.setPower(0);
+        gamepad.init(gamepad1, 0.3);
+    }
+
+    @Override
+    public void start() {
+        limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
+        limelight.startStreaming();
+    }
+
+    @Override
+    public void loop() {
+        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
+        if (latest_result != null) {
+            latestID = latest_result.getFiducialId();
+            tx = latest_result.getTargetXDegrees();
+        }
+        else {
+            tx = 0;
+            latestID = -1;
+
+        }
+        double power = tx * RobotConstantsV1.turretPIDs.p;
+        turret.setPower(power);
+        gamepad.update();
+        telemetryM.addData("Position: ", turret.getEncoderPos());
+        telemetryM.addLine("\tTarget X: "+ tx);
+        telemetryM.addLine("\tPower: "+ power);
+        telemetryM.addData("Pipeline selected: ", limelight.getPipeline().name());
+        telemetryM.addData("Latest tag: ", latestID);
+        telemetryM.update(telemetry);
+    }
+}
+class TurretSpeedTest extends OpMode {
+    public LimelightV1 limelight = new LimelightV1();
+    public TurretServoV1 servo = new TurretServoV1();
+    public GamepadV1 gamepad = new GamepadV1();
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    public double latestPos = 0;
 
     @Override
     public void init() {
@@ -551,29 +597,25 @@ class TurretServoTester extends OpMode {
 
     @Override
     public void loop() {
-        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        if(latest_result != null) {
-            latestID = latest_result.getFiducialId();
-            rotationalError = latest_result.getTargetXDegrees();
-        }
-        else {
-            latestID = -1;
-
-        }
+        servo.setPosition(latestPos);
         if(gamepad.isGamepadReady() && gamepad.left_bumper){
-            servo.setPosition(servo.getPosition() + 0.05);
-            gamepad.resetTimer();
+           latestPos = latestPos + 0.5;
+           gamepad.resetTimer();
         }
 
         if(gamepad.isGamepadReady() && gamepad.right_bumper){
-            servo.setPosition(servo.getPosition() - 0.05);
+            latestPos = latestPos - 0.5;
             gamepad.resetTimer();
         }
-        //servo.update(rotationalError);
+
+        if(gamepad.circle && latestPos != 0.5){
+            latestPos = 0.5;
+            gamepad.resetTimer();
+        }
         gamepad.update();
         telemetryM.addData("Position: ", servo.getPosition());
+        telemetryM.addData("Encoder Position: ", servo.getEncoderPos());
         telemetryM.addData("Pipeline selected: ", limelight.getPipeline().name());
-        telemetryM.addData("Is done turning?: ", servo.isDoneTurning());
         telemetryM.update(telemetry);
     }
 }
