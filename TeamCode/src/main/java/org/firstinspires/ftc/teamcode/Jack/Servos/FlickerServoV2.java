@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 public class FlickerServoV2 {
     public Servo flicker;
     public enum State {
+        IDLE,
         DOWN,
         TRAVEL_UP,
         UP,
@@ -43,19 +44,19 @@ public class FlickerServoV2 {
 
     public void update(boolean isSpindexerReady){
         flicker.setPosition(position);
-        if(position == RobotConstantsV1.FLICKER_SERVO_UP && stateTimer.seconds() < 0.5 && state == State.DOWN && isSpindexerReady){
+        if(state == State.DOWN && isSpindexerReady){
             setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
             setState(State.TRAVEL_UP);
         }
-        else if(position == RobotConstantsV1.FLICKER_SERVO_UP && stateTimer.seconds() > 0.5 && stateTimer.seconds() < 1){
+        else if(state == State.TRAVEL_UP && stateTimer.seconds() > 0.35){
             setState(State.UP);
         }
-        else if(position == RobotConstantsV1.FLICKER_SERVO_UP && stateTimer.seconds() > 1 && state == State.UP){
+        else if(state == State.UP && stateTimer.seconds() > 0.55){
             setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
             setState(State.TRAVEL_DOWN);
         }
-        else if(position == RobotConstantsV1.FLICKER_SERVO_DOWN && stateTimer.seconds() > 0.5){
-            setState(State.DOWN);
+        else if(position == RobotConstantsV1.FLICKER_SERVO_DOWN && stateTimer.seconds() > 0.3){
+            setState(State.IDLE);
             resetStateTimer();
         }
     }
@@ -73,7 +74,7 @@ public class FlickerServoV2 {
         }
     }
 
-    private void setState(State state_){
+    public void setState(State state_){
         this.state = state_;
         switch(state_){
             case TRAVEL_DOWN:

@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
@@ -33,15 +34,10 @@ import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
 import org.firstinspires.ftc.teamcode.R;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @TeleOp
 public class AllInOneTuningV2 extends SelectableOpMode {
@@ -532,15 +528,19 @@ class FlickerTest extends OpMode {
 class TurretServoTester extends OpMode {
     public LimelightV1 limelight = new LimelightV1();
     public GamepadV1 gamepad = new GamepadV1();
+    public PIDController controller;
     public TurretServoCR turret = new TurretServoCR();
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public int latestID = -1;
     public double rotationalError = 0;
-    public double tx, targetAngle = 0;
+    public double tx,ty, targetAngle, power = 0;
+    public ElapsedTime noResultTimer = new ElapsedTime();
 
     @Override
     public void init() {
+        controller = new PIDController(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         limelight.init(hardwareMap);
+        turret.init(hardwareMap);
         turret.setPower(0);
         gamepad.init(gamepad1, 0.3);
     }
@@ -553,21 +553,35 @@ class TurretServoTester extends OpMode {
 
     @Override
     public void loop() {
-        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        if (latest_result != null) {
-            latestID = latest_result.getFiducialId();
-            tx = latest_result.getTargetXDegrees();
-        }
-        else {
-            tx = 0;
-            latestID = -1;
-
-        }
-        double power = tx * RobotConstantsV1.turretPIDs.p;
-        turret.setPower(power);
         gamepad.update();
+        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
+        if(latest_result != null) {
+            latestID = latest_result.getFiducialId();
+            tx = latest_result.getTargetXDegreesNoCrosshair();
+            ty = latest_result.getTargetYDegreesNoCrosshair();
+            noResultTimer.reset();
+        }
+        if(noResultTimer.seconds() > 1){
+            turret.setPower(0);
+            tx = 0;
+        }
+        if(gamepad.dpad_up && gamepad.isGamepadReady()){
+             gamepad.resetTimer();
+             power += 1;
+        }
+        if(gamepad.dpad_down && gamepad.isGamepadReady()){
+             power -= 1;
+             gamepad.resetTimer();
+        }
+        power = -controller.getOutput(tx + RobotConstantsV1.TURRET_OFFSET_ANGLE);
+        controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
+        if(Math.abs((tx + RobotConstantsV1.TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
+            power = power / 3;
+        }
+        turret.setPower(power);
         telemetryM.addData("Position: ", turret.getEncoderPos());
         telemetryM.addLine("\tTarget X: "+ tx);
+        telemetryM.addLine("\tTarget Y: "+ ty);
         telemetryM.addLine("\tPower: "+ power);
         telemetryM.addData("Pipeline selected: ", limelight.getPipeline().name());
         telemetryM.addData("Latest tag: ", latestID);
@@ -576,7 +590,7 @@ class TurretServoTester extends OpMode {
 }
 class TurretSpeedTest extends OpMode {
     public LimelightV1 limelight = new LimelightV1();
-    public TurretServoV1 servo = new TurretServoV1();
+    public TurretServoCR servo = new TurretServoCR();
     public GamepadV1 gamepad = new GamepadV1();
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public double latestPos = 0;
@@ -584,38 +598,27 @@ class TurretSpeedTest extends OpMode {
     @Override
     public void init() {
         limelight.init(hardwareMap);
-        servo.init(hardwareMap, true);
+        servo.init(hardwareMap);
         gamepad.init(gamepad1, 0.3);
     }
 
     @Override
     public void start() {
-        servo.setPosition(0.5);
         limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
         limelight.startStreaming();
     }
 
     @Override
     public void loop() {
-        servo.setPosition(latestPos);
-        if(gamepad.isGamepadReady() && gamepad.left_bumper){
-           latestPos = latestPos + 0.5;
-           gamepad.resetTimer();
-        }
-
-        if(gamepad.isGamepadReady() && gamepad.right_bumper){
-            latestPos = latestPos - 0.5;
-            gamepad.resetTimer();
-        }
-
-        if(gamepad.circle && latestPos != 0.5){
-            latestPos = 0.5;
-            gamepad.resetTimer();
+        double tx = 0;
+        if(limelight.getLatestResult().isValid() && limelight.getLatestResult() != null) {
+            tx = limelight.getLatestResult().getTxNC();
         }
         gamepad.update();
-        telemetryM.addData("Position: ", servo.getPosition());
-        telemetryM.addData("Encoder Position: ", servo.getEncoderPos());
-        telemetryM.addData("Pipeline selected: ", limelight.getPipeline().name());
+        servo.setPower(gamepad.left_stick_x);
+        telemetryM.addData("Target X: ", tx);
+        telemetryM.addData("Power: ", gamepad.left_stick_x);
+        telemetryM.addData("Pos: ", servo.getEncoderPos());
         telemetryM.update(telemetry);
     }
 }
@@ -750,6 +753,9 @@ class ColorSensorTest extends OpMode {
         telemetryM.addLine("Red: " + rgb.r);
         telemetryM.addLine("Green: " + rgb.g);
         telemetryM.addLine("Blue: " + rgb.b);
+        telemetryM.addLine("NORM_Red_PCT: " + norm.red);
+        telemetryM.addLine("NORM_Green_PCT: " + norm.green);
+        telemetryM.addLine("NORM_Blue_PCT: " + norm.blue);
         telemetryM.addLine("NORM_Red: " + norm.red / norm.alpha);
         telemetryM.addLine("NORM_Green: " + norm.green / norm.alpha);
         telemetryM.addLine("NORM_Blue: " + norm.blue / norm.alpha);

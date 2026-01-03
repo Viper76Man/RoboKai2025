@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Servos;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -22,6 +23,7 @@ public class TurretServoCR {
 
     public void setPower(double power){
         turret.setPower(power);
+        turret.setDirection(DcMotorSimple.Direction.FORWARD);
         this.usePower = true;
     }
 

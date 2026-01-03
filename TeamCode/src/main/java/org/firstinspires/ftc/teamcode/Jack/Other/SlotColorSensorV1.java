@@ -26,6 +26,9 @@ public class SlotColorSensorV1 {
     public double dist = 0;
     public double green = 0;
     public double lastGreen = 0;
+    public double countsWithinDistance = 0;
+    public double detectedTimes = 0;
+    public ElapsedTime distanceTimer = new ElapsedTime();
     public ElapsedTime captureTimer = new ElapsedTime();
     public ArtifactColor current = ArtifactColor.NONE;
 
@@ -42,9 +45,13 @@ public class SlotColorSensorV1 {
 
     public void update(SpindexerMotorV1.State state, boolean spindexerReady) {
         dist = sensor.getDistance(DistanceUnit.MM);
-        if(!spindexerReady){
-            clear();
-            return;
+        if(dist > RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR){
+            countsWithinDistance = 0;
+            distanceTimer.reset();
+        }
+        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0.2) {
+            countsWithinDistance += 1;
+            distanceTimer.reset();
         }
         if (loops > 0) {
             avgGreen = green / loops;
@@ -52,29 +59,46 @@ public class SlotColorSensorV1 {
             avgGreen = 0;
         }
 
-        if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5) {
-            switch (state) {
-                case BALL_1_INTAKE:
-                case BALL_2_INTAKE:
-                case BALL_3_INTAKE:
-                    loops = 0;
-                    green = 0;
-                    avgGreen = 0;
-                    current = ArtifactColor.PURPLE;
+        if(!spindexerReady){
+            return;
+        }
+
+        if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5 && countsWithinDistance > 3) {
+            if(detectedTimes >= 5) {
+                switch (state) {
+                    case BALL_1_INTAKE:
+                    case BALL_2_INTAKE:
+                    case BALL_3_INTAKE:
+                        loops = 0;
+                        green = 0;
+                        avgGreen = 0;
+                        current = ArtifactColor.PURPLE;
+                        countsWithinDistance = 0;
+                }
             }
-        } else if (avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5) {
-            switch (state) {
-                case BALL_1_INTAKE:
-                case BALL_2_INTAKE:
-                case BALL_3_INTAKE:
-                    loops = 0;
-                    green = 0;
-                    avgGreen = 0;
-                    current = ArtifactColor.PURPLE;
+            else {
+                detectedTimes += 1;
+            }
+
+        } else if (avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5 && countsWithinDistance > 3) {
+            if(detectedTimes >= 5) {
+                switch (state) {
+                    case BALL_1_INTAKE:
+                    case BALL_2_INTAKE:
+                    case BALL_3_INTAKE:
+                        loops = 0;
+                        green = 0;
+                        avgGreen = 0;
+                        current = ArtifactColor.GREEN;
+                        countsWithinDistance = 0;
+                }
+            }
+            else {
+                detectedTimes += 1;
             }
         }
         //change 26 to 10
-        else if (loops < 5 && captureTimer.seconds() > 0.03 && spindexerReady && RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR > dist && dist > RobotConstantsV1.MIN_DISTANCE_COLOR_SENSOR) {
+        else if (loops < 5 && captureTimer.seconds() > 0.03 && spindexerReady && hasBall()) {
             lastGreen = sensor.green();
             double brightness = sensor.red() +
                     lastGreen +
@@ -85,9 +109,6 @@ public class SlotColorSensorV1 {
                 loops = loops + 1;
                 captureTimer.reset();
             }
-        }
-        if(dist > RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR){
-            current = ArtifactColor.NONE;
         }
     }
 
@@ -139,5 +160,8 @@ public class SlotColorSensorV1 {
             telemetry.addLine("Blue: " + sensor.blue());
             telemetry.addLine("\n");
         }
+    }
+    public boolean hasBall() {
+        return dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && dist > RobotConstantsV1.MIN_DISTANCE_COLOR_SENSOR;
     }
 }

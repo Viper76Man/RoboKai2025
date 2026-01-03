@@ -41,7 +41,7 @@ public class RobotConstantsV1 {
     public static double strafePodX = 6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static int degreeToleranceCamera = 5;
+    public static int degreeToleranceCamera = 3;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -63,11 +63,11 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.015, 0, 0, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00003, 0, 0, 0.0002);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0001, 0, 0, 0.000197);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDFCoefficients turretPIDs = new PIDFCoefficients(0.01, 0, 0, 0);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.011, -0.0000003, -0.00015);
     public static double INTAKE_POWER = 0.9;
     public static double turretServoPower = 0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
@@ -76,16 +76,19 @@ public class RobotConstantsV1 {
     public static boolean useBothArcMotors = false;
 
     public static double TURRET_INPUT_VALUE = 255;
+    public static double TURRET_MAX_ENCODER_VALUE = 320;
 
     public static double TURRET_SERVO_MAX_ANGLE_DEG = TURRET_INPUT_VALUE * ((double) 355 / 255);
 
-    public static double SHOOTER_TARGET_RPM = 5000;
-    public static double SHOOTER_FRONT_RPM = 3700;
+    public static double SHOOTER_TARGET_RPM = 3800;
+    public static double SHOOTER_FRONT_RPM = 3000;
     public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_ANGULAR_VELOCITY = 0;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
+
+    public static double TURRET_OFFSET_ANGLE = -3;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 

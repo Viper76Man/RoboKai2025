@@ -59,7 +59,11 @@ public class TurretServoV1 {
     }
 
     public double getEncoderPos(){
-        return (encoder.getVoltage() / encoder.getMaxVoltage()) * 360.0;
+        return (encoder.getVoltage() / 3.3) * 360.0;
+    }
+
+    public double toRange(double encoderPos){
+        return (encoderPos / 360.0) * 3.3;
     }
 
 }
