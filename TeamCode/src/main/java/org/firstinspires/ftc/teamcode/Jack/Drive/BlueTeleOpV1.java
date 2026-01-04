@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 
-@TeleOp
+@Disabled
 public class BlueTeleOpV1 extends OpMode {
     public Robot robot = new Robot();
     public MultipleTelemetry multipleTelemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getTelemetry());

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -15,8 +16,11 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
+import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV2;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
@@ -32,6 +36,7 @@ public class RobotV3 {
     public FlickerServoV2 flicker = new FlickerServoV2();
     public TurretServoCR turret = new TurretServoCR();
     public LimelightV1 limelight = new LimelightV1();
+    public Follower follower;
     public PIDController controller;
     public IntakeV1 intake = new IntakeV1();
     //VARIABLES-------------------------------------------------------------------------------------
@@ -48,7 +53,7 @@ public class RobotV3 {
     public int currentBall = 1;
     public double cameraTx = 0;
     public double latestTagID = -1;
-    public double TURRET_OFFSET_MULTIPLIER = 1;
+    public double TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
     //TIMERS----------------------------------------------------------------------------------------
     public ElapsedTime stateTimer = new ElapsedTime();
     public ElapsedTime noResultTimer = new ElapsedTime();
@@ -79,16 +84,20 @@ public class RobotV3 {
     public ArcState arcState = ArcState.IDLE;
     public boolean intakeReversed = false;
     public MODE mode = MODE.INTAKE;
+    public Robot.Mode gamemode = Robot.Mode.TELEOP;
 
     public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1, Robot.Mode mode, Robot.Alliance alliance){
         this.gamepad = gamepadV1;
         this.hardwareMap = hardwareMap;
         this.alliance = alliance;
+        this.gamemode = mode;
         initHardware();
         initArtifactSlots();
         switch (mode){
             case TELEOP:
+                break;
             case AUTONOMOUS:
+                spindexer.resetEncoder();
                 break;
         }
         if(RobotConstantsV1.panelsEnabled){
@@ -97,10 +106,12 @@ public class RobotV3 {
     }
 
     public void initHardware(){
-        drive.init(hardwareMap, gamepad);
         intake.init(hardwareMap);
         turret.init(hardwareMap);
         limelight.init(hardwareMap);
+        //ALWAYS INIT DRIVE AFTER FOLLOWER
+        follower = Constants.createFollower(hardwareMap);
+        drive.init(hardwareMap, gamepad);
         intake.setDirection(RobotConstantsV1.intakeDirection);
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
         arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
@@ -112,11 +123,12 @@ public class RobotV3 {
         switch (alliance){
             case RED:
                 limelight.setPipeline(LimelightV1.Pipeline.RED_GOAL);
-                TURRET_OFFSET_MULTIPLIER *= -1;
+                TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_RED;
                 break;
             case BLUE:
             case TEST:
                 limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
+                TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
                 break;
         }
         limelight.startStreaming();
@@ -130,15 +142,19 @@ public class RobotV3 {
 
 
     public void systemStatesUpdate(){
-        drive.drive();
-        gamepad.update();
+        if(gamemode == Robot.Mode.TELEOP) {
+            drive.drive();
+            gamepad.update();
+        }
         turretUpdate();
         flicker.update(spindexer.isSpindexerReady());
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
+        follower.update();
         intakeUpdate();
         arcShooter.run();
         arcShooter.updatePIDsFromConstants();
         spindexerRun();
+        allianceUpdate();
         switch (state){
             case INTAKE_BALL_1:
                 spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
@@ -173,7 +189,7 @@ public class RobotV3 {
         }
 
         //INTAKE-SET-------------------------------------------------------------------------------------
-        if(gamepad.left_trigger > 0.15 && gamepad.isGamepadReady()){
+        if(gamepad.left_trigger > 0.15 && gamepad.isGamepadReady() && gamemode == Robot.Mode.TELEOP){
             intakeReversed = !intakeReversed;
             gamepad.resetTimer();
         }
@@ -181,7 +197,7 @@ public class RobotV3 {
             if(intakeReversed){
                 setEmpty(currentBall);
             }
-            if(isRightTriggerPressed() && buttonHoldTimer.seconds() > 1 && gamepad.isGamepadReady() && stateTimer.seconds() > 0.5) {
+            if(isRightTriggerPressed() && buttonHoldTimer.seconds() > 1 && gamepad.isGamepadReady() && stateTimer.seconds() > 0.5 && gamemode == Robot.Mode.TELEOP) {
                 mode = MODE.SHOOT;
                 currentBall = getNextBall();
                 setSystemState(getState(currentBall, mode));
@@ -215,6 +231,9 @@ public class RobotV3 {
             if(isRightTriggerPressed() && !fire){
                 fire = true;
             }
+            if(new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 10).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP){
+                gamepad.gamepad.rumble(100);
+            }
             if(fire) {
                 if (isFlickerDown() && !firedAlready) {
                     setFlickerUp();
@@ -227,7 +246,7 @@ public class RobotV3 {
                     fire = false;
                 }
             }
-            setShooterActiveBack();
+            setShooterActive();
         }
     }
 
@@ -375,11 +394,25 @@ public class RobotV3 {
         }
         spindexer.run();
     }
+
+    public void shootBallAuto(){
+        fire = true;
+    }
     //ARC-SHOOTER-----------------------------------------------------------------------------------
     public void setShooterIdle(){
         arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
         arcState = ArcState.IDLE;
     }
+
+    public void setShooterActive(){
+        if(follower.getPose().getY() > 80){
+            setShooterActiveBack();
+        }
+        else {
+            setShooterActiveFront();
+        }
+    }
+
     public void setShooterActiveBack(){
         arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
         arcState = ArcState.BACK;
@@ -543,7 +576,7 @@ public class RobotV3 {
             latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + (RobotConstantsV1.TURRET_OFFSET_ANGLE * TURRET_OFFSET_MULTIPLIER));
+            power = -controller.getOutput(cameraTx + TURRET_OFFSET_ANGLE);
         }
         else {
             cameraTx = 0;
@@ -552,7 +585,7 @@ public class RobotV3 {
         if(turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0){
             power = 0;
         }
-        if(Math.abs((cameraTx + (RobotConstantsV1.TURRET_OFFSET_ANGLE * TURRET_OFFSET_MULTIPLIER))) < RobotConstantsV1.degreeToleranceCamera){
+        if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
             power = power / 3;
         }
         //if(noResultTimer.seconds() > 1){
@@ -562,5 +595,17 @@ public class RobotV3 {
 
         controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
         turret.setPower(power);
+    }
+
+    public void allianceUpdate(){
+        switch (alliance){
+            case RED:
+                TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_RED;
+                break;
+            case BLUE:
+            case TEST:
+                TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
+                break;
+        }
     }
 }

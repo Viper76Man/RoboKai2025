@@ -35,10 +35,10 @@ public class Constants {
             .leftRearMotorName(RobotConstantsV1.backLeft)
             .rightFrontMotorName(RobotConstantsV1.frontRight)
             .rightRearMotorName(RobotConstantsV1.backRight)
-            .leftFrontMotorDirection(RobotConstantsV1.frontLeftDirection)
-            .leftRearMotorDirection(RobotConstantsV1.backLeftDirection)
-            .rightFrontMotorDirection(RobotConstantsV1.frontRightDirection)
-            .rightRearMotorDirection(RobotConstantsV1.backRightDirection)
+            .leftFrontMotorDirection(RobotConstantsV1.frontLeftDirectionAuto)
+            .leftRearMotorDirection(RobotConstantsV1.backLeftDirectionAuto)
+            .rightFrontMotorDirection(RobotConstantsV1.frontRightDirectionAuto)
+            .rightRearMotorDirection(RobotConstantsV1.backRightDirectionAuto)
             .xVelocity(RobotConstantsV1.xVelocity)   // was 26.99
             .yVelocity(RobotConstantsV1.yVelocity)  // was 26.99
             .useBrakeModeInTeleOp(RobotConstantsV1.useBrakeInTeleOp);
@@ -54,10 +54,10 @@ public class Constants {
             .strafeEncoderDirection(RobotConstantsV1.lateralPodDirection);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.975,
-            300,
-            0.25,
-            1
+            RobotConstantsV1.tValueConstraint,
+            RobotConstantsV1.timeoutConstantMS,
+            RobotConstantsV1.brakingStrength,
+            RobotConstantsV1.brakingStart
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

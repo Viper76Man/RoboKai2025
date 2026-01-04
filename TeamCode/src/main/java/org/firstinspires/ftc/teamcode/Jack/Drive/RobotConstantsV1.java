@@ -23,6 +23,11 @@ public class RobotConstantsV1 {
     public static DcMotorSimple.Direction backLeftDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction frontRightDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction backRightDirection = DcMotorSimple.Direction.FORWARD;
+
+    public static DcMotorSimple.Direction frontLeftDirectionAuto = DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction backLeftDirectionAuto = DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction frontRightDirectionAuto = DcMotorSimple.Direction.FORWARD;
+    public static DcMotorSimple.Direction backRightDirectionAuto = DcMotorSimple.Direction.FORWARD;
     public static boolean useBrakeInTeleOp = true;
     //Config names
     public static String pinpointName = "pinpoint";
@@ -38,7 +43,7 @@ public class RobotConstantsV1 {
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
     public static double forwardPodY = 2;
-    public static double strafePodX = 6;
+    public static double strafePodX = -6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 3;
@@ -46,15 +51,15 @@ public class RobotConstantsV1 {
     public static double shotAngleRedDegrees = 110;
 
     public static GoBildaPinpointDriver.EncoderDirection forwardPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-    public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+    public static GoBildaPinpointDriver.EncoderDirection lateralPodDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
-    public static double xVelocity = 49.88;
-    public static double yVelocity = 49.88;
+    public static double xVelocity = 65.42;
+    public static double yVelocity = 50.83;
 
     //Tuning values
-    public static double robotMassKG = 10;
-    public static double forwardZeroPowerAcceleration = -10;
-    public static double lateralZeroPowerAcceleration = 10;
+    public static double robotMassKG = 16.09;
+    public static double forwardZeroPowerAcceleration = -31.31;
+    public static double lateralZeroPowerAcceleration = -59.31;
     public static double centripetalScaling = 0.005;
 
     //PIDs
@@ -63,11 +68,18 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.015, 0, 0, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0001, 0, 0, 0.000197);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000101, 0, 0, 0.0001965);
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.011, -0.0000003, -0.00015);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0000003, -0.00015);
+
+    public static double brakingStrength = 1.25;
+    public static double timeoutConstantMS = 600;
+    public static double brakingStart = 1;
+    public static double tValueConstraint = 1;
+
+
     public static double INTAKE_POWER = 0.9;
     public static double turretServoPower = 0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
@@ -88,7 +100,8 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
-    public static double TURRET_OFFSET_ANGLE = -3;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -3;
+    public static double TURRET_OFFSET_ANGLE_RED = 5;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 

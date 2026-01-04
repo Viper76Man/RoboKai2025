@@ -573,9 +573,9 @@ class TurretServoTester extends OpMode {
              power -= 1;
              gamepad.resetTimer();
         }
-        power = -controller.getOutput(tx + RobotConstantsV1.TURRET_OFFSET_ANGLE);
+        power = -controller.getOutput(tx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
         controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
-        if(Math.abs((tx + RobotConstantsV1.TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
+        if(Math.abs((tx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCamera){
             power = power / 3;
         }
         turret.setPower(power);
