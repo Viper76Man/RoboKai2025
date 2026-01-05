@@ -576,7 +576,7 @@ class TurretServoTester extends OpMode {
         power = -controller.getOutput(tx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
         controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
         if(Math.abs((tx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCamera){
-            power = power / 3;
+            power = power / 2;
         }
         turret.setPower(power);
         telemetryM.addData("Position: ", turret.getEncoderPos());

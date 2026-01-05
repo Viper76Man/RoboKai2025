@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
+import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.follower;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
@@ -39,6 +42,7 @@ public class RobotV3 {
     public Follower follower;
     public PIDController controller;
     public IntakeV1 intake = new IntakeV1();
+    public ArcState lastArcState = ArcState.BACK;
     //VARIABLES-------------------------------------------------------------------------------------
     public HardwareMap hardwareMap;
     public TelemetryManager telemetryM;
@@ -109,8 +113,6 @@ public class RobotV3 {
         intake.init(hardwareMap);
         turret.init(hardwareMap);
         limelight.init(hardwareMap);
-        //ALWAYS INIT DRIVE AFTER FOLLOWER
-        follower = Constants.createFollower(hardwareMap);
         drive.init(hardwareMap, gamepad);
         intake.setDirection(RobotConstantsV1.intakeDirection);
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
@@ -147,9 +149,16 @@ public class RobotV3 {
             gamepad.update();
         }
         turretUpdate();
+        if(gamepad.left_bumper && gamepad.isGamepadReady()){
+            setShooterActiveFront();
+            gamepad.resetTimer();
+        }
+        if(gamepad.right_bumper && gamepad.isGamepadReady()){
+            setShooterActiveBack();
+            gamepad.resetTimer();
+        }
         flicker.update(spindexer.isSpindexerReady());
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
-        follower.update();
         intakeUpdate();
         arcShooter.run();
         arcShooter.updatePIDsFromConstants();
@@ -174,16 +183,19 @@ public class RobotV3 {
             case SHOOT_BALL_1:
                 spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
                 mode = MODE.SHOOT;
+                arcState = lastArcState;
                 currentBall = 1;
                 break;
             case SHOOT_BALL_2:
                 spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
                 mode = MODE.SHOOT;
+                arcState = lastArcState;
                 currentBall = 2;
                 break;
             case SHOOT_BALL_3:
                 spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
                 mode = MODE.SHOOT;
+                arcState = lastArcState;
                 currentBall = 3;
                 break;
         }
@@ -199,6 +211,7 @@ public class RobotV3 {
             }
             if(isRightTriggerPressed() && buttonHoldTimer.seconds() > 1 && gamepad.isGamepadReady() && stateTimer.seconds() > 0.5 && gamemode == Robot.Mode.TELEOP) {
                 mode = MODE.SHOOT;
+                arcState = lastArcState;
                 currentBall = getNextBall();
                 setSystemState(getState(currentBall, mode));
                 sensor.clear();
@@ -231,7 +244,7 @@ public class RobotV3 {
             if(isRightTriggerPressed() && !fire){
                 fire = true;
             }
-            if(new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 10).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP){
+            if(new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP){
                 gamepad.gamepad.rumble(100);
             }
             if(fire) {
@@ -405,22 +418,22 @@ public class RobotV3 {
     }
 
     public void setShooterActive(){
-        if(follower.getPose().getY() > 80){
-            setShooterActiveBack();
+        if(arcState == ArcState.BACK){
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
         }
-        else {
-            setShooterActiveFront();
+        else if(arcState == ArcState.FRONT){
+            arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
         }
     }
 
     public void setShooterActiveBack(){
-        arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
         arcState = ArcState.BACK;
+        lastArcState = ArcState.BACK;
     }
 
     public void setShooterActiveFront(){
-        arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
         arcState = ArcState.FRONT;
+        lastArcState = ArcState.FRONT;
     }
 
     //INTAKE----------------------------------------------------------------------------------------
@@ -554,7 +567,7 @@ public class RobotV3 {
             telemetryM.addLine("Flicker timer (seconds): " + flicker.getStateTimerSeconds());
             telemetryM.addLine("Camera Tx: " + cameraTx);
             arcShooter.graph(telemetryM);
-            drive.log(telemetry);
+            //drive.log(telemetry);
 
         }
         else {
@@ -565,7 +578,7 @@ public class RobotV3 {
             telemetry.addLine("Voltage (shooter motors): " + (arcShooter.shooter.getCurrent(CurrentUnit.AMPS) + arcShooter.shooter2.getCurrent(CurrentUnit.AMPS)));
             telemetry.addLine("Voltage (intake): " + intake.getCurrent());
             arcShooter.graph(telemetry);
-            drive.log(telemetry);
+            //drive.log(telemetry);
         }
     }
     //TURRET----------------------------------------------------------------------------------------
@@ -586,7 +599,7 @@ public class RobotV3 {
             power = 0;
         }
         if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
-            power = power / 3;
+            power = power / 2;
         }
         //if(noResultTimer.seconds() > 1){
             //turret.setPower(0);

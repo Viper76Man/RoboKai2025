@@ -46,7 +46,8 @@ public class RobotConstantsV1 {
     public static double strafePodX = -6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static int degreeToleranceCamera = 3;
+    public static int degreeToleranceCamera = 2;
+    public static int degreeToleranceCameraAuto = 5;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -69,10 +70,12 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000101, 0, 0, 0.0001965);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.000101, 0, 0, 0.0001967);
+
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0000003, -0.00015);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.013, -0.0002, -0.00025);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -93,7 +96,9 @@ public class RobotConstantsV1 {
     public static double TURRET_SERVO_MAX_ANGLE_DEG = TURRET_INPUT_VALUE * ((double) 355 / 255);
 
     public static double SHOOTER_TARGET_RPM = 3800;
-    public static double SHOOTER_FRONT_RPM = 3000;
+
+    public static double SHOOTER_TARGET_RPM_AUTO = 3850;
+    public static double SHOOTER_FRONT_RPM = 3200;
     public static double SHOOTER_IDLE_RPM = 120;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_ANGULAR_VELOCITY = 0;
