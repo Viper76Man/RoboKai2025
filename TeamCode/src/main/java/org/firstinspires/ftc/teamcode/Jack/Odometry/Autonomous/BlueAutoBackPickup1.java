@@ -280,6 +280,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case INTAKE_BALL_1:
+                currentBall = 1;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
                 if(ballCollectUpdate(1) && clearedForIntake && spindexer.isSpindexerReady()) {
                     setActionState(State.INTAKE_BALL_2);
@@ -291,6 +292,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_2:
+                currentBall = 2;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
                 if(ballCollectUpdate(2) && clearedForIntake && spindexer.isSpindexerReady()) {
                     setActionState(State.INTAKE_BALL_3);
@@ -302,6 +304,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_3:
+                currentBall = 3;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
                 if(ballCollectUpdate(3) && clearedForIntake && spindexer.isSpindexerReady()) {
                     spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
