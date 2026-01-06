@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
@@ -106,6 +107,7 @@ public class BlueAutoBackPreload extends LinearOpMode {
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDsAuto);
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
+        spindexer.resetEncoder();
         flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
         turret.init(hardwareMap);
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
@@ -172,6 +174,9 @@ public class BlueAutoBackPreload extends LinearOpMode {
                     if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
+                        flicker.setState(FlickerServoV2.State.DOWN);
+                    }
                     if (flicker.state != FlickerServoV2.State.IDLE && !firedAlready) {
                         firedAlready = true;
                     }
@@ -190,6 +195,9 @@ public class BlueAutoBackPreload extends LinearOpMode {
                     if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
+                        flicker.setState(FlickerServoV2.State.DOWN);
+                    }
                     if(flicker.state != FlickerServoV2.State.IDLE && !firedAlready){
                         firedAlready = true;
                     }
@@ -206,6 +214,9 @@ public class BlueAutoBackPreload extends LinearOpMode {
                 intake.setPower(0.2);
                 if(fire) {
                     if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
+                        flicker.setState(FlickerServoV2.State.DOWN);
+                    }
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
                     if(flicker.state != FlickerServoV2.State.IDLE && !firedAlready){
@@ -276,7 +287,7 @@ public class BlueAutoBackPreload extends LinearOpMode {
             double latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
+            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO);
         } else {
             cameraTx = 0;
             power = -controller.getOutput((int) turret.getEncoderPos(), 236);
@@ -284,7 +295,7 @@ public class BlueAutoBackPreload extends LinearOpMode {
         if (turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0) {
             power = 0;
         }
-        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCameraAuto) {
+        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO)) < RobotConstantsV1.degreeToleranceCameraAuto) {
             power = power / 2;
             turretReady = true;
         }
@@ -425,4 +436,8 @@ public class BlueAutoBackPreload extends LinearOpMode {
         }
         spindexer.run();
     }
+    public boolean isLastPathName(String name){
+        return Objects.equals(follower.lastPathName, name);
+    }
+
 }

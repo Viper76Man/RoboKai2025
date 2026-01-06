@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.Messages;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
@@ -639,10 +640,7 @@ class DeliverySubsystemsTest extends OpMode {
         flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
         gamepad.init(gamepad1, 0.3);
         arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
-        telemetryM.addLine("Controls: ");
-        telemetryM.addLine("\tCircle: Fire ball");
-        telemetryM.addLine("\tDpad Up/Down: Shooter RPM Up/Down");
-        telemetryM.addLine("\tBumpers: Turret Control");
+        telemetryM.addLine(Messages.deliverySubsystemsTest);
     }
 
     @Override
@@ -718,7 +716,8 @@ class ColorSensorTest extends OpMode {
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         intake.init(hardwareMap);
         sensor.sensor.setGain(1);
-        telemetryM.addLine("This OpMode reads the value from the robot's color sensor. ");
+        telemetryM.addLine(Messages.colorSensorTest);
+        telemetryM.update(telemetry);
     }
 
     @Override

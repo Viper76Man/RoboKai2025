@@ -47,7 +47,7 @@ public class RobotConstantsV1 {
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 2;
-    public static int degreeToleranceCameraAuto = 5;
+    public static int degreeToleranceCameraAuto = 3;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -66,11 +66,11 @@ public class RobotConstantsV1 {
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
-    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.015, 0, 0, 0.6, 0);
+    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.0075, 0, 0.002, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000101, 0, 0, 0.0001965);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.000101, 0, 0, 0.0001967);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000092, 0, 0.000004, 0.0002);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -106,6 +106,7 @@ public class RobotConstantsV1 {
     public static double SHOOTER_ANGLE_DEG = 50;
 
     public static double TURRET_OFFSET_ANGLE_BLUE = -3;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -6;
     public static double TURRET_OFFSET_ANGLE_RED = 5;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;

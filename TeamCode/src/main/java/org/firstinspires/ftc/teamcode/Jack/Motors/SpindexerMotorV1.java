@@ -76,6 +76,7 @@ public class SpindexerMotorV1 {
         setState(State.BALL_1_INTAKE);
         controller = new PIDController(RobotConstantsV1.spindexerPIDs.p, RobotConstantsV1.spindexerPIDs.i, RobotConstantsV1.spindexerPIDs.d);
         this.usingPID = true;
+        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
     }
 
     public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF) {
@@ -92,6 +93,7 @@ public class SpindexerMotorV1 {
         this.kF = kF;
         controller = new PIDController(this.kP, this.kI, this.kD);
         this.usingPID = true;
+        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
     }
 
     public void init(HardwareMap hardwareMap, PIDCoefficients pidCoefficients) {
@@ -106,6 +108,7 @@ public class SpindexerMotorV1 {
         this.kD = pidCoefficients.d;
         controller = new PIDController(this.kP, this.kI, this.kD);
         this.usingPID = true;
+        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
         //encoderv1.init(hardwareMap);
     }
 

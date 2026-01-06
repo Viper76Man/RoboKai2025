@@ -1,17 +1,11 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
-import android.app.slice.SliceMetrics;
-
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.modernrobotics.comm.ModernRoboticsDatagram;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.code.Attribute;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
@@ -27,7 +21,6 @@ import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.ObeliskPattern;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
-import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 public class Robot {
 
@@ -74,7 +67,7 @@ public class Robot {
         }
         this.gamepad.init(gamepad1, 0.3);
         follower = Constants.createFollower(hardwareMap);
-        shooter.init(hardwareMap);
+        shooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
         drive.init(hardwareMap, gamepad1);
         intake.init(hardwareMap);
         flicker1.init(hardwareMap, RobotConstantsV1.flickerServoName);

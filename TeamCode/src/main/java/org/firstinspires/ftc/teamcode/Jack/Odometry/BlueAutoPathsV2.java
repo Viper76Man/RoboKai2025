@@ -8,7 +8,7 @@ public class BlueAutoPathsV2 {
     public static Pose shootPoseClose = new Pose(55, 100, Math.toRadians(140));
     //BACK=-----------------------------------------------------------------------------------------
     public static Pose startPoseFar = new Pose(62, 9.6, Math.toRadians(90));
-    public static Pose shootPoseFar = new Pose(53, 18, Math.toRadians(110));
+    public static Pose shootPoseFar = new Pose(58, 17.6, Math.toRadians(110));
 
     public static Pose topArtifactsPickup = new Pose(47, 83.5, Math.toRadians(180));
     public static Pose middleArtifactsPickup = new Pose(47, 56.5, Math.toRadians(180));
