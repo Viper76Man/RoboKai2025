@@ -237,7 +237,7 @@ public class RobotV3 {
             }
             setIntakeOn();
             setShooterIdle();
-            if (isCurrentBallGreen() && lastBallFound != currentBall && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
+            if (isCurrentBallGreen() && lastBallFound != currentBall && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
                 setGreen(currentBall);
                 if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
                     greenLED();
@@ -245,7 +245,7 @@ public class RobotV3 {
                 sensor.clear();
                 setSystemState(getNextState());
                 lastBallFound = currentBall;
-            } else if (isCurrentBallPurple() && lastBallFound != currentBall && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
+            } else if (isCurrentBallPurple() && lastBallFound != currentBall && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
                 setPurple(currentBall);
                 if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
                     greenLED();
@@ -284,10 +284,12 @@ public class RobotV3 {
                 }
                 if (isFlickerDown() && firedAlready) {
                     setEmpty(currentBall);
+                    setSystemState(getNextState());
                     if(isEmpty(1) && isEmpty(2) && isEmpty(3)){
                         redLED();
+                        setSystemState(State.INTAKE_BALL_1);
+                        mode = MODE.INTAKE;
                     }
-                    setSystemState(getNextState());
                     firedAlready = false;
                     fire = false;
                 }
@@ -580,7 +582,7 @@ public class RobotV3 {
                 else if(!isEmpty(3)){
                     return State.SHOOT_BALL_3;
                 }
-                return State.INTAKE_BALL_1;
+                return State.SHOOT_BALL_1;
             default:
                 return State.INTAKE_BALL_1;
         }

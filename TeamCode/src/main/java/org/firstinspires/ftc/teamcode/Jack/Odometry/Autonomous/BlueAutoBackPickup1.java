@@ -56,6 +56,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     public boolean firedAlready = false;
     public boolean turretReady = false;
     public boolean clearedForIntake = false;
+    public boolean sensorCleared = false;
     public ArtifactSlot slot1 = new ArtifactSlot();
     public ArtifactSlot slot2 = new ArtifactSlot();
     public ArtifactSlot slot3 = new ArtifactSlot();
@@ -208,6 +209,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         spindexerRun();
         arcShooter.run();
         flicker.update(spindexer.isSpindexerReady());
+        sensor.update(spindexer.state, spindexer.isSpindexerReady());
         spindexer.update();
         switch (actionState) {
             case SHOOT_BALL_1:

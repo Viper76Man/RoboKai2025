@@ -92,10 +92,7 @@ public class RobotConstantsV1 {
     public static DcMotorSimple.Direction rightShooterDirection = DcMotorSimple.Direction.FORWARD;
     public static boolean useBothArcMotors = false;
 
-    public static double TURRET_INPUT_VALUE = 255;
     public static double TURRET_MAX_ENCODER_VALUE = 320;
-
-    public static double TURRET_SERVO_MAX_ANGLE_DEG = TURRET_INPUT_VALUE * ((double) 355 / 255);
 
     public static double SHOOTER_TARGET_RPM = 3800;
 
@@ -103,7 +100,6 @@ public class RobotConstantsV1 {
     public static double SHOOTER_FRONT_RPM = 3300;
     public static double SHOOTER_IDLE_RPM = 3000;
     public static int SHOOTER_PPR = 28;
-    public static double SHOOTER_ANGULAR_VELOCITY = 0;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
