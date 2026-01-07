@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.field.CanvasRotation;
 import com.pedropathing.control.FilteredPIDFCoefficients;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
+
 
 @Configurable
 public class RobotConstantsV1 {
@@ -75,7 +77,7 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.013, -0.0002, -0.00025);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0002, -0.00025);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -98,16 +100,16 @@ public class RobotConstantsV1 {
     public static double SHOOTER_TARGET_RPM = 3800;
 
     public static double SHOOTER_TARGET_RPM_AUTO = 3850;
-    public static double SHOOTER_FRONT_RPM = 3200;
-    public static double SHOOTER_IDLE_RPM = 120;
+    public static double SHOOTER_FRONT_RPM = 3300;
+    public static double SHOOTER_IDLE_RPM = 3000;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_ANGULAR_VELOCITY = 0;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -3;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -8;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -6;
-    public static double TURRET_OFFSET_ANGLE_RED = 5;
+    public static double TURRET_OFFSET_ANGLE_RED = -6;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 

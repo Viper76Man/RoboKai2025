@@ -12,10 +12,14 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptRevLED;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
@@ -52,6 +56,7 @@ public class AllInOneTuningV2 extends SelectableOpMode {
             });
             s.folder("Hardware", h -> {
                 h.add("Pre-TeleOp Test", PreTeleOpTest::new);
+                h.add("LED Test: " , LEDTestJack::new);
                 h.folder("Intake", i -> {
                     i.add("Automated Intake Test", AutomatedIntakeTest::new);
                     i.add("Intake Subsystem Test", IntakeSubsystemTest::new);
@@ -1279,6 +1284,47 @@ class LogReader extends OpMode {
         else {
             telemetry.addLine("Logfile is null.");
         }
+    }
+}
+
+class LEDTestJack extends OpMode {
+    public LED left;
+    public LED right;
+    public boolean leftOn = false;
+    public boolean rightOn = false;
+    public ElapsedTime buttonTimer = new ElapsedTime();
+    @Override
+    public void init() {
+        left = hardwareMap.get(LED.class, "left");
+        right = hardwareMap.get(LED.class, "right");
+    }
+
+    @Override
+    public void loop() {
+        if(gamepad1.dpad_left && buttonTimer.seconds() > 0.3) {
+            leftOn = !leftOn;
+            buttonTimer.reset();
+        }
+        if(gamepad1.dpad_right && buttonTimer.seconds() > 0.3) {
+            rightOn = !rightOn;
+            buttonTimer.reset();
+        }
+        if(rightOn){
+            right.on();
+        }
+        else {
+            right.off();
+        }
+        if(leftOn){
+            left.on();
+        }
+        else {
+            left.off();
+        }
+        telemetry.addLine("Left: " + leftOn);
+        telemetry.addLine("Right: " + rightOn);
+
+
     }
 }
 

@@ -28,7 +28,6 @@ import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
-import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV2;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 
@@ -148,7 +147,6 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_1:
-
                 if (follower.follower.getCurrentTValue() >= 1 && actionState == State.INTAKE_BALL_1 || actionState == State.INTAKE_BALL_2 || actionState == State.INTAKE_BALL_3 && fire) {
                     if (ballTimer.seconds() > 0.5) {
                         setActionState(State.SHOOT_BALL_1);
@@ -166,13 +164,13 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 break;
             case TO_PICKUP_1:
                 if(!follower.isBusy()){
-                    setActionState(State.INTAKE_BALL_1);
                     follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
                     setPathState(PathStates.PICKUP_1);
                 }
                 break;
             case PICKUP_1:
                 if(!follower.isBusy()){
+                    setActionState(State.INTAKE_BALL_1);
                     follower.setCurrentPath(BlueAutoPathsV2.pickup1);
                     setPathState(PathStates.BACK_TO_SHOOT_1);
                 }
@@ -187,7 +185,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() >= 1 && actionState == State.INTAKE_BALL_1 && fire) {
+                if (follower.follower.getCurrentTValue() >= 1 && actionState == State.INTAKE_BALL_3 && fire) {
                     if (ballTimer.seconds() > 0.5) {
                         setActionState(State.SHOOT_BALL_1);
                         clearedForIntake = false;
@@ -213,6 +211,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         spindexer.update();
         switch (actionState) {
             case SHOOT_BALL_1:
+                sensor.clear();
                 currentBall = 1;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
@@ -235,6 +234,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_BALL_2:
+                sensor.clear();
                 currentBall = 2;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
@@ -257,6 +257,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_BALL_3:
+                sensor.clear();
                 currentBall = 3;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
@@ -282,8 +283,9 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
             case INTAKE_BALL_1:
                 currentBall = 1;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
-                if(ballCollectUpdate(1) && clearedForIntake && spindexer.isSpindexerReady()) {
+                if(ballCollectUpdate(1) && clearedForIntake && spindexer.isSpindexerReady() ) {
                     setActionState(State.INTAKE_BALL_2);
+                    currentBall = 2;
                     sensor.clear();
                 }
                 else {
@@ -292,11 +294,12 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_2:
-                currentBall = 2;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
+                //TODO: If that doesn't work, try adding these conditions to ballCollectUpdate() :)
                 if(ballCollectUpdate(2) && clearedForIntake && spindexer.isSpindexerReady()) {
                     setActionState(State.INTAKE_BALL_3);
                     sensor.clear();
+                    currentBall = 3;
                 }
                 else {
                     spindexer.setState(SpindexerMotorV1.State.BALL_2_INTAKE);
@@ -304,7 +307,6 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_3:
-                currentBall = 3;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
                 if(ballCollectUpdate(3) && clearedForIntake && spindexer.isSpindexerReady()) {
                     spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
@@ -314,7 +316,6 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 else {
                     spindexer.setState(SpindexerMotorV1.State.BALL_3_INTAKE);
                 }
-                telemetry.addLine();
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
         }
@@ -350,6 +351,9 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         telemetry.addLine("Sensor State: " + sensor.getCurrent().name());
         telemetry.addLine("Ready to intake? :" + clearedForIntake);
         sensor.log(PanelsTelemetry.INSTANCE.getTelemetry(), telemetry);
+        if(RobotConstantsV1.panelsEnabled){
+            PanelsTelemetry.INSTANCE.getTelemetry().update(telemetry);
+        }
     }
 
     public void turretUpdate() {
@@ -393,7 +397,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     }
     public boolean ballCollectUpdate(int ball){
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
-        if (sensor.getCurrent() == ArtifactColor.GREEN && currentBall == ball){
+        if (sensor.getCurrent() == ArtifactColor.GREEN && currentBall == ball && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03){
             setGreen(ball);
             return true;
         } else if (sensor.getCurrent() == ArtifactColor.PURPLE && currentBall == ball) {
@@ -439,6 +443,10 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 return slot3.getColor() == ArtifactColor.NONE;
         }
         return true;
+    }
+
+    public boolean isEmpty(double ball){
+        return isEmpty((int) ball);
     }
 
     public State getNextState(State state){

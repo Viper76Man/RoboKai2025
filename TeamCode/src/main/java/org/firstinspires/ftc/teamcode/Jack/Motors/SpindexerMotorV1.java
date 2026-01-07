@@ -153,10 +153,12 @@ public class SpindexerMotorV1 {
                     error = targetPosition - getCurrentPosition();
                     double power = getPower(RobotConstantsV1.spindexerPIDs.p, 0.003);
                     setMotorPower(power);
+                    break;
                 case MOTOR:
                     error = targetPositionEncoder - getCurrentPosition();
                     double power2 = getControllerPower(error);
                     setMotorPower(power2);
+                    break;
             }
         }
         else {

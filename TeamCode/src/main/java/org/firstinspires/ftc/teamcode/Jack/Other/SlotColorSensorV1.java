@@ -24,7 +24,7 @@ public class SlotColorSensorV1 {
     public int loops = 0;
     public double avgGreen = 0;
     public double dist = 0;
-    public double green = 0;
+    public double totalGreen = 0;
     public double lastGreen = 0;
     public double countsWithinDistance = 0;
     public double detectedTimes = 0;
@@ -54,7 +54,7 @@ public class SlotColorSensorV1 {
             distanceTimer.reset();
         }
         if (loops > 0) {
-            avgGreen = green / loops;
+            avgGreen = totalGreen / loops;
         } else {
             avgGreen = 0;
         }
@@ -70,7 +70,7 @@ public class SlotColorSensorV1 {
                     case BALL_2_INTAKE:
                     case BALL_3_INTAKE:
                         loops = 0;
-                        green = 0;
+                        totalGreen = 0;
                         avgGreen = 0;
                         current = ArtifactColor.PURPLE;
                         countsWithinDistance = 0;
@@ -87,7 +87,7 @@ public class SlotColorSensorV1 {
                     case BALL_2_INTAKE:
                     case BALL_3_INTAKE:
                         loops = 0;
-                        green = 0;
+                        totalGreen = 0;
                         avgGreen = 0;
                         current = ArtifactColor.GREEN;
                         countsWithinDistance = 0;
@@ -104,7 +104,7 @@ public class SlotColorSensorV1 {
                     lastGreen +
                     sensor.blue();
             if (brightness > 185) {
-                green = green + lastGreen;
+                totalGreen = totalGreen + lastGreen;
                 lastGreen = 0;
                 loops = loops + 1;
                 captureTimer.reset();
@@ -119,7 +119,7 @@ public class SlotColorSensorV1 {
     public void clear(){
         this.current = ArtifactColor.NONE;
         loops = 0;
-        green = 0;
+        totalGreen = 0;
         avgGreen = 0;
     }
 
@@ -136,7 +136,7 @@ public class SlotColorSensorV1 {
             telemetryM.addLine("Distance: " + dist);
             telemetryM.addLine("Is not too close?: " + (dist > 10));
             telemetryM.addLine("Green captures: " + loops);
-            telemetryM.addLine("Total green: " + green);
+            telemetryM.addLine("Total green: " + totalGreen);
             telemetryM.addLine("Avg green: " + avgGreen);
             telemetryM.addLine("Color sensor state: " + getCurrent().name());
             telemetryM.addLine("\n");
@@ -152,7 +152,7 @@ public class SlotColorSensorV1 {
             telemetry.addLine("Distance: " + dist);
             telemetry.addLine("Is not too close?: " + (dist > 26));
             telemetry.addLine("Green captures: " + loops);
-            telemetry.addLine("Total green: " + green);
+            telemetry.addLine("Total green: " + totalGreen);
             telemetry.addLine("Avg green: " + avgGreen);
             telemetry.addLine("\n");
             telemetry.addLine("Red: " + sensor.red());

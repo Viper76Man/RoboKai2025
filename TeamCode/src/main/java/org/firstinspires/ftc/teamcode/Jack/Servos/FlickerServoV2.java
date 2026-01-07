@@ -51,7 +51,7 @@ public class FlickerServoV2 {
         else if(state == State.TRAVEL_UP && stateTimer.seconds() > 0.35){
             setState(State.UP);
         }
-        else if(state == State.UP && stateTimer.seconds() > 0.55){
+        else if(state == State.UP && stateTimer.seconds() > 0.4){
             setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
             setState(State.TRAVEL_DOWN);
         }

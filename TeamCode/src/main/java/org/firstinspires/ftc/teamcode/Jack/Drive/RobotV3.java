@@ -7,8 +7,10 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -90,6 +92,11 @@ public class RobotV3 {
     public MODE mode = MODE.INTAKE;
     public Robot.Mode gamemode = Robot.Mode.TELEOP;
 
+    public LED right1;
+    public LED right2;
+    public LED left1;
+    public LED left2;
+
     public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1, Robot.Mode mode, Robot.Alliance alliance){
         this.gamepad = gamepadV1;
         this.hardwareMap = hardwareMap;
@@ -122,6 +129,10 @@ public class RobotV3 {
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
         controller = new PIDController(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         sensor.sensor.setGain(10);
+        left1 = hardwareMap.get(LED.class, "left");
+        right1 = hardwareMap.get(LED.class, "right");
+        left2 = hardwareMap.get(LED.class, "left2");
+        right2 = hardwareMap.get(LED.class, "right2");
         switch (alliance){
             case RED:
                 limelight.setPipeline(LimelightV1.Pipeline.RED_GOAL);
@@ -206,10 +217,11 @@ public class RobotV3 {
             gamepad.resetTimer();
         }
         if(mode == MODE.INTAKE) {
+            redLED();
             if(intakeReversed){
                 setEmpty(currentBall);
             }
-            if(isRightTriggerPressed() && buttonHoldTimer.seconds() > 1 && gamepad.isGamepadReady() && stateTimer.seconds() > 0.5 && gamemode == Robot.Mode.TELEOP) {
+            if(isRightTriggerPressed() && buttonHoldTimer.seconds() > 0.25 && gamepad.isGamepadReady() && stateTimer.seconds() > 0.5 && gamemode == Robot.Mode.TELEOP) {
                 mode = MODE.SHOOT;
                 arcState = lastArcState;
                 currentBall = getNextBall();
@@ -227,26 +239,44 @@ public class RobotV3 {
             setShooterIdle();
             if (isCurrentBallGreen() && lastBallFound != currentBall && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
                 setGreen(currentBall);
+                if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
+                    greenLED();
+                }
                 sensor.clear();
                 setSystemState(getNextState());
                 lastBallFound = currentBall;
             } else if (isCurrentBallPurple() && lastBallFound != currentBall && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
                 setPurple(currentBall);
+                if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
+                    greenLED();
+                }
                 sensor.clear();
                 setSystemState(getNextState());
                 lastBallFound = currentBall;
             }
             firedAlready = false;
+            if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
+                setSystemState(State.SHOOT_BALL_1);
+            }
         }
         //SHOOT-SET---------------------------------------------------------------------------------------
         else {
+            lastBallFound = 0;
             setIntakeIdle();
             if(isRightTriggerPressed() && !fire){
                 fire = true;
             }
-            if(new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP){
-                gamepad.gamepad.rumble(100);
+            if(arcState == ArcState.BACK) {
+                if (new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP) {
+                    gamepad.gamepad.rumble(100);
+                }
             }
+            else if(arcState == ArcState.FRONT) {
+                if (new Range((RobotConstantsV1.SHOOTER_FRONT_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP) {
+                    gamepad.gamepad.rumble(100);
+                }
+            }
+
             if(fire) {
                 if (isFlickerDown() && !firedAlready) {
                     setFlickerUp();
@@ -254,6 +284,9 @@ public class RobotV3 {
                 }
                 if (isFlickerDown() && firedAlready) {
                     setEmpty(currentBall);
+                    if(isEmpty(1) && isEmpty(2) && isEmpty(3)){
+                        redLED();
+                    }
                     setSystemState(getNextState());
                     firedAlready = false;
                     fire = false;
@@ -285,7 +318,7 @@ public class RobotV3 {
     }
 
     public boolean isCurrentBallPurple() {
-        return sensor.getCurrent() == ArtifactColor.PURPLE ;
+        return sensor.getCurrent() == ArtifactColor.PURPLE;
     }
 
     public boolean isCurrentBallEmpty() {
@@ -518,7 +551,7 @@ public class RobotV3 {
                 else if(isEmpty(3)){
                     return State.INTAKE_BALL_3;
                 }
-                return State.SHOOT_BALL_1;
+                return State.INTAKE_BALL_1;
             case INTAKE_BALL_2:
                 if(isEmpty(1)){
                     return State.INTAKE_BALL_1;
@@ -526,7 +559,7 @@ public class RobotV3 {
                 else if(isEmpty(3)){
                     return State.INTAKE_BALL_3;
                 }
-                return State.SHOOT_BALL_1;
+                return State.INTAKE_BALL_2;
             case INTAKE_BALL_3:
                 if(isEmpty(1)){
                     return State.INTAKE_BALL_1;
@@ -534,7 +567,7 @@ public class RobotV3 {
                 else if(isEmpty(2)){
                     return State.INTAKE_BALL_2;
                 }
-                return State.SHOOT_BALL_1;
+                return State.INTAKE_BALL_3;
             case SHOOT_BALL_1:
             case SHOOT_BALL_2:
             case SHOOT_BALL_3:
@@ -620,5 +653,26 @@ public class RobotV3 {
                 TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
                 break;
         }
+    }
+
+    public void crimsonLED(){
+        left1.on();
+        left2.on();
+        right1.on();
+        right2.on();
+    }
+
+    public void redLED(){
+        left1.on();
+        left2.on();
+        right1.off();
+        right2.off();
+    }
+
+    public void greenLED(){
+        left1.off();
+        left2.off();
+        right1.on();
+        right2.on();
     }
 }
