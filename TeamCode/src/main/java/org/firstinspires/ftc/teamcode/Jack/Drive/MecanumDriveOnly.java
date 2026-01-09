@@ -99,6 +99,24 @@ public class MecanumDriveOnly {
         backRightMotor.setPower(backRightPower);
     }
 
+    public void driveSlowmode(double slowPower) {
+        slowPower = Math.abs(slowPower);
+        double y = -gamepad1.gamepad.left_stick_y; // Remember, this is reversed!
+        double x = -gamepad1.gamepad.left_stick_x; // Counteract imperfect strafing, if the back motors are facing downwards this should be negative
+        double rx = -gamepad1.gamepad.right_stick_x; //This is reversed for our turning
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (-y + x + rx) / denominator;
+        double backLeftPower = (-y - x + rx) / denominator;
+        double frontRightPower = (y + x + rx) / denominator;
+        double backRightPower = (y - x + rx) / denominator;
+
+        frontLeftMotor.setPower(frontLeftPower * slowPower);
+        backLeftMotor.setPower(backLeftPower * slowPower);
+        frontRightMotor.setPower(frontRightPower * slowPower);
+        backRightMotor.setPower(backRightPower * slowPower);
+    }
+
+
     public void drive(double y, double x, double rx) {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double frontLeftPower = (-y + x + rx) / denominator;

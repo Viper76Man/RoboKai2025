@@ -48,8 +48,8 @@ public class RobotConstantsV1 {
     public static double strafePodX = -6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static int degreeToleranceCamera = 2;
-    public static int degreeToleranceCameraAuto = 4;
+    public static int degreeToleranceCamera = 1;
+    public static int degreeToleranceCameraAuto = 3;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -67,17 +67,17 @@ public class RobotConstantsV1 {
 
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.01, 0, 0.01, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.02, 0, 0.02, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.1, 0, 0.02, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.001, 0, 0.005, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000101, 0, 0, 0.0001965);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000092, 0, 0.000004, 0.0002);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0002, -0.0003);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.01, -0.00025, -0.0004);
     public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(-0.012, -0.0004, -0.0003);
 
     public static double brakingStrength = 1.25;
@@ -104,8 +104,8 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -8;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -6;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -10;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -10;
     public static double TURRET_OFFSET_ANGLE_RED = -2;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;

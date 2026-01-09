@@ -21,7 +21,6 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
@@ -148,7 +147,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_1:
-                if (follower.follower.getCurrentTValue() >= 1 && !fire && clearedForIntake) {
+                if (follower.follower.getCurrentTValue() >= BlueAutoPathsV2.toShootPoseFarTValue && !fire && clearedForIntake && ballsFired == 0) {
                     setActionState(State.SHOOT_BALL_1);
                     fire = true;
                     clearedForIntake = false;
@@ -158,6 +157,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 if (!fire && ballsFired > 0) {
                     setPathState(PathStates.TO_PICKUP_1);
+                    setActionState(State.INTAKE_BALL_1);
                     clearedForIntake = true;
                 }
                 break;
@@ -185,7 +185,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() >= 1 && !fire && clearedForIntake) {
+                if (!follower.follower.isBusy() && !fire && clearedForIntake && ballsFired <= 3) {
                     setActionState(State.SHOOT_BALL_1);
                     fire = true;
                     clearedForIntake = false;
@@ -194,8 +194,8 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                     ballTimer.reset();
                 }
                 if (!fire && ballsFired > 3) {
-                    setPathState(PathStates.TO_PICKUP_1);
-                    clearedForIntake = true;
+                    setPathState(PathStates.OUT_OF_ZONE);
+                    setActionState(State.INTAKE_BALL_1);
                 }
                 break;
             case OUT_OF_ZONE:
@@ -373,7 +373,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
             double latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO);
+            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
         } else {
             cameraTx = 0;
             power = -controller.getOutput((int) turret.getEncoderPos(), 236);
@@ -381,7 +381,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         if (turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0) {
             power = 0;
         }
-        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO)) < RobotConstantsV1.degreeToleranceCameraAuto) {
+        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCameraAuto) {
             power = power / 2;
             turretReady = true;
         }

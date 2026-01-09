@@ -56,6 +56,8 @@ public class RobotV3 {
     public boolean firedAlready = false;
     public boolean fire = false;
     public boolean useKnowledge = false;
+    public boolean flickerCycled = false;
+    public boolean slowmode = false;
     public boolean autoFire = false;
     public int lastBallFound = 0;
     public int currentBall = 1;
@@ -158,8 +160,17 @@ public class RobotV3 {
 
     public void systemStatesUpdate(){
         if(gamemode == Robot.Mode.TELEOP) {
-            drive.drive();
+            if(!slowmode) {
+                drive.drive();
+            }
+            else {
+                drive.driveSlowmode(0.8);
+            }
             gamepad.update();
+        }
+        if(gamepad.triangle && gamepad.isGamepadReady()){
+            slowmode = !slowmode;
+            gamepad.resetTimer();
         }
         turretUpdate();
         if(gamepad.left_bumper && gamepad.isGamepadReady()){
@@ -175,7 +186,8 @@ public class RobotV3 {
         intakeUpdate();
         arcShooter.run();
         arcShooter.updatePIDsFromConstants();
-        spindexerRun();
+        //spindexerRun();
+        spindexer.run();
         allianceUpdate();
         switch (state){
             case INTAKE_BALL_1:
@@ -255,7 +267,7 @@ public class RobotV3 {
             }
             setIntakeOn();
             setShooterIdle();
-            if (isCurrentBallGreen() && lastBallFound != currentBall && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.getNormalizedRGB().green > 0.03) {
+            if (isCurrentBallGreen() && lastBallFound != currentBall && sensor.getNormalizedRGB().green > 0.03) {
                 setGreen(currentBall);
                 if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
                     greenLED();
@@ -265,7 +277,7 @@ public class RobotV3 {
                 sensor.clear();
                 setSystemState(getNextState());
                 lastBallFound = currentBall;
-            } else if (isCurrentBallPurple() && lastBallFound != currentBall && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.getNormalizedRGB().green > 0.03) {
+            } else if (isCurrentBallPurple() && lastBallFound != currentBall && sensor.getNormalizedRGB().green > 0.03) {
                 setPurple(currentBall);
                 if(!isEmpty(1) && !isEmpty(2) && !isEmpty(3)){
                     greenLED();
@@ -287,6 +299,7 @@ public class RobotV3 {
             setIntakeIdle();
             if(isRightTriggerPressed() && !fire){
                 fire = true;
+                flickerCycled = false;
             }
             if(arcState == ArcState.BACK) {
                 if (new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP) {
@@ -299,7 +312,7 @@ public class RobotV3 {
                 }
             }
 
-            if(fire) {
+            if(fire && !flickerCycled) {
                 //Use state timer???
                 if (isFlickerDown() && !firedAlready && spindexer.isSpindexerReady()) {
                     setFlickerUp();
@@ -307,6 +320,7 @@ public class RobotV3 {
                 }
                 if (isFlickerDown() && firedAlready) {
                     setEmpty(currentBall);
+                    flickerCycled = true;
                     if(useKnowledge) {
                         setSystemState(getNextState());
                         if(isEmpty(1) && isEmpty(2) && isEmpty(3)){
@@ -319,12 +333,16 @@ public class RobotV3 {
                         switch (state){
                             case SHOOT_BALL_1:
                                 setSystemState(State.SHOOT_BALL_2);
+                                flickerCycled = false;
                                 break;
                             case SHOOT_BALL_2:
                                 setSystemState(State.SHOOT_BALL_3);
+                                flickerCycled = false;
                                 break;
                             case SHOOT_BALL_3:
+                                fire = false;
                                 setSystemState(State.INTAKE_BALL_1);
+                                flickerCycled = false;
                                 break;
                         }
                     }
@@ -337,12 +355,16 @@ public class RobotV3 {
                     }
                 }
             }
+            else if(!fire){
+                flickerCycled = false;
+            }
             setShooterActive();
         }
     }
 
     public void setSystemState(State state_){
         state = state_;
+        flickerCycled = false;
         stateTimer.reset();
     }
 
@@ -421,7 +443,7 @@ public class RobotV3 {
             case 3:
                 return slot3.getColor() == ArtifactColor.NONE;
         }
-        return true;
+        return false;
     }
 
     public int getNextBall(){
@@ -541,6 +563,7 @@ public class RobotV3 {
     public boolean isFlickerMoving(){
        return flicker.getState() != FlickerServoV2.State.IDLE;
     }
+
 
     public boolean isFlickerTravelingDown(){
         return flicker.getState() == FlickerServoV2.State.TRAVEL_DOWN;
