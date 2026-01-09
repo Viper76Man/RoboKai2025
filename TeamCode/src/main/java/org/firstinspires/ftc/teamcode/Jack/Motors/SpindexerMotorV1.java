@@ -47,11 +47,13 @@ public class SpindexerMotorV1 {
     public Range motorRange;
     public double lastRPM = 0;
     public ElapsedTime zeroTimer = new ElapsedTime();
+    public ElapsedTime stuckTimer = new ElapsedTime();
     public EncoderMeasurementMethod method = EncoderMeasurementMethod.MOTOR;
     public DigitalChannel channel;
 
     public int index = 0;
-
+    //TODO: this
+    public boolean stuck = false;
 
     public double lastTicks = 0;
     public PIDController controller;
@@ -141,7 +143,7 @@ public class SpindexerMotorV1 {
                 break;
             case MOTOR:
                 targetPositionEncoder = pos_;
-                motorRange = new Range(targetPositionEncoder, 50);
+                motorRange = new Range(targetPositionEncoder, 10);
                 break;
         }
     }
@@ -276,6 +278,20 @@ public class SpindexerMotorV1 {
                     case BALL_3_SHOOT:
                         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT, method);
                         break;
+                }
+                if(lastTicks == getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && !isSpindexerReady() && stuckTimer.seconds() > 2){
+                    setTargetPos(0, EncoderMeasurementMethod.MOTOR);
+                    stuck = true;
+                }
+                else if(isSpindexerReady()){
+                    lastTicks = getCurrentPositionEncoder();
+                    stuckTimer.reset();
+                    stuck = false;
+                }
+                else if(lastTicks != getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && stuckTimer.seconds() > 1.2){
+                    lastTicks = getCurrentPositionEncoder();
+                    stuckTimer.reset();
+                    stuck = false;
                 }
         }
     }
@@ -448,6 +464,10 @@ public class SpindexerMotorV1 {
         else {
             return 0;
         }
+    }
+
+    public boolean isStuck(){
+        return stuck;
     }
 
 

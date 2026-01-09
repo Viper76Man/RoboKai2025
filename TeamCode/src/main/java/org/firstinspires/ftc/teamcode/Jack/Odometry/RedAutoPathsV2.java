@@ -11,6 +11,8 @@ public class RedAutoPathsV2 {
     public static Pose middleArtifactsPickup = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.middleArtifactsPickup);
     public static Pose bottomArtifactsPickup = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.bottomArtifactsPickup);
 
+    public static Pose outOfZonePose = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.outOfZonePose);
+
 
 
 
@@ -37,7 +39,7 @@ public class RedAutoPathsV2 {
     public static double backToShoot2OverdriveTValue = BlueAutoPathsV2.backToShoot2OverdriveTValue;
 
 
-    public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1;
+    public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot;
     public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2;
 
     //==============================================================================================
@@ -70,6 +72,9 @@ public class RedAutoPathsV2 {
         backToShoot2 = new CustomPath(backToShoot2StartPointBack, shootPoseFar, 0.95);
         backToShoot2.setLinearHeadingInterpolationPath1(backToShoot2StartPointBack.getHeading(), shootPoseFar.getHeading());
         backToShoot2.setName("backToShoot2");
+        leaveShoot = new CustomPath(shootPoseFar, outOfZonePose, 1);
+        leaveShoot.setLinearHeadingInterpolationPath1(shootPoseFar.getHeading(), outOfZonePose.getHeading());
+        leaveShoot.setName("leaveShoot");
 
     }
 }

@@ -49,7 +49,7 @@ public class RobotConstantsV1 {
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
     public static int degreeToleranceCamera = 2;
-    public static int degreeToleranceCameraAuto = 3;
+    public static int degreeToleranceCameraAuto = 4;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -66,9 +66,9 @@ public class RobotConstantsV1 {
     public static double centripetalScaling = 0.005;
 
     //PIDs
-    public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.01, 0);
-    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.0075, 0, 0.002, 0.6, 0);
+    public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.01, 0, 0.01, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.02, 0, 0.02, 0);
+    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.001, 0, 0.005, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000101, 0, 0, 0.0001965);
@@ -77,7 +77,8 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0002, -0.00025);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.008, -0.0002, -0.0003);
+    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(-0.012, -0.0004, -0.0003);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -96,7 +97,7 @@ public class RobotConstantsV1 {
 
     public static double SHOOTER_TARGET_RPM = 3800;
 
-    public static double SHOOTER_TARGET_RPM_AUTO = 3850;
+    public static double SHOOTER_TARGET_RPM_AUTO = 3800;
     public static double SHOOTER_FRONT_RPM = 3300;
     public static double SHOOTER_IDLE_RPM = 3000;
     public static int SHOOTER_PPR = 28;
@@ -105,7 +106,7 @@ public class RobotConstantsV1 {
 
     public static double TURRET_OFFSET_ANGLE_BLUE = -8;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -6;
-    public static double TURRET_OFFSET_ANGLE_RED = -6;
+    public static double TURRET_OFFSET_ANGLE_RED = -2;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 
@@ -140,11 +141,11 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
-    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 380;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 368;
     public static int SPINDEXER_MOTOR_BALL_2_INTAKE = 240;
-    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 632;
+    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 620;
     public static int SPINDEXER_MOTOR_BALL_3_INTAKE = 485;
-    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 122;
+    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 874;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;

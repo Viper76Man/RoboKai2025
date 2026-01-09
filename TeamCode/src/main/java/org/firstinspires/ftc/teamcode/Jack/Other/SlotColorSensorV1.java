@@ -44,6 +44,9 @@ public class SlotColorSensorV1 {
     }
 
     public void update(SpindexerMotorV1.State state, boolean spindexerReady) {
+        if(!spindexerReady){
+            return;
+        }
         dist = sensor.getDistance(DistanceUnit.MM);
         if(dist > RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR){
             countsWithinDistance = 0;
@@ -59,9 +62,6 @@ public class SlotColorSensorV1 {
             avgGreen = 0;
         }
 
-        if(!spindexerReady){
-            return;
-        }
 
         if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5 && countsWithinDistance > 3) {
             if(detectedTimes >= 5) {
@@ -98,7 +98,7 @@ public class SlotColorSensorV1 {
             }
         }
         //change 26 to 10
-        else if (loops < 5 && captureTimer.seconds() > 0.03 && spindexerReady && hasBall()) {
+        else if (loops < 5 && spindexerReady && hasBall()) {
             lastGreen = sensor.green();
             double brightness = sensor.red() +
                     lastGreen +
