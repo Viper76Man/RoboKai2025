@@ -66,18 +66,18 @@ public class RobotConstantsV1 {
     public static double centripetalScaling = 0.005;
 
     //PIDs
-    public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.01, 0, 0.01, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.1, 0, 0.02, 0);
+    public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.2, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.001, 0, 0.005, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.000011, 0, 0, 0.000197);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.01, -0.00025, -0.0004);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.012, -0.0004, -0.0003);
     public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(-0.012, -0.0004, -0.0003);
 
     public static double brakingStrength = 1.25;
@@ -99,7 +99,7 @@ public class RobotConstantsV1 {
 
     public static double SHOOTER_TARGET_RPM_AUTO = 3800;
     public static double SHOOTER_FRONT_RPM = 3300;
-    public static double SHOOTER_IDLE_RPM = 3000;
+    public static double SHOOTER_IDLE_RPM = 3300;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;

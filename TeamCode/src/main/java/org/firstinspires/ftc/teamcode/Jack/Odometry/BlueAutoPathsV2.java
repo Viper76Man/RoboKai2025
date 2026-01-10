@@ -8,7 +8,7 @@ public class BlueAutoPathsV2 {
     public static Pose shootPoseClose = new Pose(55, 100, Math.toRadians(140));
     //BACK=-----------------------------------------------------------------------------------------
     public static Pose startPoseFar = new Pose(62, 9.6, Math.toRadians(90));
-    public static Pose shootPoseFar = new Pose(58, 17.6, Math.toRadians(110));
+    public static Pose shootPoseFar = new Pose(58, 17.6, Math.toRadians(115));
 
     public static Pose outOfZonePose = new Pose(58, 30, Math.toRadians(90));
 
@@ -36,7 +36,7 @@ public class BlueAutoPathsV2 {
 
     public static double toShootPoseFarTValue = 0.95;
     public static double artifacts1TValue = 0.125;
-    public static double pickup1TValue = 0.65;
+    public static double pickup1TValue = 0.6;
     public static double backToShoot1OverdriveTValue = 0.17;
 
     public static double artifacts2TValue = 0.105;
@@ -74,7 +74,7 @@ public class BlueAutoPathsV2 {
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());
         outOfStartFar.setName("outOfStartFar");
-        toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 1);
+        toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 0.9);
         toFirstArtifacts.setLinearHeadingInterpolationPath1(shootPoseFar.getHeading(), overdriveFirstBack.getHeading());
         toFirstArtifacts.setLinearHeadingInterpolationPath2(overdriveFirstBack.getHeading(), bottomArtifactsPickup.getHeading());
         toFirstArtifacts.setName("toFirstArtifacts");
@@ -84,7 +84,7 @@ public class BlueAutoPathsV2 {
         overdriveBack1 = new CustomPath(ballsPickup1Back, overdriveBackToShootBack, backToShoot1OverdriveTValue);
         overdriveBack1.setLinearHeadingInterpolationPath1(ballsPickup1Back.getHeading(), overdriveBackToShootBack.getHeading());
         overdriveBack1.setName("overdriveBack1");
-        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 1);
+        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 0.9);
         backToShoot1.setLinearHeadingInterpolationPath1(backToShoot1StartPointBack.getHeading(), shootPoseFar.getHeading());
         backToShoot1.setName("backToShoot1");
 

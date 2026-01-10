@@ -47,7 +47,7 @@ public class RedAutoPathsV2 {
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());
         outOfStartFar.setName("outOfStartFar");
-        toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 1);
+        toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 0.9);
         toFirstArtifacts.setLinearHeadingInterpolationPath1(shootPoseFar.getHeading(), overdriveFirstBack.getHeading());
         toFirstArtifacts.setLinearHeadingInterpolationPath2(overdriveFirstBack.getHeading(), bottomArtifactsPickup.getHeading());
         toFirstArtifacts.setName("toFirstArtifacts");
@@ -57,7 +57,7 @@ public class RedAutoPathsV2 {
         overdriveBack1 = new CustomPath(ballsPickup1Back, overdriveBackToShootBack, backToShoot1OverdriveTValue);
         overdriveBack1.setLinearHeadingInterpolationPath1(ballsPickup1Back.getHeading(), overdriveBackToShootBack.getHeading());
         overdriveBack1.setName("overdriveBack1");
-        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 0.95);
+        backToShoot1 = new CustomPath(backToShoot1StartPointBack, shootPoseFar, 0.9);
         backToShoot1.setLinearHeadingInterpolationPath1(backToShoot1StartPointBack.getHeading(), shootPoseFar.getHeading());
         backToShoot1.setName("backToShoot1");
         toSecondArtifacts = new CustomPath(shootPoseFar, middleArtifactsPickup, overdriveSecondBack, artifacts2TValue, 1);
@@ -69,7 +69,7 @@ public class RedAutoPathsV2 {
         overdriveBack2 = new CustomPath(ballsPickup2Back, overdriveBackToShoot2Back, backToShoot2OverdriveTValue);
         overdriveBack2.setLinearHeadingInterpolationPath1(ballsPickup1Back.getHeading(), overdriveBackToShootBack.getHeading());
         overdriveBack2.setName("overdriveBack1");
-        backToShoot2 = new CustomPath(backToShoot2StartPointBack, shootPoseFar, 0.95);
+        backToShoot2 = new CustomPath(backToShoot2StartPointBack, shootPoseFar, 0.9);
         backToShoot2.setLinearHeadingInterpolationPath1(backToShoot2StartPointBack.getHeading(), shootPoseFar.getHeading());
         backToShoot2.setName("backToShoot2");
         leaveShoot = new CustomPath(shootPoseFar, outOfZonePose, 1);

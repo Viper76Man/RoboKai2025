@@ -36,9 +36,10 @@ import java.util.Objects;
 public class RedAutoBackPickup1 extends LinearOpMode {
     public CustomFollower follower;
     public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
+    public ElapsedTime matchTimer = new ElapsedTime();
     public DecodeAprilTag obeliskTag;
     public ElapsedTime ballTimer = new ElapsedTime();
-    public ElapsedTime noResultTimer = new ElapsedTime();
+    public ElapsedTime stateTimer = new ElapsedTime();
     public PIDController controller;
     //HARDWARE--------------------------------------------------------------------------------------
     public ArcShooterV1 arcShooter = new ArcShooterV1();
@@ -96,6 +97,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
             telemetry.addData("Latest tag: ", obeliskTag.name());
         }
         waitForStart();
+        matchTimer.reset();
         while (opModeIsActive()) {
             log();
             autoPathUpdate();
@@ -131,6 +133,9 @@ public class RedAutoBackPickup1 extends LinearOpMode {
     public void autoPathUpdate() {
         follower.update(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
+        if(matchTimer.seconds() > 29){
+            setPathState(PathStates.OUT_OF_ZONE);
+        }
         switch (pathState) {
             case START:
                 setPathState(PathStates.TO_SHOOT);
@@ -169,7 +174,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 break;
             case PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.follower.setMaxPower(0.3);
+                    follower.follower.setMaxPower(0.67);
                     follower.setCurrentPath(RedAutoPathsV2.pickup1);
                     setPathState(PathStates.BACK_TO_SHOOT_1);
                 }
@@ -185,7 +190,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_2:
-                if (!follower.follower.isBusy() && !fire && clearedForIntake && ballsFired <= 3) {
+                if ((!follower.follower.isBusy() || stateTimer.seconds() > 3) && !fire && clearedForIntake && ballsFired <= 3) {
                     setActionState(State.SHOOT_BALL_1);
                     fire = true;
                     clearedForIntake = false;
@@ -342,6 +347,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
 
     public void setPathState(PathStates pathState) {
         this.pathState = pathState;
+        stateTimer.reset();
     }
 
     public void setActionState(State actionState) {
@@ -367,13 +373,14 @@ public class RedAutoBackPickup1 extends LinearOpMode {
     }
 
     public void turretUpdate() {
+        controller.setConstants(RobotConstantsV1.turretPIDsAuto);
         double power;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        if (latest_result != null) {
+        /*if (latest_result != null) {
             double latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_RED);
+            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
         } else {
             cameraTx = 0;
             power = -controller.getOutput((int) turret.getEncoderPos(), 236);
@@ -381,7 +388,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         if (turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0) {
             power = 0;
         }
-        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_RED)) < RobotConstantsV1.degreeToleranceCameraAuto) {
+        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCameraAuto) {
             power = power / 2;
             turretReady = true;
         }
@@ -389,6 +396,8 @@ public class RedAutoBackPickup1 extends LinearOpMode {
             turretReady = false;
         }
         turret.setPower(power);
+         */
+        turretReady = !follower.isBusy();
     }
 
     public void setEmpty(int ball){

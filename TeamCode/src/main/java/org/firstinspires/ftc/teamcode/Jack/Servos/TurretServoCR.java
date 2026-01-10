@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
@@ -34,6 +35,7 @@ public class TurretServoCR {
             turret.setPower(error * RobotConstantsV1.turretPIDs.p);
         }
     }
+
 
     public void setTargetPos(double pos){
         this.target = pos;

@@ -38,7 +38,8 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
     public ElapsedTime ballTimer = new ElapsedTime();
-    public ElapsedTime noResultTimer = new ElapsedTime();
+    public ElapsedTime stateTimer = new ElapsedTime();
+    public ElapsedTime matchTimer = new ElapsedTime();
     public PIDController controller;
     //HARDWARE--------------------------------------------------------------------------------------
     public ArcShooterV1 arcShooter = new ArcShooterV1();
@@ -90,6 +91,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     @Override
     public void runOpMode() {
         initHardware();
+        matchTimer.reset();
         pathState = PathStates.START;
         follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
         if (obeliskTag != null) {
@@ -131,6 +133,9 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     public void autoPathUpdate() {
         follower.update(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
+        if(matchTimer.seconds() > 29){
+            setPathState(PathStates.OUT_OF_ZONE);
+        }
         switch (pathState) {
             case START:
                 setPathState(PathStates.TO_SHOOT);
@@ -169,7 +174,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 break;
             case PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.follower.setMaxPower(0.3);
+                    follower.follower.setMaxPower(0.67);
                     follower.setCurrentPath(BlueAutoPathsV2.pickup1);
                     setPathState(PathStates.BACK_TO_SHOOT_1);
                 }
@@ -185,7 +190,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_SET_2:
-                if (!follower.follower.isBusy() && !fire && clearedForIntake && ballsFired <= 3) {
+                if ((!follower.follower.isBusy() || stateTimer.seconds() > 3) && !fire && clearedForIntake && ballsFired <= 3) {
                     setActionState(State.SHOOT_BALL_1);
                     fire = true;
                     clearedForIntake = false;
@@ -342,6 +347,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
 
     public void setPathState(PathStates pathState) {
         this.pathState = pathState;
+        stateTimer.reset();
     }
 
     public void setActionState(State actionState) {
@@ -367,9 +373,10 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     }
 
     public void turretUpdate() {
+        controller.setConstants(RobotConstantsV1.turretPIDsAuto);
         double power;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        if (latest_result != null) {
+        /*if (latest_result != null) {
             double latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
@@ -389,6 +396,8 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
             turretReady = false;
         }
         turret.setPower(power);
+         */
+        turretReady = !follower.isBusy();
     }
 
     public void setEmpty(int ball){
