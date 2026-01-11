@@ -68,11 +68,11 @@ public class RobotConstantsV1 {
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.2, 0);
-    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.001, 0, 0.005, 0.6, 0);
+    public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.000011, 0, 0, 0.000197);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.000014, 0, 0, 0.000198);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
