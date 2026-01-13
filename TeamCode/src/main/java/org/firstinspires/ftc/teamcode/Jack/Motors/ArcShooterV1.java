@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
+import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 
 public class ArcShooterV1 {
     public HardwareMap hardwareMap;
@@ -223,6 +224,10 @@ public class ArcShooterV1 {
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
         telemetry.addData("Pos", shooter.getCurrentPosition());
+    }
+
+    public boolean isInRange(double tolerance){
+        return new Range((targetRPM), tolerance).isInRange(getVelocityRPM());
     }
 
 }

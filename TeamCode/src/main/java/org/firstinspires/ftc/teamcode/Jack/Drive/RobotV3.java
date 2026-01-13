@@ -160,12 +160,7 @@ public class RobotV3 {
 
     public void systemStatesUpdate(){
         if(gamemode == Robot.Mode.TELEOP) {
-            if(!slowmode) {
-                drive.drive();
-            }
-            else {
-                drive.driveSlowmode(0.8);
-            }
+            drive.drive(slowmode);
             gamepad.update();
         }
         if(gamepad.triangle && gamepad.isGamepadReady()){
@@ -301,15 +296,8 @@ public class RobotV3 {
                 fire = true;
                 flickerCycled = false;
             }
-            if(arcState == ArcState.BACK) {
-                if (new Range((RobotConstantsV1.SHOOTER_TARGET_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP) {
-                    gamepad.gamepad.rumble(100);
-                }
-            }
-            else if(arcState == ArcState.FRONT) {
-                if (new Range((RobotConstantsV1.SHOOTER_FRONT_RPM), 20).isInRange(arcShooter.getVelocityRPM()) && gamemode == Robot.Mode.TELEOP) {
-                    gamepad.gamepad.rumble(100);
-                }
+            if (arcShooter.isInRange(20) && gamemode == Robot.Mode.TELEOP) {
+                gamepad.gamepad.rumble(100);
             }
 
             if(fire && !flickerCycled) {
@@ -684,31 +672,7 @@ public class RobotV3 {
     }
     //TURRET----------------------------------------------------------------------------------------
     public void turretUpdate(){
-        double power;
-        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        if(latest_result != null) {
-            latestTagID = latest_result.getFiducialId();
-            cameraTx = latest_result.getTargetXDegreesNoCrosshair();
-            noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + TURRET_OFFSET_ANGLE);
-        }
-        else {
-            cameraTx = 0;
-            power = -controller.getOutput((int)turret.getEncoderPos(), 236);
-        }
-        if(turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0){
-            power = 0;
-        }
-        if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
-            power = power / 2;
-        }
-        //if(noResultTimer.seconds() > 1){
-            //turret.setPower(0);
-
-        //}
-
-        controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
-        turret.setPower(power);
+        turret.run(limelight, TURRET_OFFSET_ANGLE, -1);
     }
 
     public void allianceUpdate(){

@@ -18,6 +18,12 @@ public class IntakeV1{
     public HardwareMap hardwareMap;
     public DcMotor motor;
 
+    public enum IntakeState {
+        IDLE,
+        FORWARD,
+        REVERSE
+    }
+
     public void init(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.intakeMotorName);
@@ -61,6 +67,33 @@ public class IntakeV1{
 
     public double getCurrent(){
         return ((DcMotorEx) motor).getCurrent(CurrentUnit.AMPS);
+    }
+
+    public void setState(IntakeState state){
+        switch (state){
+            case IDLE:
+                setPower(0.4);
+                setDirection(RobotConstantsV1.intakeDirection);
+                break;
+            case REVERSE:
+                setPower(0.85);
+                setDirection(inverse(RobotConstantsV1.intakeDirection));
+                break;
+            case FORWARD:
+                setPower(RobotConstantsV1.INTAKE_POWER);
+                setDirection(RobotConstantsV1.intakeDirection);
+                break;
+        }
+
+    }
+
+    private DcMotorSimple.Direction inverse(DcMotorSimple.Direction original){
+        if(original == DcMotorSimple.Direction.FORWARD){
+            return DcMotorSimple.Direction.REVERSE;
+        }
+        else {
+            return DcMotorSimple.Direction.FORWARD;
+        }
     }
 
 }
