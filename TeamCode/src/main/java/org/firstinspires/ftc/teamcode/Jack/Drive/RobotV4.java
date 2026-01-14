@@ -110,7 +110,7 @@ public class RobotV4 {
         gamepad.update();
         drive.drive();
         spindexerUpdate();
-        delivery.update();
+        delivery.update(gamepad);
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
         setStateBasedOnBallManager();
         if(entireRobotFull() && mode == Mode.INTAKE){
@@ -147,6 +147,7 @@ public class RobotV4 {
                 if(delivery.state == DeliverySubsystem.State.IDLE && !delivery.firedAlready){
                     setSystemState(State.INTAKE_BALL_1);
                 }
+                break;
         }
     }
 

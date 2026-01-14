@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Other;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV3;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
@@ -51,7 +52,16 @@ public class DeliverySubsystem {
         this.ballManager = ballManager;
     }
 
-    public void update(){
+    public void update(GamepadV1 gamepad){
+        if(state != State.FIRING) {
+            if (gamepad.left_bumper && gamepad.isGamepadReady()) {
+                setZone(ShootingZone.FRONT);
+                gamepad.resetTimer();
+            } else if (gamepad.right_bumper && gamepad.isGamepadReady()) {
+                setZone(ShootingZone.BACK);
+                gamepad.resetTimer();
+            }
+        }
         arc.run();
         switch (state){
             case IDLE:
@@ -67,7 +77,7 @@ public class DeliverySubsystem {
                         arc.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                         break;
                 }
-                if(arc.isInRange(20)){
+                if(gamepad.right_trigger > 0.15){
                     setState(State.READY_TO_SHOOT);
                 }
                 break;
