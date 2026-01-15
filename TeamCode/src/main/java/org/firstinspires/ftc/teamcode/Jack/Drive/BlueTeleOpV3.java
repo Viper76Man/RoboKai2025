@@ -20,8 +20,6 @@ public class BlueTeleOpV3 extends OpMode {
     @Override
     public void loop() {
         robotv4.systemStatesUpdate();
-        //robotv4.log(telemetryM, telemetry);
-        robotv4.sensor.log(telemetryM, telemetry);
-        telemetryM.update(telemetry);
+        robotv4.log(telemetry);
     }
 }

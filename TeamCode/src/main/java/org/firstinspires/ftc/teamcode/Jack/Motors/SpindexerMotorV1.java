@@ -303,6 +303,9 @@ public class SpindexerMotorV1 {
         spindexer.setVelocity(velocity);
     }
 
+
+
+
     public double getEncoderError(){
         return Math.abs((targetPosition - getCurrentPositionEncoder()));
     }
