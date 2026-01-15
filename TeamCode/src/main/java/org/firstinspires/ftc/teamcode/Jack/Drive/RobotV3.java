@@ -656,7 +656,6 @@ public class RobotV3 {
             telemetryM.addLine("Flicker timer (seconds): " + flicker.getStateTimerSeconds());
             telemetryM.addLine("Camera Tx: " + cameraTx);
             arcShooter.graph(telemetryM);
-            spindexer.log(telemetry);
             //drive.log(telemetry);
 
         }

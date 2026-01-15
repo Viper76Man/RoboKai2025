@@ -17,6 +17,9 @@ public class DeliverySubsystem {
 
     public boolean readyToShoot = false;
     public boolean doneShooting = true;
+    public boolean flickerCycled = false;
+
+    public boolean allEmpty = true;
 
 
     public boolean firedAlready = false;
@@ -53,6 +56,7 @@ public class DeliverySubsystem {
     }
 
     public void update(GamepadV1 gamepad){
+        allEmpty = allSlotsAreEmpty();
         if(state != State.FIRING) {
             if (gamepad.left_bumper && gamepad.isGamepadReady()) {
                 setZone(ShootingZone.FRONT);
@@ -66,9 +70,11 @@ public class DeliverySubsystem {
         switch (state){
             case IDLE:
                 arc.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
+                flickerCycled = false;
                 break;
             case SPIN_UP:
                 firedAlready = false;
+                flickerCycled = false;
                 switch (zone){
                     case FRONT:
                         arc.setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
@@ -77,36 +83,43 @@ public class DeliverySubsystem {
                         arc.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                         break;
                 }
-                if(gamepad.right_trigger > 0.15){
-                    setState(State.READY_TO_SHOOT);
-                }
                 break;
             case READY_TO_SHOOT:
                 readyToShoot = true;
-                if(flicker.getState() == FlickerServoV2.State.IDLE && !firedAlready){
+                if(flicker.getState() == FlickerServoV2.State.IDLE && !firedAlready && !flickerCycled){
                     flicker.setState(FlickerServoV2.State.DOWN);
+                    flickerCycled = true;
                     setState(State.FIRING);
                 }
                 break;
             case FIRING:
                 if (flicker.getState() == FlickerServoV2.State.IDLE && firedAlready) {
                     ballManager.setEmpty(ballManager.getCurrentBall());
+                    firedAlready = false;
                     setState(State.FIRED);
                 }
                 break;
             case FIRED:
                 switch (fireMode){
                     case TRIPLE:
-                        if(allSlotsAreEmpty()){
+                        if(allEmpty){
                             setState(State.IDLE);
                         }
                         else {
+                            setState(State.SPIN_UP);
                             firedAlready = true;
                         }
                         break;
                     case SINGLE:
+                        if(allEmpty){
+                            setState(State.IDLE);
+                        }
+                        else {
+                            setState(State.SPIN_UP);
+                        }
                         doneShooting = true;
                         firedAlready = true;
+
                 }
         }
     }
@@ -116,7 +129,7 @@ public class DeliverySubsystem {
         firedAlready = false;
         readyToShoot = false;
         fireMode = FireMode.TRIPLE;
-        setState(State.SPIN_UP);
+        setState(State.READY_TO_SHOOT);
     }
 
     public void fireSingle(){
@@ -124,7 +137,7 @@ public class DeliverySubsystem {
         firedAlready = false;
         readyToShoot = false;
         fireMode = FireMode.SINGLE;
-        setState(State.SPIN_UP);
+        setState(State.READY_TO_SHOOT);
     }
 
     private void setState(State state){

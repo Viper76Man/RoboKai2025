@@ -112,6 +112,7 @@ public class RobotV4 {
         drive.drive();
         spindexerUpdate();
         delivery.update(gamepad);
+        flicker.update(spindexer.isSpindexerReady());
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
         setStateBasedOnBallManager();
         if(entireRobotFull() && mode == Mode.INTAKE){
@@ -126,6 +127,7 @@ public class RobotV4 {
 
         switch (state){
             case INTAKE_BALL_1:
+                delivery.firedAlready = false;
                 ball1Update();
                 break;
             case INTAKE_BALL_2:
@@ -138,10 +140,11 @@ public class RobotV4 {
             case SHOOT_BALL_2:
             case SHOOT_BALL_3:
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
-                if(gamepad.right_trigger > 0.15 && gamepad.isGamepadReady() && delivery.state == DeliverySubsystem.State.IDLE && !delivery.firedAlready){
+                if(gamepad.right_trigger > 0.15 && gamepad.isGamepadReady() && (delivery.state == DeliverySubsystem.State.IDLE || delivery.state == DeliverySubsystem.State.SPIN_UP) && !delivery.firedAlready){
                     gamepad.resetTimer();
                     switch (mode){
                         case INTAKE:
+                        case FIRE_TRIPLE:
                             mode = Mode.FIRE_TRIPLE;
                             delivery.fireTriple();
                             break;
@@ -150,7 +153,7 @@ public class RobotV4 {
                             break;
                     }
                 }
-                if(delivery.state == DeliverySubsystem.State.IDLE && !delivery.firedAlready){
+                if(delivery.state == DeliverySubsystem.State.IDLE && delivery.firedAlready){
                     setSystemState(State.INTAKE_BALL_1);
                 }
                 break;
@@ -218,6 +221,11 @@ public class RobotV4 {
                         setSystemState(State.SHOOT_BALL_3);
                         break;
                 }
+                if(entireRobotEmpty()){
+                    mode = Mode.INTAKE;
+                    ballManager.setCurrentBall(1);
+                    setSystemState(State.INTAKE_BALL_1);
+                }
                 break;
         }
     }
@@ -232,11 +240,11 @@ public class RobotV4 {
     }
 
     public boolean isColorSensorGreen(){
-        return sensor.getCurrent() == ArtifactColor.GREEN && sensor.getNormalizedRGB().green > 0.03; // && sensor.getNormalizedRGB().green > 0.03
+        return sensor.getCurrent() == ArtifactColor.GREEN && sensor.getNormalizedRGB().green > 0.03 && spindexer.isSpindexerReady(); // && sensor.getNormalizedRGB().green > 0.03
     }
 
     public boolean isColorSensorPurple(){
-        return sensor.getCurrent() == ArtifactColor.PURPLE && sensor.getNormalizedRGB().green > 0.03;
+        return sensor.getCurrent() == ArtifactColor.PURPLE && sensor.getNormalizedRGB().green > 0.03 && spindexer.isSpindexerReady();
     }
 
     //----------------------------------------------------------------------------------------------
@@ -245,10 +253,12 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall1(ArtifactColor.GREEN);
+            sensor.clear();
             ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall1(ArtifactColor.PURPLE);
+            sensor.clear();
             ballManager.next();
         }
     }
@@ -258,10 +268,12 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall2(ArtifactColor.GREEN);
+            sensor.clear();
             ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall2(ArtifactColor.PURPLE);
+            sensor.clear();
             ballManager.next();
         }
     }
@@ -271,10 +283,12 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall3(ArtifactColor.GREEN);
+            sensor.clear();
             ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall3(ArtifactColor.PURPLE);
+            sensor.clear();
             ballManager.next();
         }
     }
@@ -316,6 +330,9 @@ public class RobotV4 {
         telemetry.addLine("Ball 1: " + ballManager.getSlot1().name());
         telemetry.addLine("Ball 2: " + ballManager.getSlot2().name());
         telemetry.addLine("Ball 3: " + ballManager.getSlot3().name());
+        flicker.log(telemetry);
+        telemetry.addData("Delivery State: " , delivery.state.name());
+        telemetry.addData("Fired already? : " , delivery.firedAlready);
     }
 
 }

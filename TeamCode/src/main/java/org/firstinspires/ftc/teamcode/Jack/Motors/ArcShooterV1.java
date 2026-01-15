@@ -122,7 +122,7 @@ public class ArcShooterV1 {
 
     public void run(){
         //targetRPM = 2000 * Math.sin(tickTimer2.seconds());
-        double power = runToVelocity(getVelocityRPM(), (int) targetRPM);
+        double power = runToVelocity(-getVelocityRPM(), (int) targetRPM);
         shooter.setPower(power);
         shooter2.setPower(power);
     }

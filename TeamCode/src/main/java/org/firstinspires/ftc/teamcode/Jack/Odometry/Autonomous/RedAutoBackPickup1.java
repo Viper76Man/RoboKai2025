@@ -199,7 +199,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                     clearedForIntake = false;
                 }
                 if (!fire && ballsFired > 3) {
-                    setPathState(PathStates.TO_PICKUP_1);
+                    setPathState(PathStates.OUT_OF_ZONE);
                     setActionState(State.INTAKE_BALL_1);
                     clearedForIntake = true;
                 }
@@ -224,7 +224,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 turretReady = true;
                 sensor.clear();
                 currentBall = 1;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
                 spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
@@ -248,7 +248,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
             case SHOOT_BALL_2:
                 sensor.clear();
                 currentBall = 2;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
                 spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
@@ -272,7 +272,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
             case SHOOT_BALL_3:
                 sensor.clear();
                 currentBall = 3;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
                 spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
