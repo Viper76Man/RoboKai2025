@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
@@ -115,6 +116,11 @@ public class RobotV4 {
         setStateBasedOnBallManager();
         if(entireRobotFull() && mode == Mode.INTAKE){
             mode = Mode.FIRE_TRIPLE;
+            ballManager.setCurrentBall(1);
+        }
+        else if(!entireRobotFull() && mode == Mode.INTAKE && gamepad.isGamepadReady() && gamepad.circle){
+            gamepad.resetTimer();
+            mode = Mode.FIRE_SINGLE;
             ballManager.setCurrentBall(1);
         }
 
@@ -226,7 +232,7 @@ public class RobotV4 {
     }
 
     public boolean isColorSensorGreen(){
-        return sensor.getCurrent() == ArtifactColor.GREEN && sensor.getNormalizedRGB().green > 0.03;
+        return sensor.getCurrent() == ArtifactColor.GREEN && sensor.getNormalizedRGB().green > 0.03; // && sensor.getNormalizedRGB().green > 0.03
     }
 
     public boolean isColorSensorPurple(){
@@ -239,9 +245,11 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall1(ArtifactColor.GREEN);
+            ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall1(ArtifactColor.PURPLE);
+            ballManager.next();
         }
     }
 
@@ -250,9 +258,11 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall2(ArtifactColor.GREEN);
+            ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall2(ArtifactColor.PURPLE);
+            ballManager.next();
         }
     }
 
@@ -261,9 +271,11 @@ public class RobotV4 {
         intake.setState(IntakeV1.IntakeState.FORWARD);
         if(isColorSensorGreen()){
             ballManager.setBall3(ArtifactColor.GREEN);
+            ballManager.next();
         }
         else if(isColorSensorPurple()){
             ballManager.setBall3(ArtifactColor.PURPLE);
+            ballManager.next();
         }
     }
 
@@ -297,6 +309,13 @@ public class RobotV4 {
             return DcMotorSimple.Direction.REVERSE;
         }
         return DcMotorSimple.Direction.FORWARD;
+    }
+
+    public void log(Telemetry telemetry){
+        telemetry.addData("State: " , state.name());
+        telemetry.addLine("Ball 1: " + ballManager.getSlot1().name());
+        telemetry.addLine("Ball 2: " + ballManager.getSlot2().name());
+        telemetry.addLine("Ball 3: " + ballManager.getSlot3().name());
     }
 
 }

@@ -656,6 +656,7 @@ public class RobotV3 {
             telemetryM.addLine("Flicker timer (seconds): " + flicker.getStateTimerSeconds());
             telemetryM.addLine("Camera Tx: " + cameraTx);
             arcShooter.graph(telemetryM);
+            spindexer.log(telemetry);
             //drive.log(telemetry);
 
         }
@@ -667,6 +668,7 @@ public class RobotV3 {
             telemetry.addLine("Voltage (shooter motors): " + (arcShooter.shooter.getCurrent(CurrentUnit.AMPS) + arcShooter.shooter2.getCurrent(CurrentUnit.AMPS)));
             telemetry.addLine("Voltage (intake): " + intake.getCurrent());
             arcShooter.graph(telemetry);
+            spindexer.log(telemetry);
             //drive.log(telemetry);
         }
     }
