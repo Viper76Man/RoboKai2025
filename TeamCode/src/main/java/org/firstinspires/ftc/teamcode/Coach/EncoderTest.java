@@ -22,7 +22,7 @@ public class EncoderTest extends LinearOpMode {
         motor = hardwareMap.get(DcMotorEx.class, "spindexer");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset encoder at start
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Use encoder for control
-        motor.setDirection(DcMotor.Direction.REVERSE);
+        //motor.setDirection(DcMotor.Direction.REVERSE);
         // Wait for the game to start (driver presses START)
         waitForStart();
         encoderSpin();
