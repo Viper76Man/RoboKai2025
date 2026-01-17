@@ -154,6 +154,7 @@ public class RobotV4 {
                     }
                 }
                 if(delivery.state == DeliverySubsystem.State.IDLE && delivery.firedAlready){
+                    mode = Mode.INTAKE;
                     setSystemState(State.INTAKE_BALL_1);
                 }
                 break;

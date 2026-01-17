@@ -57,10 +57,13 @@ public class BallManager {
         switch (ball){
             case 1:
                 slot1.setColor(ArtifactColor.NONE);
+                break;
             case 2:
                 slot2.setColor(ArtifactColor.NONE);
+                break;
             case 3:
                 slot3.setColor(ArtifactColor.NONE);
+                break;
         }
         if(autoAdvance){
             next();
@@ -71,10 +74,13 @@ public class BallManager {
         switch (ball){
             case 1:
                 slot1.setColor(ArtifactColor.NONE);
+                break;
             case 2:
                 slot2.setColor(ArtifactColor.NONE);
+                break;
             case 3:
                 slot3.setColor(ArtifactColor.NONE);
+                break;
         }
         if(autoAdvance){
             next();
@@ -85,10 +91,13 @@ public class BallManager {
         switch (ball){
             case 1:
                 slot1.setColor(ArtifactColor.NONE);
+                break;
             case 2:
                 slot2.setColor(ArtifactColor.NONE);
+                break;
             case 3:
                 slot3.setColor(ArtifactColor.NONE);
+                break;
         }
         if(autoAdvance){
             next();
