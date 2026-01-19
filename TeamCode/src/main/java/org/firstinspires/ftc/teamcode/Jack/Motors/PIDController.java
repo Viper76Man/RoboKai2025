@@ -43,7 +43,7 @@ public class PIDController {
     public double getOutput(int currentPosition, int target){
         previousPower = power;
         //Calculations
-        error = currentPosition - target;
+        error = target - currentPosition;
         double errorChange = (error - previousError) / timer.seconds();
         integralError = integralError + (error * timer.seconds());
         //Calculate output

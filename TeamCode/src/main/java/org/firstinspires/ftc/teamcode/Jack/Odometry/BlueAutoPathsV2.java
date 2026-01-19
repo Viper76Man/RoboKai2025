@@ -4,8 +4,9 @@ import com.pedropathing.geometry.Pose;
 
 @Configurable
 public class BlueAutoPathsV2 {
-    public static Pose startPoseClose = new Pose(24, 125, Math.toRadians(140));
+    public static Pose startPoseClose = new Pose(24, 125, Math.toRadians(320));
     public static Pose shootPoseClose = new Pose(55, 100, Math.toRadians(140));
+    public static Pose moveOutClose = new Pose(48, 90, Math.toRadians(320));
     //BACK=-----------------------------------------------------------------------------------------
     public static Pose startPoseFar = new Pose(62, 9.6, Math.toRadians(90));
     public static Pose shootPoseFar = new Pose(58, 17.6, Math.toRadians(109));
@@ -62,7 +63,7 @@ public class BlueAutoPathsV2 {
     public static CustomPath toSecondArtifactsClose, pickup2Close, overdriveForward2Close, backToShoot2Close;
 
 
-    public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot;
+    public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot, leaveShootClose;
     public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2;
     public static CustomPath toThirdArtifacts, pickup3, overdriveBack3, backToShoot3;
     public void buildPaths() {
@@ -70,6 +71,8 @@ public class BlueAutoPathsV2 {
         outOfStartClose = new CustomPath(startPoseClose, shootPoseClose, toShootPoseCloseTValue);
         outOfStartClose.setConstantHeadingInterpolationPath1(shootPoseClose.getHeading());
         outOfStartClose.setName("outOfStartClose");
+        leaveShootClose = new CustomPath(startPoseClose, moveOutClose, 1);
+        leaveShootClose.setConstantHeadingInterpolationPath1(moveOutClose.getHeading());
         //BACK--------------------------------------------------------------------------------------
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());

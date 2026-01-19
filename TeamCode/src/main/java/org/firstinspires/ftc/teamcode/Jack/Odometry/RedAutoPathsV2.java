@@ -38,15 +38,19 @@ public class RedAutoPathsV2 {
     public static double artifacts2TValue = BlueAutoPathsV2.artifacts2TValue;
     public static double backToShoot2OverdriveTValue = BlueAutoPathsV2.backToShoot2OverdriveTValue;
 
+    public static Pose moveOutClose = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.moveOutClose);
+
 
     public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot;
-    public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2;
+    public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2, leaveShootClose;
 
     //==============================================================================================
     public void buildPaths() {
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());
         outOfStartFar.setName("outOfStartFar");
+        leaveShootClose = new CustomPath(startPoseClose, moveOutClose, 1);
+        leaveShootClose.setConstantHeadingInterpolationPath1(moveOutClose.getHeading());
         toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 0.9);
         toFirstArtifacts.setLinearHeadingInterpolationPath1(shootPoseFar.getHeading(), overdriveFirstBack.getHeading());
         toFirstArtifacts.setLinearHeadingInterpolationPath2(overdriveFirstBack.getHeading(), bottomArtifactsPickup.getHeading());

@@ -233,7 +233,7 @@ public class RobotV3 {
         }
 
         //INTAKE-SET-------------------------------------------------------------------------------------
-        if(gamepad.left_trigger > 0.15 & gamepad.isGamepadReady() && gamemode == Robot.Mode.TELEOP && !intakeReversed){
+        if(gamepad.left_trigger > 0.15 && gamepad.isGamepadReady() && gamemode == Robot.Mode.TELEOP && !intakeReversed){
             intakeReversed = true;
             gamepad.resetTimer();
         }

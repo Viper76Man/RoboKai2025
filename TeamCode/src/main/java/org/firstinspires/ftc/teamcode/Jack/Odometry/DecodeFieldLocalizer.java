@@ -7,42 +7,71 @@ import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 
 public class DecodeFieldLocalizer {
-    public Pose blueGoalCenter = new Pose(13,134.7, Math.toRadians(110));
+    public Pose blueGoalCenter = new Pose(13, 134.7, Math.toRadians(110));
     public Pose redGoalCenter = new Pose(131, 134.7, Math.toRadians(70));
     public Pose launchZoneCenter = new Pose(72, 12);
-    public double getDistanceFromRedGoal(Pose pose){
+
+    public double getDistanceFromRedGoal(Pose pose) {
         return pose.distanceFrom(redGoalCenter);
     }
-    public double getDistanceFromBlueGoal(Pose pose){
+
+    public double getDistanceFromBlueGoal(Pose pose) {
         return pose.distanceFrom(blueGoalCenter);
     }
 
-    public double getDistanceFromLaunchZone(Pose pose){
+    public double getDistanceFromLaunchZone(Pose pose) {
         return pose.distanceFrom(launchZoneCenter);
     }
-    public boolean isRobotInBackLaunchZone(Pose pose){
+
+    public boolean isRobotInBackLaunchZone(Pose pose) {
         return pose.distanceFrom(launchZoneCenter) <= RobotConstantsV1.maxLaunchZoneDistance;
     }
-    public double getHeadingErrorFromGoalDegrees(Pose pose){
-        if(pose.getX() > 72){
+
+    public double getHeadingErrorFromGoalDegrees(Pose pose) {
+        if (pose.getX() > 72) {
             return getHeadingErrorRed(pose);
-        }
-        else if(pose.getX() < 72){
+        } else if (pose.getX() < 72) {
             return getHeadingErrorBlue(pose);
         }
         return 0;
 
     }
 
-    public double getHeadingErrorRed(Pose pose){
+    public double getHeadingErrorRed(Pose pose) {
         return Math.toDegrees(pose.getHeading()) - Math.toDegrees(redGoalCenter.getHeading());
     }
 
-    public double getHeadingErrorBlue(Pose pose){
+    public double getHeadingErrorBlue(Pose pose) {
         return Math.toDegrees(pose.getHeading()) - Math.toDegrees(blueGoalCenter.getHeading());
     }
 
-    public static Pose mirrorPose(Pose pose){
-        return new Pose(144 - pose.getX(), pose.getY(), Math.toRadians((180- Math.toDegrees(pose.getHeading())) % 360));
+    public static Pose mirrorPose(Pose pose) {
+        return new Pose(144 - pose.getX(), pose.getY(), normalize(Math.PI - pose.getHeading()));
+    }
+
+    public static double normalize(double angle) {
+        while (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+        }
+        while (angle <= -Math.PI) {
+            angle += 2 * Math.PI;
+        }
+        return angle;
+    }
+
+    public static double flipAngleAndBackToRadians(double angleRad) {
+        double deg = Math.toDegrees(angleRad);
+        if (deg <= 180 && deg >= 0) {
+            return Math.toRadians(180 - deg);
+        }
+        if(deg > 180 && deg < 270){
+            return Math.toRadians(deg + 90);
+        }
+        if(deg > 270 && deg < 360){
+            return Math.toRadians(deg - 90);
+        }
+        else {
+            return Math.toRadians(deg);
+        }
     }
 }
