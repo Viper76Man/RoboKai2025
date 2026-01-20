@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class ThroughBoreEncoderTest extends LinearOpMode{
 
     private DcMotorEx motor; // Use DcMotorEx for more features
-    private static final double CPR = 8192; // REV Through Bore Encoder is 8192 CPR (Counts Per Revolution)
+    private static final double CPR = 4000; // REV Through Bore Encoder is 8192 CPR (Counts Per Revolution)
 
     @Override
     public void runOpMode() {
@@ -47,7 +47,7 @@ public class ThroughBoreEncoderTest extends LinearOpMode{
 
             // Go to 90 degrees
             motor.setTargetPosition((int)tickTarget); // Target position in ticks
-            motor.setPower(0.8); // Set power to start moving
+            motor.setPower(0.1); // Set power to start moving
             telemetry.update();
             sleep(50); // Small delay
         }
