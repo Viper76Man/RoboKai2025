@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -17,8 +18,10 @@ public class TurretServoCR {
     public double target = 0;
     public double current = 0;
     public double error = 0;
+    public ElapsedTime noResultTimer = new ElapsedTime();
     public boolean usePower = true;
     public AnalogInput encoder;
+    public double power_ = 0;
 
     public double cameraTx, latestTagID;
 
@@ -36,16 +39,20 @@ public class TurretServoCR {
     }
 
     public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE, double modifier){
-        double power;
+        double power = 0;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null) {
             latestTagID = latest_result.getFiducialId();
-            cameraTx = latest_result.getTargetXDegreesNoCrosshair();
-            power = modifier * controller.getOutput(cameraTx + TURRET_OFFSET_ANGLE);
+            cameraTx = latest_result.getTargetYDegrees();
+            power = controller.getOutput((int)(cameraTx + TURRET_OFFSET_ANGLE), 0);
+            noResultTimer.reset();
         }
         else {
-            cameraTx = 0;
-            power = modifier * controller.getOutput((int)getEncoderPos(), 236);
+            if(noResultTimer.seconds() > 1.2) {
+                cameraTx = 0;
+                double err = 236 - getEncoderPos(); // e.g., 236 - current
+                power = err * RobotConstantsV1.turretServoPower;
+            }
         }
         if(getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0){
             power = 0;
@@ -57,7 +64,7 @@ public class TurretServoCR {
         //turret.setPower(0);
 
         //}
-
+        power_ = power;
         controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
         turret.setPower(power);
     }

@@ -143,7 +143,6 @@ public class RobotV3 {
                 TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_RED;
                 break;
             case BLUE:
-            case TEST:
                 limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
                 TURRET_OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
                 break;
@@ -654,13 +653,14 @@ public class RobotV3 {
             telemetryM.addLine("Flicker pos: " + flicker.position);
             telemetryM.addLine("Flicker state: " + flicker.getState().name());
             telemetryM.addLine("Flicker timer (seconds): " + flicker.getStateTimerSeconds());
-            telemetryM.addLine("Camera Tx: " + cameraTx);
+            telemetryM.addLine("Camera Tx: " + turret.cameraTx);
+            telemetryM.addLine("Camera power: " + turret.power_);
             arcShooter.graph(telemetryM);
             //drive.log(telemetry);
 
         }
         else {
-            telemetryM.addLine("STATE: " + state.name());
+            telemetry.addLine("STATE: " + state.name());
             telemetry.addLine("Slot 1: " + slot1.getColor().name());
             telemetry.addLine("Slot 2: " + slot2.getColor().name());
             telemetry.addLine("Slot 3: " + slot3.getColor().name());
@@ -674,6 +674,7 @@ public class RobotV3 {
     //TURRET----------------------------------------------------------------------------------------
     public void turretUpdate(){
         turret.run(limelight, TURRET_OFFSET_ANGLE, -1);
+        cameraTx = turret.cameraTx;
     }
 
     public void allianceUpdate(){

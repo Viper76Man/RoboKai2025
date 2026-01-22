@@ -345,14 +345,14 @@ public class SpindexerMotorV1 {
     }
 
     public double getCurrentPosition(){
-        if(getCurrentPositionEncoder() != 0){
-            zeroTimer.reset();
-        }
         if(method == EncoderMeasurementMethod.MOTOR) {
             spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             return spindexer.getCurrentPosition();
         }
         else {
+            if (getCurrentPositionEncoder() != 0){
+                zeroTimer.reset();
+            }
             return getCurrentPositionEncoder();
         }
     }
@@ -385,6 +385,16 @@ public class SpindexerMotorV1 {
                 return motorRange.isInRange(getCurrentPosition());
             case ELC2:
                 return range.isInRange(getCurrentPositionEncoder());
+        }
+        return false;
+    }
+
+    public boolean isInRange(double tolerance){
+        switch (method) {
+            case MOTOR:
+                return new Range(targetPositionEncoder, tolerance).isInRange(getCurrentPosition());
+            case ELC2:
+                return new Range(targetPosition, tolerance).isInRange(getCurrentPositionEncoder());
         }
         return false;
     }

@@ -71,14 +71,14 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.0000001, 0, 0, 0.0001969);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000001, 0, 0, 0.0001969);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.012, -0.0004, -0.0003);
-    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(-0.012, -0.0004, -0.0003);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(0.0055, 0, 0.0001);
+    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.0055, 0, 0.0001);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -87,7 +87,7 @@ public class RobotConstantsV1 {
 
 
     public static double INTAKE_POWER = 0.9;
-    public static double turretServoPower = 0.01;
+    public static double turretServoPower = -0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction leftShooterDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction rightShooterDirection = DcMotorSimple.Direction.FORWARD;
@@ -104,8 +104,8 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -10;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -10;
+    public static double TURRET_OFFSET_ANGLE_BLUE = 2;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = 2;
     public static double TURRET_OFFSET_ANGLE_RED = -2;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
