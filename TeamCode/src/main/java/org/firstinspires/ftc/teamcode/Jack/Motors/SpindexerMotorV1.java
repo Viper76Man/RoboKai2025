@@ -389,6 +389,10 @@ public class SpindexerMotorV1 {
         return false;
     }
 
+    public boolean shouldStartFlick(){
+        return isInRange(60);
+    }
+
     public boolean isInRange(double tolerance){
         switch (method) {
             case MOTOR:

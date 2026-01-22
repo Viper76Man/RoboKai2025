@@ -175,7 +175,7 @@ public class RobotV3 {
             setShooterActiveBack();
             gamepad.resetTimer();
         }
-        flicker.update(spindexer.isSpindexerReady());
+        flicker.update(spindexer.shouldStartFlick());
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
         intakeUpdate();
         arcShooter.run();
@@ -301,7 +301,7 @@ public class RobotV3 {
 
             if(fire && !flickerCycled) {
                 //Use state timer???
-                if (isFlickerDown() && !firedAlready && spindexer.isSpindexerReady()) {
+                if (isFlickerDown() && !firedAlready && spindexer.shouldStartFlick()) {
                     setFlickerUp();
                     firedAlready = true;
                 }
@@ -673,7 +673,7 @@ public class RobotV3 {
     }
     //TURRET----------------------------------------------------------------------------------------
     public void turretUpdate(){
-        turret.run(limelight, TURRET_OFFSET_ANGLE, -1);
+        turret.run(limelight, TURRET_OFFSET_ANGLE);
         cameraTx = turret.cameraTx;
     }
 

@@ -38,7 +38,7 @@ public class TurretServoCR {
         this.usePower = true;
     }
 
-    public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE, double modifier){
+    public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE){
         double power = 0;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null) {
