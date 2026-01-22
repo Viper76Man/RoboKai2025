@@ -58,7 +58,7 @@ public class TurretServoCR {
             power = 0;
         }
         if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
-            power = power / 2;
+            power = power / 1.2;
         }
         //if(noResultTimer.seconds() > 1){
         //turret.setPower(0);

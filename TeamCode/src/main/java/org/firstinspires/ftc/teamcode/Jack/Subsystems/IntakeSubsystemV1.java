@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,31 +22,27 @@ public class IntakeSubsystemV1 implements Subsystem {
     public boolean ballDetected = false;
     public boolean searching = false;
 
-    @Override
-    public void periodic() {
-        spindexer.run();
-    }
-
     public void init(HardwareMap hardwareMap){
         this.hardwareMap = hardwareMap;
+        intake.init(hardwareMap);
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
     }
 
-    public SpindexerRunToPos spindexerRun(double pos, SpindexerMotorV1.EncoderMeasurementMethod method){
+    public CustomCommand spindexerRun(double pos, SpindexerMotorV1.EncoderMeasurementMethod method){
         if(method == null){
             method = SpindexerMotorV1.EncoderMeasurementMethod.MOTOR;
         }
-        SpindexerRunToPos command = new SpindexerRunToPos(pos, method);
-        command.schedule();
-        return command;
+        return new CustomCommand(new SpindexerRunToPos(pos, method));
     }
 
-    public BallUpdate ballUpdate(){
-        BallUpdate update = new BallUpdate();
-        update.schedule();
-        return update;
+    public CustomCommand setIntakePower(double power, DcMotorSimple.Direction direction){
+        return new CustomCommand(new setIntakePower(power, direction));
+    }
+
+    public CustomCommand ballUpdate(){
+        return new CustomCommand(new BallUpdate());
     }
 
     //SPINDEXER-------------------------------------------------------------------------------------
@@ -105,4 +102,26 @@ public class IntakeSubsystemV1 implements Subsystem {
             searching = false;
         }
     }
+
+    public class setIntakePower extends Command {
+        public double power;
+        public DcMotorSimple.Direction dir;
+        public setIntakePower(double power, DcMotorSimple.Direction direction){
+            this.power = power;
+            this.dir = direction;
+        }
+
+        @Override
+        public void update(){
+            intake.setPower(power);
+            intake.setDirection(dir);
+        }
+
+        @Override
+        public boolean isDone() {
+            return intake.motor.getPower() == power;
+        }
+    }
+
+
 }

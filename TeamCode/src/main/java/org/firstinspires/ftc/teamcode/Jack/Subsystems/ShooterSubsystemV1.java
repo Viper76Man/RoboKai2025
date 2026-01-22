@@ -43,19 +43,20 @@ public class ShooterSubsystemV1 implements Subsystem {
         this.hardwareMap = hardwareMap;
     }
 
-    public void init(Robot.Mode gamemode, IntakeSubsystemV1 intakeSubsystem, BallManager manager){
+    public void init(HardwareMap hardwareMap_, Robot.Mode gamemode, IntakeSubsystemV1 intakeSubsystem, BallManager manager){
         this.mode = gamemode;
         this.intake = intakeSubsystem;
         this.manager = manager;
+        this.hardwareMap = hardwareMap_;
         switch (mode) {
             case TELEOP:
-                arcShooterV1.init(hardwareMap, RobotConstantsV1.arcPIDs);
+                arcShooterV1.init(hardwareMap_, RobotConstantsV1.arcPIDs);
                 break;
             case AUTONOMOUS:
-                arcShooterV1.init(hardwareMap, RobotConstantsV1.arcPIDsAuto);
+                arcShooterV1.init(hardwareMap_, RobotConstantsV1.arcPIDsAuto);
                 break;
         }
-        flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
+        flicker.init(hardwareMap_, RobotConstantsV1.flickerServoName);
     }
 
     public void shootTriple() {

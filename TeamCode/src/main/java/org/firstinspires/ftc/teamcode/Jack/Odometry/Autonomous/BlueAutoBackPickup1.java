@@ -215,7 +215,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         turretUpdate();
         spindexerRun();
         arcShooter.run();
-        flicker.update(spindexer.isSpindexerReady());
+        flicker.update(spindexer.shouldStartFlick());
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
         spindexer.update();
         switch (actionState) {
