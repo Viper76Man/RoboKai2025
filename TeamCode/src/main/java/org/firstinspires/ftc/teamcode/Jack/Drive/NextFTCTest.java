@@ -16,7 +16,8 @@ import dev.nextftc.ftc.NextFTCOpMode;
 @TeleOp
 public class NextFTCTest extends NextFTCOpMode {
     public IntakeSubsystemV1 intakeSub = new IntakeSubsystemV1();
-    public CustomCommand command, command2;
+    public IntakeSubsystemV1.SpindexerRunToPos command;
+    public IntakeSubsystemV1.setIntakePower command2;
     public ParallelGroup group;
     public enum State{
         START,
@@ -28,7 +29,8 @@ public class NextFTCTest extends NextFTCOpMode {
         intakeSub.init(hardwareMap);
         command = intakeSub.spindexerRun(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
         command2 = intakeSub.setIntakePower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection);
-        group = new ParallelGroup(command.actualCommand, command2.actualCommand);
+        group = new ParallelGroup(command, command2);
+        group.named("Group 1");
     }
 
     @Override

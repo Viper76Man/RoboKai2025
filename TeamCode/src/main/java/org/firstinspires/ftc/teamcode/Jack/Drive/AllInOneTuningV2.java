@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
+import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.Messages;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
@@ -38,11 +40,16 @@ import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.CustomCommand;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeSubsystemV1;
 import org.firstinspires.ftc.teamcode.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.ftc.NextFTCOpMode;
 
 @TeleOp
 public class AllInOneTuningV2 extends SelectableOpMode {
@@ -89,6 +96,9 @@ public class AllInOneTuningV2 extends SelectableOpMode {
             });
             s.folder("Logging", logs->{
                 logs.add("Log Reader", LogReader::new);
+            });
+            s.folder("NextFTC", nextftc->{
+                nextftc.add("Intake Subsystem NextFTC Test", IntakeSubNextFTCTest::new);
             });
 
         });
@@ -1293,6 +1303,7 @@ class LEDTestJack extends OpMode {
     public boolean leftOn = false;
     public boolean rightOn = false;
     public ElapsedTime buttonTimer = new ElapsedTime();
+
     @Override
     public void init() {
         left = hardwareMap.get(LED.class, "left");
@@ -1301,24 +1312,22 @@ class LEDTestJack extends OpMode {
 
     @Override
     public void loop() {
-        if(gamepad1.dpad_left && buttonTimer.seconds() > 0.3) {
+        if (gamepad1.dpad_left && buttonTimer.seconds() > 0.3) {
             leftOn = !leftOn;
             buttonTimer.reset();
         }
-        if(gamepad1.dpad_right && buttonTimer.seconds() > 0.3) {
+        if (gamepad1.dpad_right && buttonTimer.seconds() > 0.3) {
             rightOn = !rightOn;
             buttonTimer.reset();
         }
-        if(rightOn){
+        if (rightOn) {
             right.on();
-        }
-        else {
+        } else {
             right.off();
         }
-        if(leftOn){
+        if (leftOn) {
             left.on();
-        }
-        else {
+        } else {
             left.off();
         }
         telemetry.addLine("Left: " + leftOn);
@@ -1327,4 +1336,50 @@ class LEDTestJack extends OpMode {
 
     }
 }
+
+    class IntakeSubNextFTCTest extends NextFTCOpMode {
+        public IntakeSubsystemV1 intakeSub = new IntakeSubsystemV1();
+        public IntakeSubsystemV1.setIntakePower intakeOn, intakeReverse;
+        public BallManager manager = new BallManager();
+
+
+        @Override
+        public void onInit() {
+            intakeSub.init(hardwareMap);
+            manager.setCurrentBall(1);
+            intakeOn = setIntake(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection);
+            intakeReverse = setIntake(RobotConstantsV1.INTAKE_POWER, IntakeV1.inverse(RobotConstantsV1.intakeDirection));
+            intakeReverse.schedule();
+        }
+
+        @Override
+        public void onWaitForStart(){
+            intakeSub.setIntakePower(0, RobotConstantsV1.intakeDirection);
+        }
+
+        @Override
+        public void onStartButtonPressed(){
+            intakeOn.schedule();
+        }
+
+        @Override
+        public void onUpdate(){
+            if(gamepad1.left_trigger > 0.15 && intakeReverse.isDone()) {
+                schedule(intakeReverse);
+            }
+            else if(intakeOn.isDone()) {
+                schedule(intakeOn);
+            }
+
+
+        }
+
+        public IntakeSubsystemV1.setIntakePower setIntake(double power, DcMotorSimple.Direction direction){
+            return intakeSub.setIntakePower(power, direction);
+        }
+
+        public void schedule(IntakeSubsystemV1.setIntakePower command){
+            command.schedule();
+        }
+    }
 

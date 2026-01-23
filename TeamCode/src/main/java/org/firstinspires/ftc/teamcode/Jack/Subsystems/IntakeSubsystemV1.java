@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
+import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
@@ -30,19 +31,19 @@ public class IntakeSubsystemV1 implements Subsystem {
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
     }
 
-    public CustomCommand spindexerRun(double pos, SpindexerMotorV1.EncoderMeasurementMethod method){
+    public SpindexerRunToPos spindexerRun(double pos, SpindexerMotorV1.EncoderMeasurementMethod method){
         if(method == null){
             method = SpindexerMotorV1.EncoderMeasurementMethod.MOTOR;
         }
-        return new CustomCommand(new SpindexerRunToPos(pos, method));
+        return new SpindexerRunToPos(pos, method);
     }
 
-    public CustomCommand setIntakePower(double power, DcMotorSimple.Direction direction){
-        return new CustomCommand(new setIntakePower(power, direction));
+    public setIntakePower setIntakePower(double power, DcMotorSimple.Direction direction){
+        return new setIntakePower(power, direction);
     }
 
-    public CustomCommand ballUpdate(){
-        return new CustomCommand(new BallUpdate());
+    public BallUpdate ballUpdate(){
+        return new BallUpdate();
     }
 
     //SPINDEXER-------------------------------------------------------------------------------------
@@ -78,9 +79,13 @@ public class IntakeSubsystemV1 implements Subsystem {
     }
     //----------------------------------------------------------------------------------------------
     public class BallUpdate extends Command {
+        public BallUpdate(){
+            named("Ball Detection Update");
+        }
 
         @Override
         public void start(){
+            sensor.sensor.setGain(10);
             ballDetected = false;
             searching = true;
             sensor.clear();
@@ -93,11 +98,12 @@ public class IntakeSubsystemV1 implements Subsystem {
 
         @Override
         public boolean isDone() {
-            return (sensor.isGreen() || sensor.isPurple()) || ActiveOpMode.isStopRequested();
+            return ((sensor.isGreen() || sensor.isPurple()) && sensor.getNormalizedRGB().green > 0.03)|| ActiveOpMode.isStopRequested();
         }
 
         @Override
         public void stop(boolean interrupted){
+            sensor.clear();
             ballDetected = true;
             searching = false;
         }
@@ -107,6 +113,7 @@ public class IntakeSubsystemV1 implements Subsystem {
         public double power;
         public DcMotorSimple.Direction dir;
         public setIntakePower(double power, DcMotorSimple.Direction direction){
+            named("Set intake power to "  + power + "with direction " + direction.name());
             this.power = power;
             this.dir = direction;
         }

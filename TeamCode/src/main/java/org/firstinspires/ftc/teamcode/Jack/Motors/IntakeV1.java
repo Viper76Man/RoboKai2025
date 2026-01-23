@@ -87,7 +87,7 @@ public class IntakeV1{
 
     }
 
-    private DcMotorSimple.Direction inverse(DcMotorSimple.Direction original){
+    public static DcMotorSimple.Direction inverse(DcMotorSimple.Direction original){
         if(original == DcMotorSimple.Direction.FORWARD){
             return DcMotorSimple.Direction.REVERSE;
         }

@@ -11,6 +11,13 @@ public class BallManager {
 
     public boolean autoAdvance = true;
 
+    public enum State {
+        SHOOT,
+        INTAKE
+    }
+
+    public State mode = State.INTAKE;
+
 
     public void setCurrentBall(int ball){
         current = ball;
@@ -20,6 +27,14 @@ public class BallManager {
         int ball = getCurrentBall() + 1;
         if(ball > 3){
             ball = 1;
+            switch (mode) {
+                case SHOOT:
+                    setMode(State.INTAKE);
+                    break;
+                case INTAKE:
+                    setMode(State.SHOOT);
+                    break;
+            }
         }
         setCurrentBall(ball);
     }
@@ -38,6 +53,10 @@ public class BallManager {
 
     public int getCurrentBall(){
         return current;
+    }
+
+    public void setMode(State mode){
+        this.mode = mode;
     }
 
     public boolean isEmpty(int ball){

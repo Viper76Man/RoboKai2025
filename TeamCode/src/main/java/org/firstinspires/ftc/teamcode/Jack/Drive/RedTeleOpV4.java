@@ -5,10 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
-import kotlin.ParameterName;
 
-@TeleOp(name = "BlueTeleOpV4 [EXPERIMENTAL]")
-public class BlueTeleOpV4 extends NextFTCOpMode {
+@TeleOp(name = "RedTeleOpV4 [EXPERIMENTAL]")
+public class RedTeleOpV4 extends NextFTCOpMode {
     public RobotV4 robotV4 = RobotV4.INSTANCE;
     public MecanumDriveOnly drive = new MecanumDriveOnly();
     public GamepadV1 gamepadv1 = new GamepadV1();
