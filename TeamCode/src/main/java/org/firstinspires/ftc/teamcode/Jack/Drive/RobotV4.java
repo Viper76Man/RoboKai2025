@@ -58,6 +58,9 @@ public class RobotV4 {
             refreshSpindexerCommand();
             spindexerCommand.schedule();
         }
+        if(!spindexerCommand.ranAlready()){
+            spindexerCommand.schedule();
+        }
         switch (state){
             case INTAKE_BALL_1:
             case INTAKE_BALL_2:
