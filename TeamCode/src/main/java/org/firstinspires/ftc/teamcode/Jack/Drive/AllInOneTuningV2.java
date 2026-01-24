@@ -12,15 +12,12 @@ import com.pedropathing.telemetry.SelectableOpMode;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.ConceptRevLED;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
@@ -28,27 +25,21 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.Messages;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
-import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
-import org.firstinspires.ftc.teamcode.Jack.Subsystems.CustomCommand;
-import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeSubsystemV1;
-import org.firstinspires.ftc.teamcode.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dev.nextftc.core.commands.Command;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @TeleOp
@@ -98,7 +89,6 @@ public class AllInOneTuningV2 extends SelectableOpMode {
                 logs.add("Log Reader", LogReader::new);
             });
             s.folder("NextFTC", nextftc->{
-                nextftc.add("Intake Subsystem NextFTC Test", IntakeSubNextFTCTest::new);
             });
 
         });
@@ -1336,50 +1326,4 @@ class LEDTestJack extends OpMode {
 
     }
 }
-
-    class IntakeSubNextFTCTest extends NextFTCOpMode {
-        public IntakeSubsystemV1 intakeSub = new IntakeSubsystemV1();
-        public IntakeSubsystemV1.setIntakePower intakeOn, intakeReverse;
-        public BallManager manager = new BallManager();
-
-
-        @Override
-        public void onInit() {
-            intakeSub.init(hardwareMap);
-            manager.setCurrentBall(1);
-            intakeOn = setIntake(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection);
-            intakeReverse = setIntake(RobotConstantsV1.INTAKE_POWER, IntakeV1.inverse(RobotConstantsV1.intakeDirection));
-            intakeReverse.schedule();
-        }
-
-        @Override
-        public void onWaitForStart(){
-            intakeSub.setIntakePower(0, RobotConstantsV1.intakeDirection);
-        }
-
-        @Override
-        public void onStartButtonPressed(){
-            intakeOn.schedule();
-        }
-
-        @Override
-        public void onUpdate(){
-            if(gamepad1.left_trigger > 0.15 && intakeReverse.isDone()) {
-                schedule(intakeReverse);
-            }
-            else if(intakeOn.isDone()) {
-                schedule(intakeOn);
-            }
-
-
-        }
-
-        public IntakeSubsystemV1.setIntakePower setIntake(double power, DcMotorSimple.Direction direction){
-            return intakeSub.setIntakePower(power, direction);
-        }
-
-        public void schedule(IntakeSubsystemV1.setIntakePower command){
-            command.schedule();
-        }
-    }
 
