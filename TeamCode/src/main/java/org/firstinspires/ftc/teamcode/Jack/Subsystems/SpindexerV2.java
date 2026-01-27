@@ -43,6 +43,7 @@ public class SpindexerV2 implements Subsystem {
                             position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT;
                             break;
                     }
+                    break;
                 case INTAKE:
                     switch (manager_.getCurrentBall()) {
                         case 1:
@@ -55,6 +56,7 @@ public class SpindexerV2 implements Subsystem {
                             position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_INTAKE;
                             break;
                     }
+                    break;
             }
             spindexer.setTargetPos(position, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
             spindexer.run();

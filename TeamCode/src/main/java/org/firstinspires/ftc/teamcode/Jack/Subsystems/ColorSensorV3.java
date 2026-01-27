@@ -12,27 +12,35 @@ import dev.nextftc.core.subsystems.Subsystem;
 
 public class ColorSensorV3 implements Subsystem {
     public SlotColorSensorV1 sensor = new SlotColorSensorV1();
-    public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
+    public SpindexerMotorV1 spindexer;
     public BallManager manager;
-    public void init(HardwareMap hardwareMap, BallManager manager){
+    public void init(HardwareMap hardwareMap, BallManager manager, SpindexerMotorV1 spindexer){
+        this.spindexer = spindexer;
         this.manager = manager;
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         sensor.sensor.setGain(10);
-        spindexer.init(hardwareMap);
     }
 
     public ColorSensorUpdate update(){
         return new ColorSensorUpdate();
     }
 
+    public boolean isPurple(){
+        return sensor.isPurple();
+    }
+
+    public boolean isGreen(){
+        return sensor.isGreen();
+    }
+
+    public void clear(){
+        sensor.clear();
+    }
+
     public class ColorSensorUpdate extends Command {
         @Override
         public void update() {
             sensor.update(spindexer.state, spindexer.isSpindexerReady());
-            if ((sensor.isPurple() || sensor.isGreen()) && sensor.getNormalizedRGB().green >= 0.03) {
-                manager.next();
-                sensor.clear();
-            }
         }
 
         @Override

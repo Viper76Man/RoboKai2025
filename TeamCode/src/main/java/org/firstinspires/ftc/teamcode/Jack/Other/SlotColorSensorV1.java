@@ -124,10 +124,10 @@ public class SlotColorSensorV1 {
     }
 
     public boolean isGreen(){
-        return RobotConstantsV1.greenRGB.isInRange(getRGB(), 5, 5);
+        return current == ArtifactColor.GREEN;
     }
     public boolean isPurple(){
-        return RobotConstantsV1.purpleRGB.isInRange(getRGB(), 5, 5);
+        return current == ArtifactColor.PURPLE;
     }
 
     public void log(TelemetryManager telemetryM, Telemetry telemetry){
@@ -139,6 +139,7 @@ public class SlotColorSensorV1 {
             telemetryM.addLine("Total green: " + totalGreen);
             telemetryM.addLine("Avg green: " + avgGreen);
             telemetryM.addLine("Color sensor state: " + getCurrent().name());
+            telemetryM.addLine("Norm green: " + sensor.getNormalizedColors().green);
             telemetryM.addLine("\n");
             if(dist > 10) {
                 telemetryM.addLine("Red: " + sensor.red());

@@ -17,8 +17,7 @@ public class BlueTeleOpV4 extends NextFTCOpMode {
 
     @Override
     public void onStartButtonPressed(){
-        robotV4.buildCommand();
-        robotV4.master.schedule();
+        robotV4.buildCommands();
     }
 
     @Override

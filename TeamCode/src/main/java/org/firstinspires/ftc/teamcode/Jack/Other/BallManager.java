@@ -27,14 +27,6 @@ public class BallManager {
         int ball = getCurrentBall() + 1;
         if(ball > 3){
             ball = 1;
-            switch (mode) {
-                case SHOOT:
-                    setMode(State.INTAKE);
-                    break;
-                case INTAKE:
-                    setMode(State.SHOOT);
-                    break;
-            }
         }
         setCurrentBall(ball);
     }
