@@ -48,8 +48,6 @@ public class RobotV4 implements Subsystem {
     }
 
     public SystemStates state = SystemStates.START;
-    public int lastFiredBall = 0;
-
 
 
     public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1){
@@ -57,8 +55,8 @@ public class RobotV4 implements Subsystem {
         intake = new IntakeMotorV2();
         drive.init(hardwareMap, gamepadV1);
         intake.init(hardwareMap);
-        flicker.init();
         spindexer.init(manager);
+        flicker.init(spindexer.spindexer);
         sensor.init(hardwareMap, manager, spindexer.spindexer);
         arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP);
     }
@@ -79,9 +77,6 @@ public class RobotV4 implements Subsystem {
     }
 
     public void systemStatesUpdate(){
-        PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
-        PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
-        PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
         intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
         switch (state){
             case START:
@@ -121,8 +116,9 @@ public class RobotV4 implements Subsystem {
                     fireCommand.schedule();
                     firedAlready = true;
                 }
-                if(manager.mode == BallManager.State.INTAKE){
-                    setSystemState(SystemStates.BALL_1_INTAKE);
+                if(manager.mode == BallManager.State.INTAKE && firedAlready){
+                    setSystemState(SystemStates.START);
+                    firedAlready = false;
                 }
                 break;
 
@@ -133,6 +129,9 @@ public class RobotV4 implements Subsystem {
     public void log(){
         if(RobotConstantsV1.panelsEnabled){
             logCurrentCommands(PanelsTelemetry.INSTANCE.getTelemetry());
+            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
+            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
+            PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
         }
         else {
             logCurrentCommands(ActiveOpMode.telemetry());

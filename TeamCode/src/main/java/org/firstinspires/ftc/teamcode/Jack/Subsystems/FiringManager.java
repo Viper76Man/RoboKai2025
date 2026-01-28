@@ -41,6 +41,7 @@ public class FiringManager implements Subsystem {
                         case 1:
                             if(command.isDone() && flickedAlready){
                                 manager.setCurrentBall(2);
+                                flickedAlready = false;
                             }
                             else if(!flickedAlready && spindexer.isSpindexerReady()){
                                 command.schedule();
@@ -50,6 +51,7 @@ public class FiringManager implements Subsystem {
                         case 2:
                             if(command.isDone() && flickedAlready){
                                 manager.setCurrentBall(3);
+                                flickedAlready = false;
                             }
                             else if(!flickedAlready && spindexer.isSpindexerReady()){
                                 command.schedule();
@@ -58,6 +60,7 @@ public class FiringManager implements Subsystem {
                             break;
                         case 3:
                             if(command.isDone() && flickedAlready){
+                                flickedAlready = false;
                                 manager.setCurrentBall(1);
                                 manager.setMode(BallManager.State.INTAKE);
                             }
