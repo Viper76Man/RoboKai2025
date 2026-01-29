@@ -22,6 +22,7 @@ public class BlueTeleOpV4 extends NextFTCOpMode {
 
     @Override
     public void onUpdate(){
+        robotV4.log();
         robotV4.systemStatesUpdate();
     }
 

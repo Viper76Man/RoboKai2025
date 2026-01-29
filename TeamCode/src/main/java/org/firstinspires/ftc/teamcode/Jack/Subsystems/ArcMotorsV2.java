@@ -67,6 +67,10 @@ public class ArcMotorsV2 implements Subsystem {
         }
     }
 
+    public void setTargetRPM(double target){
+        arcShooter.setTargetRPM(target);
+    }
+
     public class run extends Command{
         public double target;
 
@@ -76,7 +80,6 @@ public class ArcMotorsV2 implements Subsystem {
 
         @Override
         public void update(){
-            arcShooter.setTargetRPM(target);
             arcShooter.run();
         }
 

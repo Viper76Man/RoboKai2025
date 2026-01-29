@@ -28,7 +28,7 @@ public class FlickerSubsystem implements Subsystem {
 
         @Override
         public void update(){
-            flicker.update(spindexer.isSpindexerReady());
+            flicker.update(spindexer.shouldStartFlick());
             if(!flickedAlready){
                 flicker.setState(FlickerServoV2.State.DOWN);
                 flickedAlready = true;

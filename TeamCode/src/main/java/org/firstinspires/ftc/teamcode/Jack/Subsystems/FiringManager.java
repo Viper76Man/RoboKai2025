@@ -11,72 +11,80 @@ import dev.nextftc.ftc.ActiveOpMode;
 
 public class FiringManager implements Subsystem {
     public BallManager manager;
-    public ParallelGroup command;
+    public ParallelGroup command, command2, command3;
+    public FlickerSubsystem flicker;
     public SpindexerMotorV1 spindexer;
 
-    public void init(BallManager manager, ParallelGroup flickUpCommand, SpindexerMotorV1 spindexer){
-        this.command = flickUpCommand;
+    public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer){
+        this.flicker = flicker;
+        this.command = new ParallelGroup(flicker.fire());
         this.manager = manager;
         this.spindexer = spindexer;
+        this.command2 = new ParallelGroup(flicker.fire());
+        this.command3 = new ParallelGroup(flicker.fire());
     }
 
-    public FireTriple fire(){
-        return new FireTriple();
+    public FireTriple fireTriple(){
+        return new FireTriple(true);
     }
 
+    public FireTriple fireSingle(){
+        return new FireTriple(false);
+    }
 
     public class FireTriple extends Command {
-        public boolean flickedAlready = false;
+        private boolean firing = false;
+        private Command activeFire;
+        public boolean triple;
 
-        @Override
-        public void start(){
-            manager.setMode(BallManager.State.SHOOT);
+        public FireTriple(boolean triple){
+            this.triple = triple;
         }
 
         @Override
-        public void update(){
-            switch (manager.mode){
-                case SHOOT:
-                    switch (manager.getCurrentBall()){
-                        case 1:
-                            if(command.isDone() && flickedAlready){
-                                manager.setCurrentBall(2);
-                                flickedAlready = false;
-                            }
-                            else if(!flickedAlready && spindexer.isSpindexerReady()){
-                                command.schedule();
-                                flickedAlready = true;
-                            }
-                            break;
-                        case 2:
-                            if(command.isDone() && flickedAlready){
-                                manager.setCurrentBall(3);
-                                flickedAlready = false;
-                            }
-                            else if(!flickedAlready && spindexer.isSpindexerReady()){
-                                command.schedule();
-                                flickedAlready = true;
-                            }
-                            break;
-                        case 3:
-                            if(command.isDone() && flickedAlready){
-                                flickedAlready = false;
-                                manager.setCurrentBall(1);
-                                manager.setMode(BallManager.State.INTAKE);
-                            }
-                            else if(!flickedAlready && spindexer.isSpindexerReady()){
-                                command.schedule();
-                                flickedAlready = true;
-                            }
-                            break;
-                    }
-                    break;
+        public void start() {
+            firing = false;
+        }
+
+        @Override
+        public void update() {
+            if(triple) {
+                if (!firing && spindexer.isSpindexerReady()) {
+                    startFiring();
+                }
+                if (firing && activeFire.isDone()) {
+                    nextBall();
+                }
+            }
+            else {
+                if (!firing && spindexer.isSpindexerReady() && ActiveOpMode.gamepad1().right_trigger >= 0.15) {
+                    startFiring();
+                }
+                if (firing && activeFire.isDone()) {
+                    nextBall();
+                }
             }
         }
 
         @Override
         public boolean isDone() {
-            return (ActiveOpMode.isStopRequested()) || (manager.isEmpty(1) && manager.isEmpty(2) && manager.isEmpty(3));
+            return manager.mode == BallManager.State.INTAKE;
+        }
+
+        public void startFiring(){
+            activeFire = flicker.fire();
+            activeFire.schedule();
+            firing = true;
+        }
+
+        public void nextBall(){
+            firing = false;
+            if (manager.getCurrentBall() == 3) {
+                manager.setCurrentBall(1);
+                manager.setMode(BallManager.State.INTAKE);
+            } else {
+                manager.setCurrentBall(manager.getCurrentBall() + 1);
+            }
         }
     }
 }

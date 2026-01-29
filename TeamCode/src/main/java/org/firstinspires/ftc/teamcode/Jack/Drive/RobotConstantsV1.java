@@ -41,6 +41,7 @@ public class RobotConstantsV1 {
     public static String colorSensor1 = "colorSensor1"; //Expansion Hub I2C port 0
     public static String spindexerMotorName = "spindexer"; //Expansion Hub Port 2
     public static String turretServoName = "turretServo";
+    public static String pwmLightName = "pwmLight";
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
