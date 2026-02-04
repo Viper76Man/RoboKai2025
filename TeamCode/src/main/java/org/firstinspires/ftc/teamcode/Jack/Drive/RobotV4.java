@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.LED;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.BulkReadsTest;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.AdjustableHoodV1;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ArcMotorsV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ColorSensorV3;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.DriveMotorsV2;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Jack.Subsystems.FiringManager;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.FlickerSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeMotorV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeV2;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.SpindexerV2;
 
 import dev.nextftc.core.commands.Command;
@@ -26,14 +28,15 @@ import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
 
-public class RobotV4 implements Subsystem {
-    public DriveMotorsV2 drive = new DriveMotorsV2();
+public class RobotV4 implements Subsystem { ;
     public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand;
     public LED left1, right1, left2, right2;
     public IntakeMotorV2 intake = new IntakeMotorV2();
     public ColorSensorV3 sensor = new ColorSensorV3();
     public FlickerSubsystem flicker = new FlickerSubsystem();
     public SpindexerV2 spindexer = new SpindexerV2();
+    public LimelightSubsystem ll = new LimelightSubsystem();
+    public AdjustableHoodV1 hood = new AdjustableHoodV1();
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
     public BallManager manager = new BallManager();
@@ -51,15 +54,17 @@ public class RobotV4 implements Subsystem {
     }
 
     public SystemStates state = SystemStates.START;
+    public Robot.Mode mode = Robot.Mode.TELEOP;
 
 
-    public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1){
+    public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1, Robot.Mode mode){
+        this.mode = mode;
         this.gamepad = gamepadV1;
-        drive = new DriveMotorsV2();
         intake = new IntakeMotorV2();
-        drive.init(hardwareMap, gamepadV1);
         intake.init(hardwareMap);
         spindexer.init(manager);
+        hood.init();
+        ll.init();
         flicker.init(spindexer.spindexer);
         sensor.init(hardwareMap, manager, spindexer.spindexer);
         arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP);
@@ -70,13 +75,12 @@ public class RobotV4 implements Subsystem {
     }
 
     public void buildCommands(){
-        intakeCommand = new ParallelGroup(drive.drive(),
+        intakeCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 sensor.update(),
                 arcMotorsV2.spinUpIdle());
         firingManager.init(manager, flicker, spindexer.spindexer);
-        shootCommand = new ParallelGroup(drive.drive());
-        shootCommand.and(
+        shootCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 arcMotorsV2.spinActive()
         );
@@ -84,9 +88,15 @@ public class RobotV4 implements Subsystem {
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle());
     }
 
+
     public void systemStatesUpdate(){
         gamepad.update();
-        intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
+        if(gamepad.left_trigger > 0.15) {
+            intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
+        }
+        else {
+            intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
+        }
         switch (state){
             case START:
                 redLED();
@@ -102,7 +112,7 @@ public class RobotV4 implements Subsystem {
                     sensor.clear();
                     setSystemState(SystemStates.BALL_2_INTAKE);
                 }
-                if(gamepad.isGamepadReady() && gamepad.circle){
+                if(gamepad.isGamepadReady() && gamepad.circle && mode == Robot.Mode.TELEOP){
                     gamepad.resetTimer();
                     manager.setCurrentBall(1);
                     setSystemState(SystemStates.SHOOT_SINGLE);
@@ -115,7 +125,7 @@ public class RobotV4 implements Subsystem {
                     sensor.clear();
                     setSystemState(SystemStates.BALL_3_INTAKE);
                 }
-                if(gamepad.isGamepadReady() && gamepad.circle){
+                if(gamepad.isGamepadReady() && gamepad.circle && mode == Robot.Mode.TELEOP){
                     gamepad.resetTimer();
                     manager.setCurrentBall(1);
                     setSystemState(SystemStates.SHOOT_SINGLE);
@@ -134,11 +144,10 @@ public class RobotV4 implements Subsystem {
                 break;
             case SHOOT_ALL:
                 rpmUpdate();
-                if(spindexer.spindexer.isSpindexerReady() && !firedAlready && gamepad.right_trigger >= 0.1 && gamepad.isGamepadReady()){
-                    fireCommand.schedule();
-                    firedAlready = true;
-                    gamepad.resetTimer();
+                if(readyForTriple() && gamepad.right_trigger >= 0.1 && gamepad.isGamepadReady() && mode == Robot.Mode.TELEOP){
+                    fireTriple();
                 }
+                //TODO: auto using command system
                 if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
                     setSystemState(SystemStates.START);
                     firedAlready = false;
@@ -161,14 +170,19 @@ public class RobotV4 implements Subsystem {
 
     public void log(){
         if(RobotConstantsV1.panelsEnabled){
-            logCurrentCommands(PanelsTelemetry.INSTANCE.getTelemetry());
             flicker.flicker.log(PanelsTelemetry.INSTANCE.getTelemetry());
+            arcMotorsV2.arcShooter.log(PanelsTelemetry.INSTANCE.getTelemetry());
+            ll.log(PanelsTelemetry.INSTANCE.getTelemetry());
+            hood.hoodServo.log(PanelsTelemetry.INSTANCE.getTelemetry());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
             PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
         }
         else {
-            logCurrentCommands(ActiveOpMode.telemetry());
+            flicker.flicker.log(ActiveOpMode.telemetry());
+            arcMotorsV2.arcShooter.log(ActiveOpMode.telemetry());
+            ActiveOpMode.telemetry().addLine("Current ball: " + manager.getCurrentBall());
+            ActiveOpMode.telemetry().addLine("Mode: "+ manager.mode);
         }
     }
 
@@ -199,6 +213,16 @@ public class RobotV4 implements Subsystem {
             gamepad.resetTimer();
         }
 
+    }
+
+    public void fireTriple(){
+        fireCommand.schedule();
+        firedAlready = true;
+        gamepad.resetTimer();
+    }
+
+    public boolean readyForTriple(){
+        return spindexer.spindexer.isSpindexerReady() && !firedAlready;
     }
 
 

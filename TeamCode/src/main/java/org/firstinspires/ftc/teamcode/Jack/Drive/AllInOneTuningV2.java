@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.Messages;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
+import org.firstinspires.ftc.teamcode.Jack.Servos.AdjustableHoodServo;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoV1;
@@ -79,6 +80,9 @@ public class AllInOneTuningV2 extends SelectableOpMode {
                 });
                 h.folder("Color Sensor", cs->{
                     cs.add("Color Sensor Test", ColorSensorTest::new);
+                });
+                h.folder("Adjustable Hood", ah->{
+                    ah.add("Hood Jog Test", HoodJogTest::new);
                 });
             });
             s.folder("Localization", l -> {
@@ -827,6 +831,37 @@ class IntakeSubsystemTest extends OpMode {
             spindexer.setTargetPos(spindexer.getTargetPos() - 1000, spindexer.getMeasurementMethod());
             gamepad.resetTimer();
         }
+    }
+}
+
+class HoodJogTest extends OpMode {
+    public double pos = 1;
+    public GamepadV1 gamepad = new GamepadV1();
+    public AdjustableHoodServo servo = new AdjustableHoodServo();
+
+    @Override
+    public void init() {
+        gamepad.init(gamepad1, 0.3);
+        servo.init(hardwareMap);
+    }
+
+    @Override
+    public void loop() {
+        gamepad.update();
+        if (gamepad.isGamepadReady() && gamepad.dpad_up){
+            pos += 0.1;
+            gamepad.resetTimer();
+        }
+        if (gamepad.isGamepadReady() && gamepad.dpad_down){
+            pos -= 0.1;
+            gamepad.resetTimer();
+        }
+        pos = Math.max(0, Math.min(pos, 0.2));
+        servo.setPos(pos);
+        PanelsTelemetry.INSTANCE.getTelemetry().addLine("Pos: " + pos);
+        PanelsTelemetry.INSTANCE.getTelemetry().addLine("50 to range: " + servo.degToRange(50));
+        PanelsTelemetry.INSTANCE.getTelemetry().update(telemetry);
+
     }
 }
 

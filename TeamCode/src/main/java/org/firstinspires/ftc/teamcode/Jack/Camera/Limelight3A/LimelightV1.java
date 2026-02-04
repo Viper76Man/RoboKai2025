@@ -202,7 +202,7 @@ public class LimelightV1 {
             //calculate distance
             return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
         }
-        return -1000000;
+        return -123456789.2;
     }
 
     public boolean lockedOnTarget(Robot.Alliance alliance){

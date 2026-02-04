@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.limelightvision.LLFieldMap;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
@@ -11,19 +16,24 @@ import dev.nextftc.ftc.ActiveOpMode;
 public class LimelightSubsystem implements Subsystem {
     public TurretServoCR turret = new TurretServoCR();
     public LimelightV1 limelight = new LimelightV1();
-    public goBackToZero goBackToZero;
 
     public LimelightSubsystem(){
-        this.goBackToZero = new goBackToZero();
     }
 
-    @Override
-    public void initialize() {
+    public void init() {
         limelight.init(ActiveOpMode.hardwareMap());
         turret.init(ActiveOpMode.hardwareMap());
     }
 
-    public class goBackToZero extends Command {
+    public void setPipeline(LimelightV1.Pipeline pipeline){
+        limelight.setPipeline(pipeline);
+    }
+
+    public class updateTurret extends Command {
+        public double angle;
+        public updateTurret(double offset){
+            this.angle = offset;
+        }
         public boolean done;
 
         @Override
@@ -33,17 +43,43 @@ public class LimelightSubsystem implements Subsystem {
 
         @Override
         public void update(){
-            double error = 236 - turret.getEncoderPos();
-            turret.setPower(error * RobotConstantsV1.turretServoPower);
-            done = Math.abs(error) < 2;
-            if(limelight.getLatestAprilTagResult() != null){
-                done = true;
+            if(limelight.getLatestAprilTagResult() == null) {
+                double error = 236 - turret.getEncoderPos();
+                turret.setPower(error * RobotConstantsV1.turretServoPower);
+                done = Math.abs(error) < 2;
+            }
+            else {
+                turret.run(limelight, angle);
             }
         }
 
         @Override
         public boolean isDone() {
             return done;
+        }
+    }
+
+    public void log(TelemetryManager telemetryM){
+        LLResultTypes.FiducialResult result = limelight.getLatestAprilTagResult();
+        if(result != null) {
+            telemetryM.addLine("Target Y: " + result.getTargetYDegrees());
+            telemetryM.addLine("Distance: " + limelight.getTargetDistance());
+        }
+        else {
+            telemetryM.addLine("Target Y: Invalid Target");
+            telemetryM.addLine("Distance: Invalid Target");
+        }
+    }
+
+    public void log(Telemetry telemetry){
+        LLResultTypes.FiducialResult result = limelight.getLatestAprilTagResult();
+        if(result != null) {
+            telemetry.addLine("Target Y: " + result.getTargetYDegrees());
+            telemetry.addLine("Distance: " + limelight.getTargetDistance());
+        }
+        else {
+            telemetry.addLine("Target Y: Invalid Target");
+            telemetry.addLine("Distance: Invalid Target");
         }
     }
 }

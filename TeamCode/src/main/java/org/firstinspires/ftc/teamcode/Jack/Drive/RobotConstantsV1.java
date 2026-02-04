@@ -42,6 +42,7 @@ public class RobotConstantsV1 {
     public static String spindexerMotorName = "spindexer"; //Expansion Hub Port 2
     public static String turretServoName = "turretServo";
     public static String pwmLightName = "pwmLight";
+    public static String hoodName = "hood";
 
     //AUTONOMOUS-------------------------------------------------------------------------------------
     //Auto, needs measuring, in inches
@@ -68,7 +69,7 @@ public class RobotConstantsV1 {
 
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.8, 0, 0.35, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(3, 0, 0.2, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
@@ -105,6 +106,10 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
 
+
+    public static double HOOD_STARTING_ANGLE = 45;
+    public static double HOOD_MAX_ANGLE = 55;
+
     public static double TURRET_OFFSET_ANGLE_BLUE = 2;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = 2;
     public static double TURRET_OFFSET_ANGLE_RED = -2;
@@ -118,7 +123,7 @@ public class RobotConstantsV1 {
     public static double MIN_DISTANCE_COLOR_SENSOR = 13;
 
     public static double FLICKER_SERVO_UP = 0.7;
-    public static double FLICKER_SERVO_DOWN = 1;
+    public static double FLICKER_SERVO_DOWN = 0.93;
     public static double FLICKER_UP_TIME = 0.35;
 
     public static double maxLaunchZoneDistance = 15; //inches

@@ -96,4 +96,13 @@ public class IntakeV1{
         }
     }
 
+    public DcMotorSimple.Direction invertDirection(DcMotorSimple.Direction original){
+        if(original == DcMotorSimple.Direction.FORWARD){
+            return DcMotorSimple.Direction.REVERSE;
+        }
+        else {
+            return DcMotorSimple.Direction.FORWARD;
+        }
+    }
+
 }
