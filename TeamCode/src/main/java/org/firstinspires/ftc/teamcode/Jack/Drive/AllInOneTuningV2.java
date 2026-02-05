@@ -622,11 +622,11 @@ class TurretSpeedTest extends OpMode {
     public void loop() {
         double tx = 0;
         if(limelight.getLatestResult().isValid() && limelight.getLatestResult() != null) {
-            tx = limelight.getLatestResult().getTxNC();
+            tx = limelight.getLatestResult().getTy();
         }
         gamepad.update();
         servo.setPower(gamepad.left_stick_x);
-        telemetryM.addData("Target X: ", tx);
+        telemetryM.addData("Target Y: ", tx);
         telemetryM.addData("Power: ", gamepad.left_stick_x);
         telemetryM.addData("Pos: ", servo.getEncoderPos());
         telemetryM.update(telemetry);

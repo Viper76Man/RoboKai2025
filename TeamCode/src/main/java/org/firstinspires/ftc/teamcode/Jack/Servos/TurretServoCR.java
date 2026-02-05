@@ -33,7 +33,7 @@ public class TurretServoCR {
         turret = hardwareMap.get(CRServo.class, RobotConstantsV1.turretServoName);
         turret.setPower(0);
         coefficients = new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
-        controller = ControlSystem.builder().posPid(new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d)).build();
+        controller = ControlSystem.builder().posPid(coefficients).build();
         controller.setGoal(new KineticState(0));
         encoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
     }
@@ -48,17 +48,18 @@ public class TurretServoCR {
         double power = 0;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null) {
-            controller.setGoal(new KineticState(TURRET_OFFSET_ANGLE));
             latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetYDegrees();
-            power = controller.calculate(new KineticState(cameraTx));
+            double error = (cameraTx + TURRET_OFFSET_ANGLE);
+            power = controller.calculate(new KineticState(error));
             noResultTimer.reset();
         }
+
         else {
             if(noResultTimer.seconds() > 1.2) {
                 cameraTx = 0;
                 double err = 236 - getEncoderPos(); // e.g., 236 - current
-                power = err * RobotConstantsV1.turretServoPower;
+                power = -err * RobotConstantsV1.turretServoPower;
             }
         }
         if(getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0){
@@ -71,6 +72,7 @@ public class TurretServoCR {
         //turret.setPower(0);
 
         //}
+        power = Math.max(-0.5, Math.min(0.5, power));
         power_ = power;
         turret.setPower(power);
     }

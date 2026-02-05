@@ -89,7 +89,7 @@ public class RobotConstantsV1 {
 
 
     public static double INTAKE_POWER = 0.9;
-    public static double turretServoPower = -0.01;
+    public static double turretServoPower = 0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction leftShooterDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction rightShooterDirection = DcMotorSimple.Direction.FORWARD;
