@@ -79,7 +79,7 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(0.01, 0.0001, 0.0005);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.08, 0, 0.01);
     public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.0055, 0, 0.0001);
 
     public static double brakingStrength = 1.25;
