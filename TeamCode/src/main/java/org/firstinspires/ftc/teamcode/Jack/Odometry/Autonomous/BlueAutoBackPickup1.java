@@ -98,6 +98,9 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         waitForStart();
         matchTimer.reset();
         while (opModeIsActive()) {
+            if(isStopRequested()){
+                return;
+            }
             log();
             autoPathUpdate();
             systemStatesUpdate();

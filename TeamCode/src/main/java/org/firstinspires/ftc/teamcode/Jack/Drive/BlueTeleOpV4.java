@@ -16,18 +16,18 @@ public class BlueTeleOpV4 extends NextFTCOpMode {
     @Override
     public void onInit(){
         gamepad.init(gamepad1, 0.3);
-        robotV4.init(hardwareMap, gamepad, Robot.Mode.TELEOP);
-        drive = new DriveMotorsV2();
+        robotV4.init(hardwareMap, gamepad, Robot.Mode.TELEOP, Robot.Alliance.BLUE);
     }
 
     @Override
     public void onStartButtonPressed(){
-        drive.drive().run();
+        gamepad.update();
         robotV4.buildCommands();
     }
 
     @Override
     public void onUpdate(){
+        gamepad.update();
         robotV4.log();
         robotV4.systemStatesUpdate();
     }

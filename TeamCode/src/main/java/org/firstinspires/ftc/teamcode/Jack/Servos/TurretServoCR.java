@@ -5,16 +5,20 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
-import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
+
+import dev.nextftc.control.ControlSystem;
+import dev.nextftc.control.KineticState;
+import dev.nextftc.control.feedback.PIDCoefficients;
 
 public class TurretServoCR {
     public CRServo turret;
-    public PIDController controller;
+    public ControlSystem controller;
+    public PIDCoefficients coefficients;
     public double target = 0;
     public double current = 0;
     public double error = 0;
@@ -28,7 +32,9 @@ public class TurretServoCR {
     public void init(HardwareMap hardwareMap){
         turret = hardwareMap.get(CRServo.class, RobotConstantsV1.turretServoName);
         turret.setPower(0);
-        controller = new PIDController(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
+        coefficients = new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
+        controller = ControlSystem.builder().posPid(new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d)).build();
+        controller.setGoal(new KineticState(0));
         encoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
     }
 
@@ -42,9 +48,10 @@ public class TurretServoCR {
         double power = 0;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null) {
+            controller.setGoal(new KineticState(TURRET_OFFSET_ANGLE));
             latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetYDegrees();
-            power = controller.getOutput((int)(cameraTx + TURRET_OFFSET_ANGLE), 0);
+            power = controller.calculate(new KineticState(cameraTx));
             noResultTimer.reset();
         }
         else {
@@ -65,7 +72,6 @@ public class TurretServoCR {
 
         //}
         power_ = power;
-        controller.updatePIDsFromConstants(RobotConstantsV1.turretPIDs);
         turret.setPower(power);
     }
 
@@ -85,5 +91,9 @@ public class TurretServoCR {
 
     public double getEncoderPos(){
         return (encoder.getVoltage() / encoder.getMaxVoltage()) * 360.0;
+    }
+
+    public PIDCoefficients getPIDCoefficients(){
+        return coefficients;
     }
 }

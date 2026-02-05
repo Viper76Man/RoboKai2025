@@ -35,7 +35,8 @@ public class ArcMotorsV2 implements Subsystem {
     }
 
     public run spinUpIdle(){
-        return new run(RobotConstantsV1.SHOOTER_IDLE_RPM);
+        setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
+        return new run();
     }
 
     public void setZone(Zone zone){
@@ -54,16 +55,19 @@ public class ArcMotorsV2 implements Subsystem {
     }
 
     public run spinUpFront(){
-        return new run(RobotConstantsV1.SHOOTER_FRONT_RPM);
+        setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
+        return new run();
     }
 
     public run spinUpBack(){
         switch (mode) {
             case AUTONOMOUS:
-                return new run(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
+                setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
+                return new run();
             case TELEOP:
             default:
-                return new run(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                return new run();
         }
     }
 
@@ -72,11 +76,6 @@ public class ArcMotorsV2 implements Subsystem {
     }
 
     public class run extends Command{
-        public double target;
-
-        public run(double targetRPM){
-            this.target = targetRPM;
-        }
 
         @Override
         public void update(){

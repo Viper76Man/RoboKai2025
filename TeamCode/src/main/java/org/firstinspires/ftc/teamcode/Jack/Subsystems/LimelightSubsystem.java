@@ -43,14 +43,7 @@ public class LimelightSubsystem implements Subsystem {
 
         @Override
         public void update(){
-            if(limelight.getLatestAprilTagResult() == null) {
-                double error = 236 - turret.getEncoderPos();
-                turret.setPower(error * RobotConstantsV1.turretServoPower);
-                done = Math.abs(error) < 2;
-            }
-            else {
-                turret.run(limelight, angle);
-            }
+            turret.run(limelight, angle);
         }
 
         @Override
@@ -64,10 +57,12 @@ public class LimelightSubsystem implements Subsystem {
         if(result != null) {
             telemetryM.addLine("Target Y: " + result.getTargetYDegrees());
             telemetryM.addLine("Distance: " + limelight.getTargetDistance());
+            telemetryM.addLine("PIDs: (" + turret.getPIDCoefficients().kP + ", " + turret.getPIDCoefficients().kI + ", " + turret.getPIDCoefficients().kD + ")");
         }
         else {
             telemetryM.addLine("Target Y: Invalid Target");
             telemetryM.addLine("Distance: Invalid Target");
+            telemetryM.addLine("PIDs: (" + turret.getPIDCoefficients().kP + ", " + turret.getPIDCoefficients().kI + ", " + turret.getPIDCoefficients().kD + ")");
         }
     }
 
@@ -76,10 +71,12 @@ public class LimelightSubsystem implements Subsystem {
         if(result != null) {
             telemetry.addLine("Target Y: " + result.getTargetYDegrees());
             telemetry.addLine("Distance: " + limelight.getTargetDistance());
+            telemetry.addLine("PIDs: (" + turret.getPIDCoefficients().kP + ", " + turret.getPIDCoefficients().kI + ", " + turret.getPIDCoefficients().kD + ")");
         }
         else {
             telemetry.addLine("Target Y: Invalid Target");
             telemetry.addLine("Distance: Invalid Target");
+            telemetry.addLine("PIDs: (" + turret.getPIDCoefficients().kP + ", " + turret.getPIDCoefficients().kI + ", " + turret.getPIDCoefficients().kD + ")");
         }
     }
 }
