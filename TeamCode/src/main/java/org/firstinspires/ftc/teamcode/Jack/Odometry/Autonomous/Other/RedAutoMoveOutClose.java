@@ -1,42 +1,19 @@
-package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous;
+package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
-import com.bylazar.panels.Panels;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV3;
-import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
-import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
-import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
-import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
-import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
-import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
-import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
-import org.firstinspires.ftc.teamcode.Jack.Other.Range;
-import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
-import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV2;
-import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 
 import java.util.Objects;
 
 @Autonomous
-public class BlueAutoMoveOutClose extends LinearOpMode {
+public class RedAutoMoveOutClose extends LinearOpMode {
     public CustomFollower follower;
-    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
+    public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
     public enum PathStates {
         START,
         LEAVE,
@@ -56,7 +33,7 @@ public class BlueAutoMoveOutClose extends LinearOpMode {
     public void runOpMode() {
         initHardware();
         pathState = PathStates.START;
-        follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
+        follower.setStartingPose(RedAutoPathsV2.startPoseClose);
         waitForStart();
         while (opModeIsActive()) {
             log();
@@ -82,7 +59,7 @@ public class BlueAutoMoveOutClose extends LinearOpMode {
                 break;
             case LEAVE:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.leaveShootClose);
+                    follower.setCurrentPath(RedAutoPathsV2.leaveShootClose);
                 }
                 setPathState(PathStates.IDLE);
                 break;

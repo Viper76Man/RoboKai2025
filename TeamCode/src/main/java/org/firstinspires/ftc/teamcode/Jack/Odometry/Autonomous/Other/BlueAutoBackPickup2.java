@@ -1,24 +1,23 @@
-package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous;
+package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
 import com.bylazar.field.Style;
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
 import java.util.Objects;
 
 @Autonomous
-public class RedAutoBackPickup2 extends LinearOpMode {
+public class BlueAutoBackPickup2 extends LinearOpMode {
     public CustomFollower follower;
-    public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
+    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
     public LimelightV1 limelight = new LimelightV1();
 
@@ -63,7 +62,7 @@ public class RedAutoBackPickup2 extends LinearOpMode {
         initHardware();
         pathState = PathStates.START;
         actionState = ActionStates.DRIVE_TO_SHOOT;
-        follower.setStartingPose(RedAutoPathsV2.startPoseFar);
+        follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
         limelight.startStreaming();
         while (opModeInInit()){
             obeliskTag = limelight.getLastObeliskTag();
@@ -97,7 +96,7 @@ public class RedAutoBackPickup2 extends LinearOpMode {
                 break;
             case TO_SHOOT:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.outOfStartFar);
+                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
                     setPathState(PathStates.SHOOT_SET_1);
                     break;
                 }
@@ -111,22 +110,22 @@ public class RedAutoBackPickup2 extends LinearOpMode {
                 break;
             case TO_PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.toFirstArtifacts);
+                    follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
                     setPathState(PathStates.PICKUP_1);
                 }
                 break;
             case PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.pickup1);
+                    follower.setCurrentPath(BlueAutoPathsV2.pickup1);
                     setPathState(PathStates.BACK_TO_SHOOT_1);
                 }
                 break;
             case BACK_TO_SHOOT_1:
-                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.overdriveBack1);
+                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
                 }
-                else if(isLastPathName(RedAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > RedAutoPathsV2.backToShoot1OverdriveTValue){
-                    follower.setCurrentPath(RedAutoPathsV2.backToShoot1);
+                else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
+                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
                     setPathState(PathStates.SHOOT_SET_2);
                 }
                 break;
@@ -140,22 +139,22 @@ public class RedAutoBackPickup2 extends LinearOpMode {
                 break;
             case TO_PICKUP_2:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.toSecondArtifacts);
+                    follower.setCurrentPath(BlueAutoPathsV2.toSecondArtifacts);
                     setPathState(PathStates.PICKUP_2);
                 }
                 break;
             case PICKUP_2:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.pickup2);
+                    follower.setCurrentPath(BlueAutoPathsV2.pickup2);
                     setPathState(PathStates.BACK_TO_SHOOT_2);
                 }
                 break;
             case BACK_TO_SHOOT_2:
-                if(isLastPathName(RedAutoPathsV2.pickup2.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.overdriveBack1);
+                if(isLastPathName(BlueAutoPathsV2.pickup2.getName()) && !follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
                 }
-                else if(isLastPathName(RedAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > RedAutoPathsV2.backToShoot1OverdriveTValue){
-                    follower.setCurrentPath(RedAutoPathsV2.backToShoot2);
+                else if(isLastPathName(BlueAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
+                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot2);
                     setPathState(PathStates.SHOOT_SET_3);
                 }
                 break;

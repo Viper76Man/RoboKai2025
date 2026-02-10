@@ -1,27 +1,18 @@
-package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous;
+package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
-import com.bylazar.panels.Panels;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV3;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
@@ -34,12 +25,12 @@ import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 import java.util.Objects;
 
 @Autonomous
-public class RedAutoBackPickup1 extends LinearOpMode {
+public class BlueAutoBackPreload extends LinearOpMode {
     public CustomFollower follower;
-    public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
-    public ElapsedTime matchTimer = new ElapsedTime();
+    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public DecodeAprilTag obeliskTag;
-    public ElapsedTime stateTimer = new ElapsedTime();
+    public ElapsedTime ballTimer = new ElapsedTime();
+    public ElapsedTime noResultTimer = new ElapsedTime();
     public PIDController controller;
     //HARDWARE--------------------------------------------------------------------------------------
     public ArcShooterV1 arcShooter = new ArcShooterV1();
@@ -55,12 +46,9 @@ public class RedAutoBackPickup1 extends LinearOpMode {
     public boolean fire = false;
     public boolean firedAlready = false;
     public boolean turretReady = false;
-    public boolean clearedForIntake = true;
-    public boolean sensorCleared = false;
     public ArtifactSlot slot1 = new ArtifactSlot();
     public ArtifactSlot slot2 = new ArtifactSlot();
     public ArtifactSlot slot3 = new ArtifactSlot();
-    public double currentBall = 1;
     public enum PathStates {
         START,
         TO_SHOOT,
@@ -69,9 +57,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         TURN_TO_PICKUP_1,
         PICKUP_1,
         BACK_TO_SHOOT_1,
-        SHOOT_SET_2,
-        OUT_OF_ZONE,
-        IDLE
+        SHOOT_SET_2
     }
 
     public enum State {
@@ -92,16 +78,12 @@ public class RedAutoBackPickup1 extends LinearOpMode {
     public void runOpMode() {
         initHardware();
         pathState = PathStates.START;
-        follower.setStartingPose(RedAutoPathsV2.startPoseFar);
+        follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
         if (obeliskTag != null) {
             telemetry.addData("Latest tag: ", obeliskTag.name());
         }
         waitForStart();
-        matchTimer.reset();
         while (opModeIsActive()) {
-            if(isStopRequested()){
-                return;
-            }
             log();
             autoPathUpdate();
             systemStatesUpdate();
@@ -124,7 +106,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         intake.init(hardwareMap);
         intake.setDirection(RobotConstantsV1.intakeDirection);
         limelight.init(hardwareMap);
-        limelight.setPipeline(LimelightV1.Pipeline.RED_GOAL);
+        limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
         limelight.startStreaming();
         controller = new PIDController(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         setEmpty(1);
@@ -136,82 +118,36 @@ public class RedAutoBackPickup1 extends LinearOpMode {
     public void autoPathUpdate() {
         follower.update(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
-        if(matchTimer.seconds() > 29){
-            setPathState(PathStates.OUT_OF_ZONE);
-        }
         switch (pathState) {
             case START:
                 setPathState(PathStates.TO_SHOOT);
                 if (!actionIsSet) {
-                    intake.setPower(RobotConstantsV1.INTAKE_POWER);
+                    setActionState(State.INTAKE_BALL_1);
                     actionIsSet = true;
                 }
                 break;
             case TO_SHOOT:
                 if (!follower.isBusy()) {
-                    follower.setCurrentPath(RedAutoPathsV2.outOfStartFar);
+                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
                     setPathState(PathStates.SHOOT_SET_1);
+                    fire = true;
                     break;
                 }
                 break;
             case SHOOT_SET_1:
-                if (!follower.follower.isBusy() && !fire && clearedForIntake && ballsFired == 0) {
-                    setActionState(State.SHOOT_BALL_1);
-                    fire = true;
-                    clearedForIntake = false;
+                if (follower.follower.getCurrentTValue() >= 1 && actionState == State.INTAKE_BALL_1 && fire) {
+                    if (ballTimer.seconds() > 0.5) {
+                        setActionState(State.SHOOT_BALL_1);
+                    }
                 }
-                if (!fire && ballsFired > 0) {
+                if (follower.follower.getCurrentTValue() < 1 && Objects.equals(follower.path.name, "outOfStartFar")) {
+                    ballTimer.reset();
+                }
+                if (actionState == State.INTAKE_BALL_1 && !fire) {
                     setPathState(PathStates.TO_PICKUP_1);
-                    setActionState(State.INTAKE_BALL_1);
-                    clearedForIntake = true;
+                    ballsFired = 0;
                 }
                 break;
-            case TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.toFirstArtifacts);
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.pickup1);
-                    setPathState(PathStates.BACK_TO_SHOOT_1);
-                }
-                break;
-            case BACK_TO_SHOOT_1:
-                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) < 30){
-                    follower.follower.setMaxPower(0.17);
-                }
-                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.overdriveBack1);
-                    follower.follower.setMaxPower(1);
-                }
-                else if(isLastPathName(RedAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > RedAutoPathsV2.backToShoot1OverdriveTValue){
-                    follower.setCurrentPath(RedAutoPathsV2.backToShoot1);
-                    setPathState(PathStates.SHOOT_SET_2);
-                }
-                ballsFired = 3;
-                fire = false;
-                clearedForIntake = true;
-                firedAlready = false;
-                break;
-            case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() > 0.8 && !fire && clearedForIntake && ballsFired == 3) {
-                    setActionState(State.SHOOT_BALL_1);
-                    fire = true;
-                    clearedForIntake = false;
-                }
-                if (!fire && ballsFired > 3) {
-                    setPathState(PathStates.OUT_OF_ZONE);
-                    setActionState(State.INTAKE_BALL_1);
-                    clearedForIntake = true;
-                }
-                break;
-            case OUT_OF_ZONE:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(RedAutoPathsV2.leaveShoot);
-                    setPathState(PathStates.IDLE);
-                }
         }
     }
 
@@ -220,28 +156,23 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         spindexerRun();
         arcShooter.run();
         flicker.update(spindexer.isSpindexerReady());
-        sensor.update(spindexer.state, spindexer.isSpindexerReady());
         spindexer.update();
         switch (actionState) {
             case SHOOT_BALL_1:
-                turretReady = true;
-                sensor.clear();
-                currentBall = 1;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
-                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 30).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady()) {
+                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
-                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 30)  && spindexer.isSpindexerReady()) {
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
                     if (flicker.state != FlickerServoV2.State.IDLE && !firedAlready) {
                         firedAlready = true;
                     }
                     if (flicker.state == FlickerServoV2.State.IDLE && firedAlready) {
-                        ballsFired += 1;
                         setEmpty(1);
                         setActionState(State.SHOOT_BALL_2);
                         firedAlready = false;
@@ -249,91 +180,64 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 }
                 break;
             case SHOOT_BALL_2:
-                sensor.clear();
-                currentBall = 2;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
-                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 30).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady()) {
+                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
-                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady()) {
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
                     if(flicker.state != FlickerServoV2.State.IDLE && !firedAlready){
                         firedAlready = true;
                     }
                     if (flicker.state == FlickerServoV2.State.IDLE && firedAlready) {
-                        ballsFired += 1;
                         setEmpty(2);
                         setActionState(State.SHOOT_BALL_3);
                         firedAlready = false;
-                    }
                 }
+            }
                 break;
             case SHOOT_BALL_3:
-                sensor.clear();
-                currentBall = 3;
-                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
+                arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
                 intake.setPower(0.2);
                 if(fire) {
-                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 30).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady()) {
+                    if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && new Range((RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO), 10).isInRange(arcShooter.getVelocityRPM()) && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
-                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady()) {
+                    else if (flicker.state == FlickerServoV2.State.IDLE && !firedAlready && (arcShooter.getVelocityRPM() > RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 10 && arcShooter.getVelocityRPM() < RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO + 20)  && spindexer.isSpindexerReady() && turretReady) {
                         flicker.setState(FlickerServoV2.State.DOWN);
                     }
                     if(flicker.state != FlickerServoV2.State.IDLE && !firedAlready){
                         firedAlready = true;
                     }
                     if (flicker.state == FlickerServoV2.State.IDLE && firedAlready) {
-                        ballsFired += 1;
-                        clearedForIntake = true;
                         setEmpty(3);
-                        firedAlready = false;
                         setActionState(State.INTAKE_BALL_1);
+                        firedAlready = false;
                         fire = false;
                     }
                 }
                 break;
             case INTAKE_BALL_1:
-                currentBall = 1;
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
-                if(ballCollectUpdate(1) && clearedForIntake && spindexer.isSpindexerReady() ) {
-                    setActionState(State.INTAKE_BALL_2);
-                    currentBall = 2;
-                    sensor.clear();
-                }
-                else {
-                    spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
-                }
+                ballCollectUpdate(1);
+                spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_2:
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
-                //TODO: If that doesn't work, try adding these conditions to ballCollectUpdate() :)
-                if(ballCollectUpdate(2) && clearedForIntake && spindexer.isSpindexerReady()) {
-                    setActionState(State.INTAKE_BALL_3);
-                    sensor.clear();
-                    currentBall = 3;
-                }
-                else {
-                    spindexer.setState(SpindexerMotorV1.State.BALL_2_INTAKE);
-                }
+                ballCollectUpdate(2);
+                spindexer.setState(SpindexerMotorV1.State.BALL_2_INTAKE);
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
             case INTAKE_BALL_3:
                 arcShooter.setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
-                if(ballCollectUpdate(3) && spindexer.isSpindexerReady()) {
-                    setActionState(State.SHOOT_BALL_1);
-                    sensor.clear();
-                    clearedForIntake = false;
-                }
-                else {
-                    spindexer.setState(SpindexerMotorV1.State.BALL_3_INTAKE);
-                }
+                ballCollectUpdate(3);
+                spindexer.setState(SpindexerMotorV1.State.BALL_3_INTAKE);
                 intake.setPower(RobotConstantsV1.INTAKE_POWER);
                 break;
         }
@@ -352,7 +256,6 @@ public class RedAutoBackPickup1 extends LinearOpMode {
 
     public void setPathState(PathStates pathState) {
         this.pathState = pathState;
-        stateTimer.reset();
     }
 
     public void setActionState(State actionState) {
@@ -367,26 +270,16 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         telemetry.addLine("T-value: " + follower.follower.getCurrentTValue());
         telemetry.addLine("Busy? " + follower.isBusy());
         telemetry.addLine("RPM: " + arcShooter.getVelocityRPM());
-        telemetry.addLine("Sensor State: " + sensor.getCurrent().name());
-        telemetry.addLine("Ready to intake? :" + clearedForIntake);
-        telemetry.addLine("Camera Tx: " + cameraTx);
-        sensor.log(PanelsTelemetry.INSTANCE.getTelemetry(), telemetry);
-        arcShooter.graph(telemetry);
-        flicker.log(telemetry);
-        if(RobotConstantsV1.panelsEnabled){
-            PanelsTelemetry.INSTANCE.getTelemetry().update(telemetry);
-        }
     }
 
     public void turretUpdate() {
-        controller.setConstants(RobotConstantsV1.turretPIDsAuto);
         double power;
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        /*if (latest_result != null) {
+        if (latest_result != null) {
             double latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetXDegreesNoCrosshair();
             noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
+            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO);
         } else {
             cameraTx = 0;
             power = -controller.getOutput((int) turret.getEncoderPos(), 236);
@@ -394,7 +287,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         if (turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0) {
             power = 0;
         }
-        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCameraAuto) {
+        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO)) < RobotConstantsV1.degreeToleranceCameraAuto) {
             power = power / 2;
             turretReady = true;
         }
@@ -402,12 +295,9 @@ public class RedAutoBackPickup1 extends LinearOpMode {
             turretReady = false;
         }
         turret.setPower(power);
-         */
-        turretReady = !follower.isBusy();
     }
 
     public void setEmpty(int ball){
-        sensor.clear();
         switch (ball){
             case 1:
                 slot1.setColor(ArtifactColor.NONE);
@@ -420,16 +310,17 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 break;
         }
     }
-    public boolean ballCollectUpdate(int ball){
+    public void ballCollectUpdate(int currentBall){
         sensor.update(spindexer.state, spindexer.isSpindexerReady());
-        if (sensor.getCurrent() == ArtifactColor.GREEN && currentBall == ball && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.getNormalizedRGB().green > 0.03){
-            setGreen(ball);
-            return true;
-        } else if (sensor.getCurrent() == ArtifactColor.PURPLE && currentBall == ball && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.getNormalizedRGB().green > 0.03) {
-            setPurple(ball);
-            return true;
+        if (sensor.isGreen() && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
+            setGreen(currentBall);
+            sensor.clear();
+            setActionState(getNextState(actionState));
+        } else if (sensor.isPurple() && isEmpty(currentBall) && (sensor.sensor.getNormalizedColors().green / sensor.sensor.getNormalizedColors().alpha) < 0.15 && sensor.sensor.getNormalizedColors().green > 0.03) {
+            setPurple(currentBall);
+            sensor.clear();
+            setActionState(getNextState(actionState));
         }
-        return false;
     }
 
     public void setGreen(int ball){
@@ -468,10 +359,6 @@ public class RedAutoBackPickup1 extends LinearOpMode {
                 return slot3.getColor() == ArtifactColor.NONE;
         }
         return true;
-    }
-
-    public boolean isEmpty(double ball){
-        return isEmpty((int) ball);
     }
 
     public State getNextState(State state){

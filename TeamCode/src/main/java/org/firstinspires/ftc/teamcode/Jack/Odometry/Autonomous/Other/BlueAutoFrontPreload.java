@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous;
+package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,7 +8,6 @@ import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
