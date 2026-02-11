@@ -50,8 +50,8 @@ public class RobotConstantsV1 {
     public static double strafePodX = -6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static int degreeToleranceCamera = 1;
-    public static int degreeToleranceCameraAuto = 3;
+    public static int degreeToleranceCamera = 5;
+    public static int degreeToleranceCameraAuto = 8;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -69,7 +69,7 @@ public class RobotConstantsV1 {
 
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(3, 0, 0.2, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.4, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
@@ -79,8 +79,8 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(-0.08, 0, 0.01);
-    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.0055, 0, 0.0001);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(0.015, 0, 0.1);
+    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.015, 0, 0.1);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -95,13 +95,14 @@ public class RobotConstantsV1 {
     public static DcMotorSimple.Direction rightShooterDirection = DcMotorSimple.Direction.FORWARD;
     public static boolean useBothArcMotors = false;
 
-    public static double TURRET_MAX_ENCODER_VALUE = 320;
+    public static double TURRET_MAX_ENCODER_VALUE = 300;
 
-    public static double SHOOTER_TARGET_RPM = 3900;
 
-    public static double SHOOTER_TARGET_RPM_AUTO = 3900;
-    public static double SHOOTER_FRONT_RPM = 3350;
-    public static double SHOOTER_IDLE_RPM = 3350;
+    public static double SHOOTER_TARGET_RPM = 3000;
+
+    public static double SHOOTER_TARGET_RPM_AUTO = 3050;
+    public static double SHOOTER_FRONT_RPM = 2550;
+    public static double SHOOTER_IDLE_RPM = 2850;
     public static int SHOOTER_PPR = 28;
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
     public static double SHOOTER_ANGLE_DEG = 50;
@@ -110,9 +111,9 @@ public class RobotConstantsV1 {
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = 2;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = 2;
-    public static double TURRET_OFFSET_ANGLE_RED = -2;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -5;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
+    public static double TURRET_OFFSET_ANGLE_RED = 5;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 

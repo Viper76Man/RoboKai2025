@@ -112,6 +112,7 @@ public class RobotV4 implements Subsystem { ;
 
 
     public void systemStatesUpdate(){
+        rpmUpdate();
         ll.turret.run(ll.limelight, OFFSET_ANGLE);
         if(firstLoop){
             flicker.fire().run();
@@ -220,6 +221,7 @@ public class RobotV4 implements Subsystem { ;
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
+            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret power: " + ll.turret.power_);
             PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
         }

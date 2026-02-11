@@ -188,7 +188,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
                 firedAlready = false;
                 break;
             case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() > 0.7 && !fire && clearedForIntake && ballsFired == 3) {
+                if (follower.follower.getCurrentTValue() > 0.8 && !fire && clearedForIntake && ballsFired == 3) {
                     setActionState(State.SHOOT_BALL_1);
                     fire = true;
                     clearedForIntake = false;
@@ -371,31 +371,11 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     }
 
     public void turretUpdate() {
-        controller.setConstants(RobotConstantsV1.turretPIDsAuto);
-        double power;
-        LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
-        /*if (latest_result != null) {
-            double latestTagID = latest_result.getFiducialId();
-            cameraTx = latest_result.getTargetXDegreesNoCrosshair();
-            noResultTimer.reset();
-            power = -controller.getOutput(cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE);
-        } else {
-            cameraTx = 0;
-            power = -controller.getOutput((int) turret.getEncoderPos(), 236);
-        }
-        if (turret.getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power < 0) {
-            power = 0;
-        }
-        if (Math.abs((cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE)) < RobotConstantsV1.degreeToleranceCameraAuto) {
-            power = power / 2;
+        turret.run(limelight, RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO);
+        turretReady = ((turret.cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO) < RobotConstantsV1.degreeToleranceCameraAuto);
+        if(stateTimer.seconds() > 3 && actionState == State.SHOOT_BALL_1 || actionState == State.SHOOT_BALL_2 || actionState == State.SHOOT_BALL_3){
             turretReady = true;
         }
-        else {
-            turretReady = false;
-        }
-        turret.setPower(power);
-         */
-        turretReady = !follower.isBusy();
     }
 
     public void setEmpty(int ball){
