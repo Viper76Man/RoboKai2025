@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
+import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
@@ -24,21 +26,25 @@ public class FiringManager implements Subsystem {
         this.command3 = new ParallelGroup(flicker.fire());
     }
 
-    public FireTriple fireTriple(){
-        return new FireTriple(true);
+    public FireTriple fireTriple(Robot.Mode mode, ArcMotorsV2 arcMotorsV2){
+        return new FireTriple(true, mode, arcMotorsV2);
     }
 
-    public FireTriple fireSingle(){
-        return new FireTriple(false);
+    public FireTriple fireSingle(ArcMotorsV2 arc){
+        return new FireTriple(false, Robot.Mode.TELEOP, arc);
     }
 
     public class FireTriple extends Command {
         private boolean firing = false;
         private Command activeFire;
         public boolean triple;
+        public Robot.Mode mode;
+        public ArcMotorsV2 arc;
 
-        public FireTriple(boolean triple){
+        public FireTriple(boolean triple, Robot.Mode mode, ArcMotorsV2 arcMotorsV2){
             this.triple = triple;
+            this.mode = mode;
+            this.arc = arcMotorsV2;
         }
 
         @Override
@@ -50,7 +56,12 @@ public class FiringManager implements Subsystem {
         public void update() {
             if(triple) {
                 if (!firing && spindexer.isSpindexerReady()) {
-                    startFiring();
+                    if(mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(20)) {
+                        startFiring();
+                    }
+                    else if(mode != Robot.Mode.AUTONOMOUS){
+                        startFiring();
+                    }
                 }
                 if (firing && activeFire.isDone()) {
                     nextBall();

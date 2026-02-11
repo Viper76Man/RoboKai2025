@@ -46,12 +46,19 @@ public class TurretServoCR {
 
     public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE){
         double power = 0;
+
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null && limelight.limelight.getLatestResult().isValid()) {
             latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetYDegrees();
             double error = (cameraTx + TURRET_OFFSET_ANGLE);
-            power = controller.calculate(new KineticState(error));
+            if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera) {
+                power = error * RobotConstantsV1.turretSlowPower;
+                controller.calculate(new KineticState(error));
+            }
+            else {
+                power = controller.calculate(new KineticState(error));
+            }
             noResultTimer.reset();
         }
         else {
@@ -64,9 +71,7 @@ public class TurretServoCR {
         if(getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power > 0){
             power = 0;
         }
-        //if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera){
-            //power = power / 1.2;
-        //}
+
         //if(noResultTimer.seconds() > 1){
         //turret.setPower(0);
 

@@ -200,9 +200,10 @@ public class ArcShooterV1 {
     }
 
     public void log(TelemetryManager telemetry){
-        telemetry.addData("Arc Motor Velocity: ", velocity);
+        telemetry.addData("Current RPM: ", getVelocityRPM());
+        telemetry.addData("Target RPM: ", targetRPM);
         telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
-        telemetry.addData("Ready? : ", ready());
+        telemetry.addData("Ready? : ", ready());;
     }
 
     public void graph(MultipleTelemetry telemetry){

@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry;
 
+import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
+
+import java.util.Objects;
 
 public class CustomFollower {
     public Follower follower;
@@ -95,6 +98,75 @@ public class CustomFollower {
             }
         }
 
+    }
+
+    public void update() {
+        follower.update();
+        if (path != null){
+            turning = false;
+            switch (pathState) {
+                case PATH_ONE:
+                    if (!follower.isBusy()) {
+                        follower.followPath(path.path);
+                        busy = true;
+                    } else {
+                        if (follower.getCurrentTValue() >= path.tValue) {
+                            follower.breakFollowing();
+                            if (path.pathToEnd != null) {
+                                pathState = State.PATH_TWO;
+                                follower.breakFollowing();
+                                busy = true;
+                            } else {
+                                follower.breakFollowing();
+                                path = null;
+                                busy = false;
+                            }
+                        }
+                    }
+                    break;
+                case PATH_TWO:
+                    if (!follower.isBusy()) {
+                        follower.breakFollowing();
+                        follower.followPath(path.pathToEnd);
+                        busy = true;
+                    } else {
+                        if (follower.getCurrentTValue() >= path.endTValue) {
+                            follower.breakFollowing();
+                            path = null;
+                            busy = false;
+                            pathState = State.PATH_ONE;
+                            return;
+                        }
+                    }
+                    break;
+            }
+        } else if(turning) {
+            if(headingRange.isInRange(Math.toDegrees(follower.getHeading()))) {
+                turning = false;
+                busy = false;
+            }
+        }
+
+    }
+
+    public void log(Telemetry telemetry){
+        telemetry.addLine("Current T-value: " + follower.getCurrentTValue());
+        telemetry.addLine("Is busy?: " + isBusy());
+        if(!Objects.equals(path, null)){
+            if(!Objects.equals(path.getName(), null)) {
+                telemetry.addLine("Current path name: " + path.name);
+            }
+        }
+    }
+
+    public void log(TelemetryManager telemetry){
+        telemetry.addLine("Current T-value: " + follower.getCurrentTValue());
+        telemetry.addLine("Is busy?: " + isBusy());
+        if(!Objects.equals(path, null)){
+            if(!Objects.equals(path.getName(), null)) {
+                telemetry.addLine("Current path name: " + path.name);
+            }
+        }
     }
 
     public void turnTo(double headingRad){

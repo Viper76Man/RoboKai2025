@@ -106,8 +106,8 @@ public class RobotV4 implements Subsystem { ;
                 spindexer.spindexerRun(),
                 arcMotorsV2.spinActive()
         );
-        fireCommand = new ParallelGroup(firingManager.fireTriple());
-        fireSingleCommand = new ParallelGroup(firingManager.fireSingle());
+        fireCommand = new ParallelGroup(firingManager.fireTriple(mode, arcMotorsV2));
+        fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
     }
 
 
@@ -219,6 +219,7 @@ public class RobotV4 implements Subsystem { ;
             ll.log(PanelsTelemetry.INSTANCE.getTelemetry());
             hood.hoodServo.log(PanelsTelemetry.INSTANCE.getTelemetry());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
+            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Shooter Current RPM: " + arcMotorsV2.arcShooter.getVelocityRPM());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
             PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));

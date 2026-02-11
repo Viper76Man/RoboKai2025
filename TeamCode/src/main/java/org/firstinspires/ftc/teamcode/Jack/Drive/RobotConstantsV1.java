@@ -73,8 +73,8 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00001, 0, 0, 0.0001969);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000001, 0, 0.000001, 0.00019367);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000001, 0, 0.000001, 0.00019367);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -90,6 +90,7 @@ public class RobotConstantsV1 {
 
     public static double INTAKE_POWER = 0.9;
     public static double turretServoPower = 0.01;
+    public static double turretSlowPower = -0.01;
     public static DcMotorSimple.Direction intakeDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction leftShooterDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction rightShooterDirection = DcMotorSimple.Direction.FORWARD;
@@ -98,9 +99,9 @@ public class RobotConstantsV1 {
     public static double TURRET_MAX_ENCODER_VALUE = 300;
 
 
-    public static double SHOOTER_TARGET_RPM = 3000;
+    public static double SHOOTER_TARGET_RPM = 3100; //0.2 ANGLE
 
-    public static double SHOOTER_TARGET_RPM_AUTO = 3050;
+    public static double SHOOTER_TARGET_RPM_AUTO = 3150;
     public static double SHOOTER_FRONT_RPM = 2550;
     public static double SHOOTER_IDLE_RPM = 2850;
     public static int SHOOTER_PPR = 28;
@@ -111,9 +112,9 @@ public class RobotConstantsV1 {
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -5;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
-    public static double TURRET_OFFSET_ANGLE_RED = 5;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -2;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -2;
+    public static double TURRET_OFFSET_ANGLE_RED = 2;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
 

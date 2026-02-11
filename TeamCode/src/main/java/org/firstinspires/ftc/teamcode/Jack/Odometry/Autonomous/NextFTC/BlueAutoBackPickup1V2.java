@@ -34,13 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.ActiveOpMode;
+import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous
-public class BlueAutoBackPickup1V2 extends LinearOpMode {
-    private static final Logger log = LoggerFactory.getLogger(BlueAutoBackPickup1V2.class);
+public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand;
     public LED left1, right1, left2, right2;
     public IntakeMotorV2 intake = new IntakeMotorV2();
@@ -55,12 +56,14 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
     public BallManager manager = new BallManager();
 
     public CustomFollower follower;
-    public PathStates pathState;
+    public PathStates pathState = PathStates.START;
+    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
 
     public boolean firedAlready = false;
     public boolean firedAlreadyPathing = false;
     public boolean firstLoop = true;
 
+    public boolean shouldFire = false;
     public double OFFSET_ANGLE;
     public enum PathStates {
         START,
@@ -93,6 +96,7 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
         intake = new IntakeMotorV2();
         intake.init(hardwareMap);
         spindexer.init(manager);
+        spindexer.spindexer.resetEncoder();
         hood.init();
         ll.init();
         flicker.init(spindexer.spindexer);
@@ -117,6 +121,7 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
     }
 
     public void buildCommands(){
+        pathsV2.buildPaths();
         intakeCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 sensor.update(),
@@ -126,25 +131,32 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
                 spindexer.spindexerRun(),
                 arcMotorsV2.spinActive()
         );
-        fireCommand = new ParallelGroup(firingManager.fireTriple());
-        fireSingleCommand = new ParallelGroup(firingManager.fireSingle());
+        fireCommand = new ParallelGroup(firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2));
+        fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
     }
 
 
 
     @Override
-    public void runOpMode() {
+    public void onInit() {
         init(hardwareMap, Robot.Mode.AUTONOMOUS, Robot.Alliance.BLUE);
         buildCommands();
-        waitForStart();
+
+    }
+
+    @Override
+    public void onStartButtonPressed(){
         pathState = PathStates.START;
         follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
+    }
+
+    public void onUpdate(){
+        hood.hoodServo.setPos(0.2);
         if(isStopRequested()){
             return;
         }
-        while (opModeIsActive()){
-            systemStatesUpdate();
-        }
+        systemStatesUpdate();
+        autoPathUpdate();
     }
 
     public void systemStatesUpdate(){
@@ -157,6 +169,7 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
         switch (state){
             case START:
                 redLED();
+                firedAlreadyPathing = true;
                 manager.setCurrentBall(1);
                 manager.setMode(BallManager.State.INTAKE);
                 setSystemState(SystemStates.BALL_1_INTAKE);
@@ -185,6 +198,7 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
                     sensor.clear();
                     shootCommand.schedule();
                     manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
                     greenLED();
                 }
                 break;
@@ -195,13 +209,16 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
                 if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
                     setSystemState(SystemStates.START);
                     firedAlready = false;
+                    firedAlreadyPathing = true;
+                    shouldFire = false;
                 }
                 break;
         }
     }
 
     public void autoPathUpdate() {
-        follower.update(telemetry);
+        follower.update();
+        follower.log(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
         if(matchTimer.seconds() > 29){
             setPathState(PathStates.OUT_OF_ZONE);
@@ -219,11 +236,10 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
                 firedAlreadyPathing = false;
                 break;
             case SHOOT_SET_1:
-                if (!follower.follower.isBusy() && !firedAlreadyPathing){
-                    setSystemState(SystemStates.SHOOT_ALL);
-                    firedAlreadyPathing = true;
+                if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
+                    shouldFire = true;
                 }
-                if (state == SystemStates.BALL_1_INTAKE || state == SystemStates.START && firedAlreadyPathing) {
+                if (firedAlreadyPathing) {
                     setPathState(PathStates.TO_PICKUP_1);
                     firedAlreadyPathing = false;
                 }
@@ -255,11 +271,10 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
                 firedAlreadyPathing = false;
                 break;
             case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() > 0.7 && !firedAlreadyPathing) {
-                    setSystemState(SystemStates.SHOOT_ALL);
-                    firedAlreadyPathing = true;
+                if (follower.follower.getCurrentTValue() > 0.7 && !firedAlreadyPathing && !shouldFire) {
+                    shouldFire = true;
                 }
-                if (firedAlready && state == SystemStates.BALL_1_INTAKE) {
+                if ((firedAlready && manager.mode == BallManager.State.INTAKE)) {
                     setPathState(PathStates.OUT_OF_ZONE);
                 }
                 break;
@@ -277,23 +292,10 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
 
 
     public void log(){
-        if(RobotConstantsV1.panelsEnabled){
-            flicker.flicker.log(PanelsTelemetry.INSTANCE.getTelemetry());
-            arcMotorsV2.arcShooter.log(PanelsTelemetry.INSTANCE.getTelemetry());
-            ll.log(PanelsTelemetry.INSTANCE.getTelemetry());
-            hood.hoodServo.log(PanelsTelemetry.INSTANCE.getTelemetry());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Mode: "+ manager.mode);
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret power: " + ll.turret.power_);
-            PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
-        }
-        else {
-            flicker.flicker.log(ActiveOpMode.telemetry());
-            arcMotorsV2.arcShooter.log(ActiveOpMode.telemetry());
-            ActiveOpMode.telemetry().addLine("Current ball: " + manager.getCurrentBall());
-            ActiveOpMode.telemetry().addLine("Mode: "+ manager.mode);
-        }
+        flicker.flicker.log(ActiveOpMode.telemetry());
+        arcMotorsV2.arcShooter.log(ActiveOpMode.telemetry());
+        ActiveOpMode.telemetry().addLine("Current ball: " + manager.getCurrentBall());
+        ActiveOpMode.telemetry().addLine("Mode: "+ manager.mode);
     }
 
     public void logCurrentCommands(Telemetry telemetry){
@@ -319,7 +321,7 @@ public class BlueAutoBackPickup1V2 extends LinearOpMode {
     }
 
     public boolean readyForTriple(){
-        return spindexer.spindexer.isSpindexerReady() && !firedAlready;
+        return spindexer.spindexer.isSpindexerReady() && !firedAlready && shouldFire;
     }
 
 
