@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
@@ -76,10 +79,28 @@ public class ArcMotorsV2 implements Subsystem {
     }
 
     public class run extends Command{
+        public ElapsedTime buttonTimer = new ElapsedTime();
+        public Gamepad gamepad = ActiveOpMode.gamepad1();
 
         @Override
         public void update(){
             arcShooter.run();
+            if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
+                setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                buttonTimer.reset();
+            }
+            if(gamepad.left_bumper && buttonTimer.seconds() > 0.3){
+                setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
+                buttonTimer.reset();
+            }
+            if(gamepad.dpad_up && buttonTimer.seconds() > 0.3){
+                setTargetRPM(arcShooter.getTargetRPM() + 10);
+                buttonTimer.reset();
+            }
+            if(buttonTimer.seconds() > 0.3 && gamepad.dpad_down){
+                setTargetRPM(arcShooter.getTargetRPM() - 10);
+                buttonTimer.reset();
+            }
         }
 
         @Override

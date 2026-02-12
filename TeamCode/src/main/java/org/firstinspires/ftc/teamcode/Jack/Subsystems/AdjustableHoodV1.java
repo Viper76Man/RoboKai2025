@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Jack.Servos.AdjustableHoodServo;
 
 
@@ -26,4 +29,32 @@ public class AdjustableHoodV1 implements Subsystem {
             return false;
         }
     }
+
+    public updateServo servoUpdate(){
+        return new updateServo();
+    }
+
+    public class updateServo extends Command {
+
+        public Gamepad gamepad = ActiveOpMode.gamepad1();
+        public ElapsedTime buttonTimer = new ElapsedTime();
+        @Override
+        public void update(){
+
+            if(buttonTimer.seconds() > 0.3 && gamepad.dpad_left){
+                hoodServo.goToDeg(hoodServo.currentDeg - 1);
+                buttonTimer.reset();
+            }
+            if(buttonTimer.seconds() > 0.3 && gamepad.dpad_right){
+                hoodServo.goToDeg(hoodServo.currentDeg + 1);
+                buttonTimer.reset();
+            }
+        }
+
+        @Override
+        public boolean isDone() {
+            return false;
+        }
+    }
+
 }

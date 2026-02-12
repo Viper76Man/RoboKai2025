@@ -33,7 +33,7 @@ public class TurretServoCR {
         turret = hardwareMap.get(CRServo.class, RobotConstantsV1.turretServoName);
         turret.setPower(0);
         coefficients = new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
-        controller = ControlSystem.builder().posPid(coefficients).build();
+        controller = ControlSystem.builder().posSquID(coefficients).build();
         controller.setGoal(new KineticState(0));
         encoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
     }
@@ -52,7 +52,7 @@ public class TurretServoCR {
             latestTagID = latest_result.getFiducialId();
             cameraTx = latest_result.getTargetYDegrees();
             double error = (cameraTx + TURRET_OFFSET_ANGLE);
-            if(Math.abs((cameraTx + TURRET_OFFSET_ANGLE)) < RobotConstantsV1.degreeToleranceCamera) {
+            if(Math.abs(error) < RobotConstantsV1.degreeToleranceCamera) {
                 power = error * RobotConstantsV1.turretSlowPower;
                 controller.calculate(new KineticState(error));
             }

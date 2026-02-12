@@ -29,6 +29,10 @@ public class LimelightSubsystem implements Subsystem {
         limelight.setPipeline(pipeline);
     }
 
+    public updateTurret turretUpdate(double offset){
+        return new updateTurret(offset);
+    }
+
     public class updateTurret extends Command {
         public double angle;
         public updateTurret(double offset){

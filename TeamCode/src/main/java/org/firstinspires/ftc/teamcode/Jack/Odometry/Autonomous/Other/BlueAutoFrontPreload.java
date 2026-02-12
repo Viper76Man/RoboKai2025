@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
 import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
-@Autonomous
+@Disabled
 public class BlueAutoFrontPreload extends LinearOpMode {
     public CustomFollower follower;
     public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();

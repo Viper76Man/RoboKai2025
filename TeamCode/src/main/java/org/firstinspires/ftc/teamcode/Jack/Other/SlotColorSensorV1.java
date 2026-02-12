@@ -74,6 +74,7 @@ public class SlotColorSensorV1 {
                         avgGreen = 0;
                         current = ArtifactColor.PURPLE;
                         countsWithinDistance = 0;
+                        break;
                 }
             }
             else {
@@ -91,6 +92,7 @@ public class SlotColorSensorV1 {
                         avgGreen = 0;
                         current = ArtifactColor.GREEN;
                         countsWithinDistance = 0;
+                        break;
                 }
             }
             else {

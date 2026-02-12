@@ -145,6 +145,13 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     }
 
     @Override
+    public void onWaitForStart(){
+        if(isStopRequested()){
+            return;
+        }
+    }
+
+    @Override
     public void onStartButtonPressed(){
         pathState = PathStates.START;
         follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
