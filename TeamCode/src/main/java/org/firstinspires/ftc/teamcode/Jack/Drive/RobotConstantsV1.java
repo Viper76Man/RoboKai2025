@@ -50,8 +50,8 @@ public class RobotConstantsV1 {
     public static double strafePodX = -6;
     public static DistanceUnit podsMeasurementUnit = DistanceUnit.INCH;
 
-    public static int degreeToleranceCamera = 5;
-    public static int degreeToleranceCameraAuto = 8;
+    public static int degreeToleranceCamera = 1;
+    public static int degreeToleranceCameraAuto = 1;
     public static double shotAngleBlueDegrees = 70;
     public static double shotAngleRedDegrees = 110;
 
@@ -74,7 +74,7 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.000001, 0, 0.000001, 0.00019667);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000001, 0, 0.000001, 0.00019667);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0000001, 0, 0.000001, 0.00019557);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -113,10 +113,10 @@ public class RobotConstantsV1 {
     public static double HOOD_MAX_ANGLE = 55;
 
     public static double TURRET_OFFSET_ANGLE_BLUE = -2;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -2;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
     public static double TURRET_OFFSET_ANGLE_RED = 2;
 
-    public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 12.5;
+    public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 15.5;
 
     public static int SPINDEXER_TOLERANCE = 1000;
 

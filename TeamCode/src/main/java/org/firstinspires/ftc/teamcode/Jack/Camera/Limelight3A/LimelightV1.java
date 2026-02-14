@@ -196,13 +196,13 @@ public class LimelightV1 {
 
     public double getTargetDistance() {
         if (getLatestAprilTagResult() != null) {
-            double angleToGoalDegrees = getLatestAprilTagResult().getTargetYDegrees();
+            double angleToGoalDegrees = getLatestAprilTagResult().getTargetXDegrees();
             double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
             double goalHeightInches = 29.5;
             //calculate distance
-            return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
+            return Math.abs((goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians));
         }
-        return -123456789.2;
+        return 0;
     }
 
     public boolean lockedOnTarget(Robot.Alliance alliance){

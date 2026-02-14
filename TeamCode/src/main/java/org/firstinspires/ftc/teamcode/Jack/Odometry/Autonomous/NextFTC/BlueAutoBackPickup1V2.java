@@ -42,7 +42,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous
 public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
-    public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand;
+    public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand, intakeReverse;
     public LED left1, right1, left2, right2;
     public IntakeMotorV2 intake = new IntakeMotorV2();
     public ColorSensorV3 sensor = new ColorSensorV3();
@@ -54,6 +54,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
     public BallManager manager = new BallManager();
+    public boolean shouldPickup = false;
 
     public CustomFollower follower;
     public PathStates pathState = PathStates.START;
@@ -89,6 +90,9 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     public SystemStates state = SystemStates.START;
     public Robot.Mode mode = Robot.Mode.AUTONOMOUS;
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
+    public ElapsedTime stateTimer = new ElapsedTime();
 
     public void init(HardwareMap hardwareMap, Robot.Mode mode, Robot.Alliance alliance){
         follower = new CustomFollower(hardwareMap);
@@ -97,11 +101,11 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
         intake.init(hardwareMap);
         spindexer.init(manager);
         spindexer.spindexer.resetEncoder();
-        hood.init();
         ll.init();
+        hood.init(ll.limelight);
         flicker.init(spindexer.spindexer);
         sensor.init(hardwareMap, manager, spindexer.spindexer);
-        arcMotorsV2.init(hardwareMap, Robot.Mode.AUTONOMOUS);
+        arcMotorsV2.init(hardwareMap, Robot.Mode.AUTONOMOUS, ll.limelight);
         left1 = hardwareMap.get(LED.class, "left");
         right1 = hardwareMap.get(LED.class, "right");
         left2 = hardwareMap.get(LED.class, "left2");
@@ -114,7 +118,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
             case BLUE:
             case TEST:
                 ll.limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
-                OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
+                OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO;
                 break;
         }
         ll.limelight.startStreaming();
@@ -133,6 +137,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
         );
         fireCommand = new ParallelGroup(firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2));
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
+        intakeReverse = new ParallelGroup(intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)));
     }
 
 
@@ -167,6 +172,12 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     }
 
     public void systemStatesUpdate(){
+        if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && spindexer.spindexer.isSpindexerReady() && stateTimer.seconds() > 0.5) {
+            intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
+        }
+        else {
+            intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
+        }
         log();
         ll.turret.run(ll.limelight, OFFSET_ANGLE);
         if(firstLoop){
@@ -180,10 +191,17 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 manager.setCurrentBall(1);
                 manager.setMode(BallManager.State.INTAKE);
                 setSystemState(SystemStates.BALL_1_INTAKE);
+                shootCommand.cancel();
                 intakeCommand.schedule();
                 break;
             case BALL_1_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
+                    manager.setBall1(sensor.sensor.getCurrent());
+                    manager.setCurrentBall(2);
+                    sensor.clear();
+                    setSystemState(SystemStates.BALL_2_INTAKE);
+                }
+                if (stateTimer.seconds() > 3 && shouldPickup) {
                     manager.setBall1(sensor.sensor.getCurrent());
                     manager.setCurrentBall(2);
                     sensor.clear();
@@ -197,12 +215,29 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                     sensor.clear();
                     setSystemState(SystemStates.BALL_3_INTAKE);
                 }
+                if(stateTimer.seconds() > 3 && shouldPickup){
+                    manager.setBall2(sensor.sensor.getCurrent());
+                    manager.setCurrentBall(3);
+                    sensor.clear();
+                    setSystemState(SystemStates.BALL_3_INTAKE);
+                }
                 break;
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
                     manager.setBall3(sensor.sensor.getCurrent());
                     manager.next();
                     sensor.clear();
+                    intakeCommand.cancel();
+                    shootCommand.schedule();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                }
+                if (stateTimer.seconds() > 3 && shouldPickup) {
+                    manager.setBall3(sensor.sensor.getCurrent());
+                    manager.next();
+                    sensor.clear();
+                    intakeCommand.cancel();
                     shootCommand.schedule();
                     manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
@@ -218,6 +253,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                     firedAlready = false;
                     firedAlreadyPathing = true;
                     shouldFire = false;
+                    shouldPickup = false;
                 }
                 break;
         }
@@ -234,6 +270,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
             case START:
                 setPathState(PathStates.TO_SHOOT);
                 intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+                shouldPickup = true;
                 break;
             case TO_SHOOT:
                 if (!follower.isBusy()) {
@@ -265,7 +302,8 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case BACK_TO_SHOOT_1:
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 150){
-                    follower.follower.setMaxPower(0.17);
+                    follower.follower.setMaxPower(0.2);
+                    shouldPickup = true;
                 }
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
@@ -278,7 +316,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 firedAlreadyPathing = false;
                 break;
             case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() > 0.7 && !firedAlreadyPathing && !shouldFire) {
+                if (follower.follower.getCurrentTValue() > 0.85 && !firedAlreadyPathing && !shouldFire) {
                     shouldFire = true;
                 }
                 if ((firedAlready && manager.mode == BallManager.State.INTAKE)) {
@@ -299,10 +337,22 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
 
     public void log(){
-        flicker.flicker.log(ActiveOpMode.telemetry());
-        arcMotorsV2.arcShooter.log(ActiveOpMode.telemetry());
-        ActiveOpMode.telemetry().addLine("Current ball: " + manager.getCurrentBall());
-        ActiveOpMode.telemetry().addLine("Mode: "+ manager.mode);
+        if(RobotConstantsV1.panelsEnabled){
+            hood.hoodServo.log(telemetryM);
+            telemetryM.addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
+            telemetryM.addLine("Shooter Current RPM: " + arcMotorsV2.arcShooter.getVelocityRPM());
+            telemetryM.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
+            telemetryM.addLine("Turret power: " + ll.turret.power_);
+            telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
+            telemetryM.addLine("Commands scheduled: " + CommandManager.INSTANCE.snapshot().size());
+            telemetryM.update(telemetry);
+        }
+        else {
+            arcMotorsV2.arcShooter.log(telemetry);
+            telemetry.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Mode: "+ manager.mode);
+        }
     }
 
     public void logCurrentCommands(Telemetry telemetry){
@@ -319,6 +369,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     public void setSystemState(SystemStates state){
         this.state = state;
+        stateTimer.reset();
     }
 
 

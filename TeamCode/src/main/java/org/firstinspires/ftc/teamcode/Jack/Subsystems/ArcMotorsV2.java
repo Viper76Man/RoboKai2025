@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -24,9 +26,12 @@ public class ArcMotorsV2 implements Subsystem {
     public Zone zone = Zone.BACK;
 
     public ArcShooterV1 arcShooter = new ArcShooterV1();
-    public void init(HardwareMap hardwareMap, Robot.Mode mode){
+    public LimelightV1 limelight;
+    public double offset = 0;
+    public void init(HardwareMap hardwareMap, Robot.Mode mode, LimelightV1 limelight){
         this.hardwareMap = hardwareMap;
         this.mode = mode;
+        this.limelight = limelight;
         switch (mode) {
             case TELEOP:
                 arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
@@ -85,20 +90,24 @@ public class ArcMotorsV2 implements Subsystem {
         @Override
         public void update(){
             arcShooter.run();
-            if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
-                setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
-                buttonTimer.reset();
+            double dist = limelight.getTargetDistance();
+            if(dist != 0) {
+                setTargetRPM(flywheelSpeed(dist) + offset);
             }
-            if(gamepad.left_bumper && buttonTimer.seconds() > 0.3){
-                setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
-                buttonTimer.reset();
-            }
+            //if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
+                //setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
+                //buttonTimer.reset();
+            //}
+            //if(gamepad.left_bumper && buttonTimer.seconds() > 0.3){
+                //setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
+               // buttonTimer.reset();
+            //}
             if(gamepad.dpad_up && buttonTimer.seconds() > 0.3){
-                setTargetRPM(arcShooter.getTargetRPM() + 10);
+                offset += 10;
                 buttonTimer.reset();
             }
             if(buttonTimer.seconds() > 0.3 && gamepad.dpad_down){
-                setTargetRPM(arcShooter.getTargetRPM() - 10);
+                offset -= 10;
                 buttonTimer.reset();
             }
         }
@@ -107,5 +116,9 @@ public class ArcMotorsV2 implements Subsystem {
         public boolean isDone() {
             return ActiveOpMode.isStopRequested();
         }
+    }
+
+    public double flywheelSpeed(double dist){
+        return MathFunctions.clamp(((-0.0000295523 * Math.pow(dist, 4)) + (0.00588085 * Math.pow(dist, 3)) - (0.281589 * Math.pow(dist, 2)) + (9.28581 * dist) + 2056.97581), 0, 4000);
     }
 }

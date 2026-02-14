@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.math.MathFunctions;
 import com.qualcomm.hardware.limelightvision.LLFieldMap;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 

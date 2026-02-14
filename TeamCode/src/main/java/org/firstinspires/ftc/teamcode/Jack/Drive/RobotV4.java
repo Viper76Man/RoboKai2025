@@ -44,6 +44,8 @@ public class RobotV4 implements Subsystem { ;
     public BallManager manager = new BallManager();
     public GamepadV1 gamepad = new GamepadV1();
     public DriveMotorsV2 drive = new DriveMotorsV2();
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    public Telemetry telemetry;
 
     public boolean firedAlready = false;
     public boolean firstLoop = true;
@@ -71,11 +73,11 @@ public class RobotV4 implements Subsystem { ;
         intake.init(hardwareMap);
         spindexer.init(manager);
         drive.init(hardwareMap, gamepadV1);
-        hood.init();
         ll.init();
+        hood.init(ll.limelight);
         flicker.init(spindexer.spindexer);
         sensor.init(hardwareMap, manager, spindexer.spindexer);
-        arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP);
+        arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP, ll.limelight);
         left1 = hardwareMap.get(LED.class, "left");
         right1 = hardwareMap.get(LED.class, "right");
         left2 = hardwareMap.get(LED.class, "left2");
@@ -95,6 +97,7 @@ public class RobotV4 implements Subsystem { ;
     }
 
     public void buildCommands(){
+        telemetry = ActiveOpMode.telemetry();
         intakeCommand = new ParallelGroup(
                 drive.drive(),
                 spindexer.spindexerRun(),
@@ -105,7 +108,11 @@ public class RobotV4 implements Subsystem { ;
         );
         firingManager.init(manager, flicker, spindexer.spindexer);
         shootCommand = new ParallelGroup(
-                arcMotorsV2.spinActive()
+                drive.drive(),
+                spindexer.spindexerRun(),
+                arcMotorsV2.spinActive(),
+                ll.turretUpdate(OFFSET_ANGLE),
+                hood.servoUpdate()
         );
         fireCommand = new ParallelGroup(firingManager.fireTriple(mode, arcMotorsV2));
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
@@ -115,15 +122,12 @@ public class RobotV4 implements Subsystem { ;
     public void systemStatesUpdate(){
         if(firstLoop){
             flicker.fire().run();
+            ActiveOpMode.telemetry().setMsTransmissionInterval(150);
+            telemetryM.setUpdateInterval(150);
             firstLoop = false;
         }
         gamepad.update();
-        if(gamepad.left_trigger > 0.15) {
-            intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
-        }
-        else {
-            intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
-        }
+
         switch (state){
             case START:
                 redLED();
@@ -131,6 +135,7 @@ public class RobotV4 implements Subsystem { ;
                 manager.setMode(BallManager.State.INTAKE);
                 setSystemState(SystemStates.BALL_1_INTAKE);
                 intakeCommand.schedule();
+                shootCommand.cancel();
                 break;
             case BALL_1_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -164,6 +169,7 @@ public class RobotV4 implements Subsystem { ;
                     manager.next();
                     sensor.clear();
                     shootCommand.schedule();
+                    intakeCommand.cancel();
                     manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
                     greenLED();
@@ -176,6 +182,7 @@ public class RobotV4 implements Subsystem { ;
                 //TODO: auto using command system
                 if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
                     setSystemState(SystemStates.START);
+                    fireCommand.cancel();
                     firedAlready = false;
                 }
                 break;
@@ -195,19 +202,20 @@ public class RobotV4 implements Subsystem { ;
 
     public void log(){
         if(RobotConstantsV1.panelsEnabled){
-            ActiveOpMode.telemetry().setMsTransmissionInterval(150);
-            hood.hoodServo.log(PanelsTelemetry.INSTANCE.getTelemetry());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Shooter Current RPM: " + arcMotorsV2.arcShooter.getVelocityRPM());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Current ball: " + manager.getCurrentBall());
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
-            PanelsTelemetry.INSTANCE.getTelemetry().addLine("Turret power: " + ll.turret.power_);
-            PanelsTelemetry.INSTANCE.getTelemetry().update(ActiveOpMode.telemetry());
+            hood.hoodServo.log(telemetryM);
+            telemetryM.addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
+            telemetryM.addLine("Shooter Current RPM: " + arcMotorsV2.arcShooter.getVelocityRPM());
+            telemetryM.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
+            telemetryM.addLine("Turret power: " + ll.turret.power_);
+            telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
+            telemetryM.addLine("Commands scheduled: " + CommandManager.INSTANCE.snapshot().size());
+            telemetryM.update(telemetry);
         }
         else {
-            arcMotorsV2.arcShooter.log(ActiveOpMode.telemetry());
-            ActiveOpMode.telemetry().addLine("Current ball: " + manager.getCurrentBall());
-            ActiveOpMode.telemetry().addLine("Mode: "+ manager.mode);
+            arcMotorsV2.arcShooter.log(telemetry);
+            telemetry.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Mode: "+ manager.mode);
         }
     }
 
