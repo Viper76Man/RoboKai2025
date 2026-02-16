@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
@@ -28,16 +29,16 @@ public class ArcMotorsV2 implements Subsystem {
     public ArcShooterV1 arcShooter = new ArcShooterV1();
     public LimelightV1 limelight;
     public double offset = 0;
-    public void init(HardwareMap hardwareMap, Robot.Mode mode, LimelightV1 limelight){
+    public void init(HardwareMap hardwareMap, Robot.Mode mode, LimelightV1 limelight, Sensors sensors){
         this.hardwareMap = hardwareMap;
         this.mode = mode;
         this.limelight = limelight;
         switch (mode) {
             case TELEOP:
-                arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs);
+                arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDs, sensors);
                 break;
             case AUTONOMOUS:
-                arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDsAuto);
+                arcShooter.init(hardwareMap, RobotConstantsV1.arcPIDsAuto, sensors);
                 break;
         }
     }

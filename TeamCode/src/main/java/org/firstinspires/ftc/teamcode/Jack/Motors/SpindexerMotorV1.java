@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +46,7 @@ public class SpindexerMotorV1 {
     public double targetPositionEncoder = 0;
     public Range range;
     public Range motorRange;
+    public Sensors sensors;
     public double lastRPM = 0;
     public ElapsedTime zeroTimer = new ElapsedTime();
     public ElapsedTime stuckTimer = new ElapsedTime();
@@ -98,9 +100,44 @@ public class SpindexerMotorV1 {
         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
     }
 
+    public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF, Sensors sensors) {
+        this.hardwareMap = hardwareMap;
+        this.sensors = sensors;
+        motor = sensors.spindexer;
+        spindexer = (DcMotorEx) motor;
+        //encoderv1.init(hardwareMap);
+        spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setDirection(DcMotorSimple.Direction.FORWARD);
+        encoder = hardwareMap.get(AnalogInput.class, "spindexerEncoder");
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+        this.kF = kF;
+        controller = new PIDController(this.kP, this.kI, this.kD);
+        this.usingPID = true;
+        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
+    }
+
     public void init(HardwareMap hardwareMap, PIDCoefficients pidCoefficients) {
         this.hardwareMap = hardwareMap;
         motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.spindexerMotorName);
+        spindexer = (DcMotorEx) motor;
+        spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        encoder = hardwareMap.get(AnalogInput.class, "spindexerEncoder");
+        setDirection(DcMotorSimple.Direction.FORWARD);
+        this.kP = pidCoefficients.p;
+        this.kI = pidCoefficients.i;
+        this.kD = pidCoefficients.d;
+        controller = new PIDController(this.kP, this.kI, this.kD);
+        this.usingPID = true;
+        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, EncoderMeasurementMethod.MOTOR);
+        //encoderv1.init(hardwareMap);
+    }
+
+    public void init(HardwareMap hardwareMap, PIDCoefficients pidCoefficients, Sensors sensors) {
+        this.sensors = sensors;
+        this.hardwareMap = hardwareMap;
+        motor = sensors.spindexer;
         spindexer = (DcMotorEx) motor;
         spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         encoder = hardwareMap.get(AnalogInput.class, "spindexerEncoder");
@@ -313,19 +350,19 @@ public class SpindexerMotorV1 {
 
     public void log(Telemetry telemetry){
         telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.addData("Arc Motor Position: ", spindexer.getCurrentPosition());
+        telemetry.addData("Arc Motor Position: ", getCurrentPosition());
         telemetry.update();
     }
 
     public void log(MultipleTelemetry telemetry){
         telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.addData("Arc Motor Position: ", spindexer.getCurrentPosition());
+        telemetry.addData("Arc Motor Position: ", getCurrentPosition());
     }
 
     public void graph(MultipleTelemetry telemetry){
         telemetry.addData("Error", error);
         telemetry.addData("Power", spindexer.getPower());
-        telemetry.addData("Pos", spindexer.getCurrentPosition());
+        telemetry.addData("Pos", getCurrentPosition());
         telemetry.update();
     }
 
@@ -347,7 +384,7 @@ public class SpindexerMotorV1 {
     public double getCurrentPosition(){
         if(method == EncoderMeasurementMethod.MOTOR) {
             spindexer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            return spindexer.getCurrentPosition();
+            return sensors.spindexerPos;
         }
         else {
             if (getCurrentPositionEncoder() != 0){

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
 public class ArcShooterV1 {
     public HardwareMap hardwareMap;
@@ -24,6 +25,7 @@ public class ArcShooterV1 {
     public double velocity = 0;
     public double error = 0;
     public double targetRPM = RobotConstantsV1.defaultShooterRPM;
+    public Sensors sensors;
     public double lastTime = 0;
     public double measureInterval = 0.3;
     public double lastRPM= 0;
@@ -74,9 +76,30 @@ public class ArcShooterV1 {
         this.usingPID = true;
     }
 
+    public void init(HardwareMap hardwareMap, double kP, double kI, double kD, double kF, Sensors sensors) {
+        this.sensors = sensors;
+        this.hardwareMap = hardwareMap;
+        motor = sensors.arcMotor;
+        motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
+        shooter = (DcMotorEx) motor;
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setDirection(RobotConstantsV1.rightShooterDirection);
+        shooter2 = (DcMotorEx) motor2;
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(RobotConstantsV1.leftShooterDirection);
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+        this.kF = kF;
+        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
+        this.usingPID = true;
+    }
+
     public void init(HardwareMap hardwareMap, PIDFCoefficients pidfCoefficients) {
         this.hardwareMap = hardwareMap;
-        motor = this.hardwareMap.get(DcMotor.class, RobotConstantsV1.arcShooterName);
+        motor = sensors.arcMotor;
         motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
         shooter = (DcMotorEx) motor;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -93,6 +116,27 @@ public class ArcShooterV1 {
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
+    public void init(HardwareMap hardwareMap, PIDFCoefficients pidfCoefficients, Sensors sensors) {
+        this.hardwareMap = hardwareMap;
+        this.sensors = sensors;
+        motor = sensors.arcMotor;
+        motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
+        shooter = (DcMotorEx) motor;
+        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setDirection(RobotConstantsV1.rightShooterDirection);
+        shooter2 = (DcMotorEx) motor2;
+        shooter2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooter2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter2.setDirection(RobotConstantsV1.leftShooterDirection);
+        this.kP = pidfCoefficients.p;
+        this.kI = pidfCoefficients.i;
+        this.kD = pidfCoefficients.d;
+        this.kF = pidfCoefficients.f;
+        controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
+        this.usingPID = true;
+    }
+
 
     public void setMotorPower(double power){
         motor.setPower(power);
@@ -134,11 +178,18 @@ public class ArcShooterV1 {
         return targetRPM;
     }
     public double getVelocityRPM(){
-        int currentTicks = shooter.getCurrentPosition();
+        int currentTicks;
+        if(sensors != null){
+            currentTicks = sensors.arcMotorPos;
+        }
+        else {
+            currentTicks = motor.getCurrentPosition();
+        }
         double elapsed = tickTimer.seconds();
         if(elapsed > RobotConstantsV1.SHOOTER_UPDATE_TIME_SECONDS) {
             double delta = currentTicks - lastTicks;
-            double tps = (elapsed > 0) ? delta / elapsed : 0;
+            //double tps = (elapsed > 0) ? delta / elapsed : 0;
+            double tps = shooter.getVelocity();
             double rpm = (tps/28.0)*60.0;
             lastTicks = currentTicks;
             tickTimer.reset();
@@ -188,21 +239,21 @@ public class ArcShooterV1 {
 
     public void log(Telemetry telemetry){
         telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.addData("Arc Motor Position: ", sensors.arcMotorPos);
         telemetry.addData("Ready? : ", ready());
         telemetry.update();
     }
 
     public void log(MultipleTelemetry telemetry){
         telemetry.addData("Arc Motor Velocity: ", velocity);
-        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.addData("Arc Motor Position: ", sensors.arcMotorPos);
         telemetry.addData("Ready? : ", ready());
     }
 
     public void log(TelemetryManager telemetry){
         telemetry.addData("Current RPM: ", getVelocityRPM());
         telemetry.addData("Target RPM: ", targetRPM);
-        telemetry.addData("Arc Motor Position: ", shooter.getCurrentPosition());
+        telemetry.addData("Arc Motor Position: ", sensors.arcMotorPos);
         telemetry.addData("Ready? : ", ready());;
     }
 
@@ -212,7 +263,7 @@ public class ArcShooterV1 {
         telemetry.addData("Power 2", shooter2.getPower());
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
-        telemetry.addData("Pos", shooter.getCurrentPosition());
+        telemetry.addData("Pos", sensors.arcMotorPos);
     }
 
     public void graph(TelemetryManager telemetry){
@@ -221,7 +272,7 @@ public class ArcShooterV1 {
         telemetry.addData("Power 2", shooter2.getPower());
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
-        telemetry.addData("Pos", shooter.getCurrentPosition());
+        telemetry.addData("Pos", sensors.arcMotorPos);
     }
 
     public void graph(Telemetry telemetry){
@@ -230,7 +281,7 @@ public class ArcShooterV1 {
         telemetry.addData("Power 2", shooter2.getPower());
         telemetry.addData("Target RPM", targetRPM);
         telemetry.addData("RPM", getVelocityRPM());
-        telemetry.addData("Pos", shooter.getCurrentPosition());
+        telemetry.addData("Pos", sensors.arcMotorPos);
     }
 
     public boolean isInRange(double tolerance){

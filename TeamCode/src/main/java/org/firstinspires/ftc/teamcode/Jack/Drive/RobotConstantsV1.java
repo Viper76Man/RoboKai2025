@@ -105,16 +105,16 @@ public class RobotConstantsV1 {
     public static double SHOOTER_FRONT_RPM = 2550;
     public static double SHOOTER_IDLE_RPM = 2850;
     public static int SHOOTER_PPR = 28;
-    public static double SHOOTER_UPDATE_TIME_SECONDS = 0.15;
+    public static double SHOOTER_UPDATE_TIME_SECONDS = 0;
     public static double SHOOTER_ANGLE_DEG = 50;
 
 
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -2;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -5;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
-    public static double TURRET_OFFSET_ANGLE_RED = 2;
+    public static double TURRET_OFFSET_ANGLE_RED = 5;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 15.5;
 

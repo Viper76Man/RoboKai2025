@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
@@ -12,6 +13,10 @@ import dev.nextftc.ftc.ActiveOpMode;
 public class SpindexerV2 implements Subsystem {
     public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
     public BallManager manager;
+    public void init(BallManager manager, Sensors sensors){
+        this.manager = manager;
+        spindexer.init(ActiveOpMode.hardwareMap(), RobotConstantsV1.spindexerPIDs, sensors);
+    }
     public void init(BallManager manager){
         this.manager = manager;
         spindexer.init(ActiveOpMode.hardwareMap(), RobotConstantsV1.spindexerPIDs);

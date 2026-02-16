@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.AdjustableHoodServo;
 
 
+import java.util.Objects;
+
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
@@ -51,7 +53,7 @@ public class AdjustableHoodV1 implements Subsystem {
         @Override
         public void update(){
             telemetryM.addLine("Target Hood Angle: "+ (hoodAngle(limelight.getTargetDistance()) + offset));
-            if(limelight.getTargetDistance() != 0) {
+            if(limelight.getTargetDistance() != 0 && !Objects.equals(limelight.getTargetDistance(), null)) {
                 hoodServo.setPos(hoodAngle(limelight.getTargetDistance()) + offset);
             }
             if(buttonTimer.seconds() > 0.3 && gamepad.dpad_left){

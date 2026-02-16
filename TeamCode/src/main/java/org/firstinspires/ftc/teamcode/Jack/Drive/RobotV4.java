@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.BulkReadsTest;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.AdjustableHoodV1;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ArcMotorsV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ColorSensorV3;
@@ -23,6 +24,8 @@ import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.SpindexerV2;
 import org.firstinspires.ftc.teamcode.R;
+
+import java.util.Objects;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
@@ -44,6 +47,7 @@ public class RobotV4 implements Subsystem { ;
     public BallManager manager = new BallManager();
     public GamepadV1 gamepad = new GamepadV1();
     public DriveMotorsV2 drive = new DriveMotorsV2();
+    public Sensors sensors;
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public Telemetry telemetry;
 
@@ -67,17 +71,19 @@ public class RobotV4 implements Subsystem { ;
 
     public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1, Robot.Mode mode, Robot.Alliance alliance){
         this.mode = mode;
+        this.sensors = new Sensors();
         this.gamepad = gamepadV1;
+        sensors.init(hardwareMap);
         intake = new IntakeMotorV2();
         drive = new DriveMotorsV2();
         intake.init(hardwareMap);
-        spindexer.init(manager);
+        spindexer.init(manager, sensors);
         drive.init(hardwareMap, gamepadV1);
         ll.init();
         hood.init(ll.limelight);
         flicker.init(spindexer.spindexer);
         sensor.init(hardwareMap, manager, spindexer.spindexer);
-        arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP, ll.limelight);
+        arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP, ll.limelight, sensors);
         left1 = hardwareMap.get(LED.class, "left");
         right1 = hardwareMap.get(LED.class, "right");
         left2 = hardwareMap.get(LED.class, "left2");
@@ -120,6 +126,7 @@ public class RobotV4 implements Subsystem { ;
 
 
     public void systemStatesUpdate(){
+        sensors.update();
         if(firstLoop){
             flicker.fire().run();
             ActiveOpMode.telemetry().setMsTransmissionInterval(150);
@@ -127,6 +134,14 @@ public class RobotV4 implements Subsystem { ;
             firstLoop = false;
         }
         gamepad.update();
+        if(gamepad.left_trigger >= 0.15){
+            intake.intake.setDirection(intake.intake.invertDirection(RobotConstantsV1.intakeDirection));
+            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
+        else {
+            intake.intake.setDirection(RobotConstantsV1.intakeDirection);
+            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
 
         switch (state){
             case START:
@@ -208,7 +223,9 @@ public class RobotV4 implements Subsystem { ;
             telemetryM.addLine("Current ball: " + manager.getCurrentBall());
             telemetryM.addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
             telemetryM.addLine("Turret power: " + ll.turret.power_);
-            telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
+            if(!Objects.equals(ll.limelight.getTargetDistance(), null)) {
+                telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
+            }
             telemetryM.addLine("Commands scheduled: " + CommandManager.INSTANCE.snapshot().size());
             telemetryM.update(telemetry);
         }
