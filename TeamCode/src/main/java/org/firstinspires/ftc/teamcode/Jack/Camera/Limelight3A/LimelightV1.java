@@ -195,8 +195,9 @@ public class LimelightV1 {
     }
 
     public double getTargetDistance() {
-        if (getLatestAprilTagResult() != null) {
-            double angleToGoalDegrees = getLatestAprilTagResult().getTargetXDegrees();
+        LLResultTypes.FiducialResult result = getLatestAprilTagResult();
+        if (result != null) {
+            double angleToGoalDegrees = result.getTargetXDegrees();
             double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
             double goalHeightInches = 29.5;
             //calculate distance

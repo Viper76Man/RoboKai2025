@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import androidx.annotation.NonNull;
+
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,6 +18,11 @@ import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
+import dev.nextftc.control.ControlSystem;
+import dev.nextftc.control.KineticState;
+import dev.nextftc.control.builder.ControlSystemBuilder;
+import dev.nextftc.control.feedforward.FeedforwardElement;
+
 public class ArcShooterV1 {
     public HardwareMap hardwareMap;
     public DcMotor motor;
@@ -28,10 +35,12 @@ public class ArcShooterV1 {
     public Sensors sensors;
     public double lastTime = 0;
     public double measureInterval = 0.3;
+    public double lastTargetRPM = -1;
     public double lastRPM= 0;
     public double newTicks = 0;
     public ElapsedTime tickTimer = new ElapsedTime();
     public ElapsedTime tickTimer2 = new ElapsedTime();
+    public ControlSystem nextController;
 
 
     public double lastTicks = 0;
@@ -81,7 +90,7 @@ public class ArcShooterV1 {
         this.hardwareMap = hardwareMap;
         motor = sensors.arcMotor;
         motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
-        shooter = (DcMotorEx) motor;
+        shooter = sensors.arc1;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setDirection(RobotConstantsV1.rightShooterDirection);
@@ -93,6 +102,8 @@ public class ArcShooterV1 {
         this.kI = kI;
         this.kD = kD;
         this.kF = kF;
+        nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(0,0, RobotConstantsV1.arcPIDs.f).build();
+        nextController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
@@ -121,7 +132,7 @@ public class ArcShooterV1 {
         this.sensors = sensors;
         motor = sensors.arcMotor;
         motor2 = this.hardwareMap.get(DcMotor.class, "leftArc");
-        shooter = (DcMotorEx) motor;
+        shooter = sensors.arc1;
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setDirection(RobotConstantsV1.rightShooterDirection);
@@ -133,6 +144,8 @@ public class ArcShooterV1 {
         this.kI = pidfCoefficients.i;
         this.kD = pidfCoefficients.d;
         this.kF = pidfCoefficients.f;
+        nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(0,0, RobotConstantsV1.arcPIDs.f).build();
+        nextController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
@@ -189,7 +202,7 @@ public class ArcShooterV1 {
         if(elapsed > RobotConstantsV1.SHOOTER_UPDATE_TIME_SECONDS) {
             double delta = currentTicks - lastTicks;
             //double tps = (elapsed > 0) ? delta / elapsed : 0;
-            double tps = shooter.getVelocity();
+            double tps = sensors.arcVelocity;
             double rpm = (tps/28.0)*60.0;
             lastTicks = currentTicks;
             tickTimer.reset();
@@ -233,7 +246,16 @@ public class ArcShooterV1 {
             return 0.0;
         }
         else {
-            return controller.getOutput(currentRPM, targetRPM);
+            if(nextController == null){
+                return controller.getOutput(currentRPM, targetRPM);
+            }
+            else {
+                if (targetRPM != lastTargetRPM) {
+                    nextController.setGoal(new KineticState(0, targetRPM));
+                    lastTargetRPM = targetRPM;
+                }
+                return nextController.calculate(new KineticState(0, currentRPM));
+            }
         }
     }
 

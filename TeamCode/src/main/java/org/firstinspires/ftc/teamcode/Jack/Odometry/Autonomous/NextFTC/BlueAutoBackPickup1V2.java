@@ -63,6 +63,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     public Sensors sensors = new Sensors();
 
     public boolean firedAlready = false;
+    public boolean shouldReverse = false;
     public boolean firedAlreadyPathing = false;
     public boolean firstLoop = true;
 
@@ -140,7 +141,6 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
         );
         fireCommand = new ParallelGroup(firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2));
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
-        intakeReverse = new ParallelGroup(intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)));
     }
 
 
@@ -176,7 +176,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     public void systemStatesUpdate(){
         sensors.update();
-        if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && spindexer.spindexer.isSpindexerReady() && stateTimer.seconds() > 0.5) {
+        if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && spindexer.spindexer.isSpindexerReady() && stateTimer.seconds() > 0.5 && shouldReverse) {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
         }
         else {
@@ -245,7 +245,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
         follower.update();
         follower.log(telemetry);
         telemetry.addData("Pose: ", follower.follower.getPose());
-        if(matchTimer.seconds() > 29){
+        if(matchTimer.seconds() > 28.5){
             setPathState(PathStates.OUT_OF_ZONE);
         }
         switch (pathState) {
@@ -260,6 +260,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                     setPathState(PathStates.SHOOT_SET_1);
                 }
                 firedAlreadyPathing = false;
+                shouldReverse = true;
                 break;
             case SHOOT_SET_1:
                 if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
@@ -284,7 +285,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case BACK_TO_SHOOT_1:
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 150){
-                    follower.follower.setMaxPower(0.2);
+                    follower.follower.setMaxPower(0.22);
                     shouldPickup = true;
                 }
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){

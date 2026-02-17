@@ -13,17 +13,17 @@ import dev.nextftc.ftc.ActiveOpMode;
 
 public class FiringManager implements Subsystem {
     public BallManager manager;
-    public ParallelGroup command, command2, command3;
+    public FlickerSubsystem.FlickUp  command, command2, command3;
     public FlickerSubsystem flicker;
     public SpindexerMotorV1 spindexer;
 
     public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer){
         this.flicker = flicker;
-        this.command = new ParallelGroup(flicker.fire());
+        this.command = flicker.fire();
         this.manager = manager;
         this.spindexer = spindexer;
-        this.command2 = new ParallelGroup(flicker.fire());
-        this.command3 = new ParallelGroup(flicker.fire());
+        this.command2 = flicker.fire();
+        this.command3 = flicker.fire();
     }
 
     public FireTriple fireTriple(Robot.Mode mode, ArcMotorsV2 arcMotorsV2){
@@ -56,7 +56,7 @@ public class FiringManager implements Subsystem {
         public void update() {
             if(triple) {
                 if (!firing && spindexer.isSpindexerReady()) {
-                    if(mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(20)) {
+                    if(mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
                         startFiring();
                     }
                     else if(mode != Robot.Mode.AUTONOMOUS){
