@@ -15,6 +15,7 @@ import com.bylazar.field.PanelsField;
 import com.bylazar.field.Style;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.*;
 import com.pedropathing.math.*;
@@ -31,6 +32,7 @@ import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This is the Tuning class. It contains a selection menu for various tuning OpModes.
@@ -86,8 +88,10 @@ public class Tuning extends SelectableOpMode {
         if (follower == null) {
             follower = Constants.createFollower(hardwareMap);
             PanelsConfigurables.INSTANCE.refreshClass(this);
+            follower.setHeadingPIDFCoefficients(new PIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients.p, RobotConstantsV1.headingPIDFCoefficients.i, RobotConstantsV1.headingPIDFCoefficients.d, RobotConstantsV1.headingPIDFCoefficients.f));
         } else {
             follower = Constants.createFollower(hardwareMap);
+            follower.setHeadingPIDFCoefficients(new PIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients.p, RobotConstantsV1.headingPIDFCoefficients.i, RobotConstantsV1.headingPIDFCoefficients.d, RobotConstantsV1.headingPIDFCoefficients.f));
         }
 
         follower.setStartingPose(new Pose());
@@ -856,7 +860,9 @@ class HeadingTuner extends OpMode {
     private Path backwards;
 
     @Override
-    public void init() {}
+    public void init() {
+        follower.setHeadingPIDFCoefficients(new PIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients.p, RobotConstantsV1.headingPIDFCoefficients.i, RobotConstantsV1.headingPIDFCoefficients.d, RobotConstantsV1.headingPIDFCoefficients.f));
+    }
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -887,9 +893,18 @@ class HeadingTuner extends OpMode {
      * This runs the OpMode, updating the Follower as well as printing out the debug statements to
      * the Telemetry, as well as the Panels.
      */
+
+    public PIDFCoefficients last = new PIDFCoefficients(0,0,0,0);
+    public PIDFCoefficients newCoeffs;
+
     @Override
     public void loop() {
         follower.update();
+        newCoeffs = new PIDFCoefficients(RobotConstantsV1.headingPIDFCoefficients.p, RobotConstantsV1.headingPIDFCoefficients.i, RobotConstantsV1.headingPIDFCoefficients.d, RobotConstantsV1.headingPIDFCoefficients.f);
+        if((newCoeffs.P != last.P) || (newCoeffs.I != last.I) || (newCoeffs.D != last.D) || (newCoeffs.F != last.F)) {
+            follower.setHeadingPIDFCoefficients(newCoeffs);
+            last = newCoeffs;
+        }
         drawCurrentAndHistory();
 
         if (!follower.isBusy()) {
@@ -903,6 +918,7 @@ class HeadingTuner extends OpMode {
         }
 
         telemetryM.debug("Turn the robot manually to test the Heading PIDF(s).");
+        telemetryM.addLine("PIDFs: " + RobotConstantsV1.headingPIDFCoefficients.p + ", " + RobotConstantsV1.headingPIDFCoefficients.i +", " + RobotConstantsV1.headingPIDFCoefficients.d + ", " + RobotConstantsV1.headingPIDFCoefficients.f);
         telemetryM.update(telemetry);
     }
 }
@@ -1017,7 +1033,6 @@ class Line extends OpMode {
 
     @Override
     public void start() {
-        follower.activateAllPIDFs();
         forwards = new Path(new BezierLine(new Pose(0,0), new Pose(DISTANCE,0)));
         forwards.setConstantHeadingInterpolation(0);
         backwards = new Path(new BezierLine(new Pose(DISTANCE,0), new Pose(0,0)));

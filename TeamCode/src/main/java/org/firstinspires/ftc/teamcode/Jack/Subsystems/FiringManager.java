@@ -83,14 +83,24 @@ public class FiringManager implements Subsystem {
         }
 
         public void startFiring(){
-            activeFire = flicker.fire();
-            activeFire.schedule();
-            firing = true;
+            if(manager.isEmpty(manager.getCurrentBall()) && manager.getCurrentBall() <= 3){
+                manager.setCurrentBall(manager.getCurrentBall() + 1);
+                firing = false;
+            }
+            if(!manager.isEmpty(manager.getCurrentBall())){
+                activeFire = flicker.fire();
+                activeFire.schedule();
+                firing = true;
+            }
+            if(manager.getCurrentBall() >= 4){
+                manager.setCurrentBall(1);
+                manager.setMode(BallManager.State.INTAKE);
+            }
         }
 
         public void nextBall(){
             firing = false;
-            if (manager.getCurrentBall() == 3) {
+            if (manager.getCurrentBall() >= 3) {
                 manager.setCurrentBall(1);
                 manager.setMode(BallManager.State.INTAKE);
             } else {

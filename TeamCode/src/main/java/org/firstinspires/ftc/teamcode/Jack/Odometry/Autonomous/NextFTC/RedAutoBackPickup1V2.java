@@ -4,6 +4,7 @@ import androidx.annotation.AnimatorRes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,35 +16,29 @@ import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
-import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other.BlueAutoBackPickup1;
-import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.AdjustableHoodV1;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ArcMotorsV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ColorSensorV3;
-import org.firstinspires.ftc.teamcode.Jack.Subsystems.DriveMotorsV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.FiringManager;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.FlickerSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeMotorV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.LimelightSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.SpindexerV2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 
-import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous
-public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
+public class RedAutoBackPickup1V2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand, intakeReverse;
     public LED left1, right1, left2, right2;
     public IntakeMotorV2 intake = new IntakeMotorV2();
@@ -60,7 +55,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     public CustomFollower follower;
     public PathStates pathState = PathStates.START;
-    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
+    public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
     public Sensors sensors = new Sensors();
 
     public boolean firedAlready = false;
@@ -148,7 +143,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        init(hardwareMap, Robot.Mode.AUTONOMOUS, Robot.Alliance.BLUE);
+        init(hardwareMap, Robot.Mode.AUTONOMOUS, Robot.Alliance.RED);
         buildCommands();
 
     }
@@ -163,7 +158,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed(){
         pathState = PathStates.START;
-        follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
+        follower.setStartingPose(RedAutoPathsV2.startPoseFar);
     }
 
     public void onUpdate(){
@@ -257,7 +252,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case TO_SHOOT:
                 if (!follower.isBusy()) {
-                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
+                    follower.setCurrentPath(RedAutoPathsV2.outOfStartFar);
                     manager.setBall1(ArtifactColor.GREEN);
                     manager.setBall2(ArtifactColor.PURPLE);
                     manager.setCurrentBall(3);
@@ -278,23 +273,23 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case TO_PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
+                    follower.setCurrentPath(RedAutoPathsV2.toFirstArtifacts);
                     setPathState(PathStates.PICKUP_1);
                 }
                 break;
             case PICKUP_1:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.pickup1);
+                    follower.setCurrentPath(RedAutoPathsV2.pickup1);
                     setPathState(PathStates.BACK_TO_SHOOT_1);
                 }
                 break;
             case BACK_TO_SHOOT_1:
-                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 130){
+                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) < Math.toDegrees(DecodeFieldLocalizer.mirrorPose(new Pose(0, 0, 130)).getHeading())){
                     follower.follower.setMaxPower(0.22);
                     shouldPickup = true;
                 }
-                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
+                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
+                    follower.setCurrentPath(RedAutoPathsV2.overdriveBack1);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     intakeCommand.cancel();
@@ -304,8 +299,8 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                     greenLED();
                     follower.follower.setMaxPower(1);
                 }
-                else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
-                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
+                else if(isLastPathName(RedAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > RedAutoPathsV2.backToShoot1OverdriveTValue){
+                    follower.setCurrentPath(RedAutoPathsV2.backToShoot1);
                     setPathState(PathStates.SHOOT_SET_2);
                 }
                 firedAlreadyPathing = false;
@@ -320,7 +315,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case OUT_OF_ZONE:
                 if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.leaveShoot);
+                    follower.setCurrentPath(RedAutoPathsV2.leaveShoot);
                     setPathState(PathStates.IDLE);
                 }
         }

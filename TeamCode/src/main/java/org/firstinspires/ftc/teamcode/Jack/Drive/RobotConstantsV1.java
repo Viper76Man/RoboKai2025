@@ -69,7 +69,7 @@ public class RobotConstantsV1 {
 
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
-    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(2, 0, 0.4, 0);
+    public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.7, 0, 0.1, 0);
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.003, 0, 0.00505, 0.6, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public class RobotConstantsV1 {
 
     public static double TURRET_OFFSET_ANGLE_BLUE = -5;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
-    public static double TURRET_OFFSET_ANGLE_RED = 5;
+    public static double TURRET_OFFSET_ANGLE_RED = 0;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 15.5;
 

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.LED;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.BulkReadsTest;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
@@ -53,6 +54,7 @@ public class RobotV4 implements Subsystem { ;
 
     public boolean firedAlready = false;
     public boolean firstLoop = true;
+    public boolean cachedFire = false;
 
     public double OFFSET_ANGLE;
 
@@ -164,6 +166,18 @@ public class RobotV4 implements Subsystem { ;
                     manager.setCurrentBall(1);
                     setSystemState(SystemStates.SHOOT_SINGLE);
                 }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall1(ArtifactColor.NONE);
+                    manager.setCurrentBall(1);
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
+                }
                 break;
             case BALL_2_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -177,6 +191,18 @@ public class RobotV4 implements Subsystem { ;
                     manager.setCurrentBall(1);
                     setSystemState(SystemStates.SHOOT_SINGLE);
                 }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall2(ArtifactColor.NONE);
+                    manager.setCurrentBall(1);
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
+                }
                 break;
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -187,12 +213,29 @@ public class RobotV4 implements Subsystem { ;
                     intakeCommand.cancel();
                     manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
+                    cachedFire = false;
                     greenLED();
+                }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall3(ArtifactColor.NONE);
+                    manager.next();
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
                 }
                 break;
             case SHOOT_ALL:
                 if(readyForTriple() && gamepad.right_trigger >= 0.1 && gamepad.isGamepadReady() && mode == Robot.Mode.TELEOP){
                     fireTriple();
+                }
+                if(readyForTriple() && cachedFire && mode == Robot.Mode.TELEOP){
+                    fireTriple();
+                    cachedFire = false;
                 }
                 //TODO: auto using command system
                 if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
