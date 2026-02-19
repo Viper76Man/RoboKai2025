@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
 import java.util.Objects;
 
-@Autonomous
+@Disabled
 public class RedAutoMoveOutClose extends LinearOpMode {
     public CustomFollower follower;
     public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
 import com.bylazar.field.Style;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.Drawing;
 
 import java.util.Objects;
 
-@Autonomous
+@Disabled
 public class RedAutoBackPickup2 extends LinearOpMode {
     public CustomFollower follower;
     public RedAutoPathsV2 pathsV2 = new RedAutoPathsV2();
