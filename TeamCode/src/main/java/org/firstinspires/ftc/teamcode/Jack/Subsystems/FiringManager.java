@@ -65,6 +65,7 @@ public class FiringManager implements Subsystem {
                 }
                 if (firing && activeFire.isDone()) {
                     nextBall();
+                    firing = false;
                 }
             }
             else {
@@ -73,6 +74,7 @@ public class FiringManager implements Subsystem {
                 }
                 if (firing && activeFire.isDone()) {
                     nextBall();
+                    firing = false;
                 }
             }
         }
@@ -83,28 +85,51 @@ public class FiringManager implements Subsystem {
         }
 
         public void startFiring(){
-            if(manager.isEmpty(manager.getCurrentBall()) && manager.getCurrentBall() <= 3){
-                manager.setCurrentBall(manager.getCurrentBall() + 1);
-                firing = false;
+            if(mode == Robot.Mode.TELEOP) {
+                if ((!manager.isEmpty(manager.getCurrentBall())) && manager.getCurrentBall() < 4) {
+                    activeFire = flicker.fire();
+                    activeFire.schedule();
+                    firing = true;
+                }
             }
-            if(!manager.isEmpty(manager.getCurrentBall())){
-                activeFire = flicker.fire();
-                activeFire.schedule();
-                firing = true;
+            else {
+                if (manager.getCurrentBall() < 4) {
+                    activeFire = flicker.fire();
+                    activeFire.schedule();
+                    firing = true;
+                }
             }
             if(manager.getCurrentBall() >= 4){
-                manager.setCurrentBall(1);
-                manager.setMode(BallManager.State.INTAKE);
+                nextBall();
             }
         }
 
         public void nextBall(){
-            firing = false;
-            if (manager.getCurrentBall() >= 3) {
+            if (manager.getCurrentBall() >= 4) {
+                if(mode == Robot.Mode.AUTONOMOUS) {
+                    manager.setEmpty(1);
+                    manager.setEmpty(2);
+                    manager.setEmpty(3);
+                }
                 manager.setCurrentBall(1);
                 manager.setMode(BallManager.State.INTAKE);
             } else {
-                manager.setCurrentBall(manager.getCurrentBall() + 1);
+                manager.setEmpty(manager.getCurrentBall());
+                switch (manager.getCurrentBall()){
+                    case 1:
+                        manager.setCurrentBall(2);
+                        break;
+                    case 2:
+                        manager.setCurrentBall(3);
+                        break;
+                    case 3:
+                        manager.setCurrentBall(1);
+                        manager.setMode(BallManager.State.INTAKE);
+                        break;
+                    default:
+                        manager.setCurrentBall(1);
+                        break;
+                }
             }
         }
     }

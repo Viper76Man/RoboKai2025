@@ -76,9 +76,6 @@ public class BallManager {
                 slot3.setColor(ArtifactColor.NONE);
                 break;
         }
-        if(autoAdvance){
-            next();
-        }
     }
 
     public void setGreen(int ball){

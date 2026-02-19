@@ -14,18 +14,18 @@ public class BlueAutoPathsV2 {
     public static Pose outOfZonePose = new Pose(58, 30, Math.toRadians(90));
 
     public static Pose topArtifactsPickup = new Pose(47, 83.5, Math.toRadians(180));
-    public static Pose middleArtifactsPickup = new Pose(47, 56.5, Math.toRadians(180));
+    public static Pose middleArtifactsPickup = new Pose(47, 60.5, Math.toRadians(180));
     public static Pose bottomArtifactsPickup = new Pose(47, 35.5, Math.toRadians(180));
 
 
     public static Pose overdriveFirstBack = new Pose(56, 95.5, Math.toRadians(180));
-    public static Pose ballsPickup1Back = new Pose(12.5, 35.5, Math.toRadians(180));
+    public static Pose ballsPickup1Back = new Pose(9.5, 35.5, Math.toRadians(180));
     public static Pose overdriveBackToShootBack = new Pose(84, -50, Math.toRadians(110));
     public static Pose backToShoot1StartPointBack = new Pose(35, 17, Math.toRadians(110));
 
 
     public static Pose overdriveSecondBack = new Pose(56, 119.5, Math.toRadians(180));
-    public static Pose ballsPickup2Back = new Pose(20, 56.5, Math.toRadians(180));
+    public static Pose ballsPickup2Back = new Pose(17, 56.5, Math.toRadians(180));
     public static Pose overdriveBackToShoot2Back = new Pose(84, -50, Math.toRadians(110));
     public static Pose backToShoot2StartPointBack = new Pose(35, 34, Math.toRadians(110));
 
@@ -37,10 +37,10 @@ public class BlueAutoPathsV2 {
 
     public static double toShootPoseFarTValue = 0.95;
     public static double artifacts1TValue = 0.125;
-    public static double pickup1TValue = 0.6;
+    public static double pickup1TValue = 0.7;
     public static double backToShoot1OverdriveTValue = 0.17;
 
-    public static double artifacts2TValue = 0.105;
+    public static double artifacts2TValue = 0.125;
     public static double backToShoot2OverdriveTValue = 0.22;
 
     public static double artifacts3TValue = 0.125;
