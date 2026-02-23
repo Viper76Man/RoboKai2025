@@ -32,7 +32,7 @@ import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Disabled
+@Autonomous
 public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand, intakeReverse;
     public LED left1, right1, left2, right2;
@@ -156,7 +156,7 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed(){
         pathState = PathStates.START;
-        follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
+        follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
     }
 
     public void onUpdate(){
@@ -250,7 +250,7 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
                 break;
             case TO_SHOOT:
                 if (!follower.isBusy()) {
-                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
+                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartClose);
                     manager.setBall1(ArtifactColor.GREEN);
                     manager.setBall2(ArtifactColor.PURPLE);
                     manager.setBall3(ArtifactColor.PURPLE);
@@ -273,100 +273,8 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
                     shouldReverse = true;
                 }
                 if (firedAlreadyPathing) {
-                    setPathState(PathStates.TO_PICKUP_1);
-                    firedAlreadyPathing = false;
-                }
-                break;
-            case TO_PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
-                    setPathState(PathStates.PICKUP_1);
-                }
-                break;
-            case PICKUP_1:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.pickup1);
-                    setPathState(PathStates.BACK_TO_SHOOT_1);
-                }
-                break;
-            case BACK_TO_SHOOT_1:
-                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 130){
-                    follower.follower.setMaxPower(0.24);
-                    shouldPickup = true;
-                }
-                if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
-                    follower.follower.setMaxPower(1);
-                }
-                else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
-                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
-                    manager.setCurrentBall(1);
-                    sensor.clear();
-                    intakeCommand.cancel();
-                    shootCommand.schedule();
-                    manager.setMode(BallManager.State.SHOOT);
-                    setSystemState(SystemStates.SHOOT_ALL);
-                    greenLED();
-                    setPathState(PathStates.SHOOT_SET_2);
-                }
-                firedAlreadyPathing = false;
-                break;
-            case SHOOT_SET_2:
-                if (follower.follower.getCurrentTValue() > 0.85 && !firedAlreadyPathing && !shouldFire) {
-                    shouldFire = true;
-                }
-                if (firedAlreadyPathing) {
-                    setPathState(PathStates.TO_PICKUP_2);
-                    firedAlreadyPathing = false;
-                }
-                break;
-            case TO_PICKUP_2:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.toSecondArtifacts);
-                    setPathState(PathStates.PICKUP_2);
-                }
-                break;
-            case PICKUP_2:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.pickup2);
-                    setPathState(PathStates.BACK_TO_SHOOT_2);
-                }
-                break;
-            case BACK_TO_SHOOT_2:
-                if(isLastPathName(BlueAutoPathsV2.pickup2.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 130){
-                    follower.follower.setMaxPower(0.24);
-                    shouldPickup = true;
-                }
-                if(isLastPathName(BlueAutoPathsV2.pickup2.getName()) && !follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.overdriveBack2);
-                    manager.setCurrentBall(1);
-                    sensor.clear();
-                    intakeCommand.cancel();
-                    shootCommand.schedule();
-                    manager.setMode(BallManager.State.SHOOT);
-                    setSystemState(SystemStates.SHOOT_ALL);
-                    greenLED();
-                    follower.follower.setMaxPower(1);
-                }
-                else if(isLastPathName(BlueAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot2OverdriveTValue){
-                    follower.setCurrentPath(BlueAutoPathsV2.backToShoot2);
-                    setPathState(PathStates.SHOOT_SET_3);
-                }
-                firedAlreadyPathing = false;
-                break;
-            case SHOOT_SET_3:
-                if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
-                    shouldFire = true;
-                }
-                if (firedAlreadyPathing) {
-                    setPathState(PathStates.OUT_OF_ZONE);
-                    firedAlreadyPathing = false;
-                }
-                break;
-            case OUT_OF_ZONE:
-                if(!follower.isBusy()){
-                    follower.setCurrentPath(BlueAutoPathsV2.leaveShoot);
                     setPathState(PathStates.IDLE);
+                    firedAlreadyPathing = false;
                 }
                 break;
         }

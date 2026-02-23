@@ -91,6 +91,9 @@ public class FiringManager implements Subsystem {
                     activeFire.schedule();
                     firing = true;
                 }
+                else if(manager.getCurrentBall() < 4){
+                    nextBall();
+                }
             }
             else {
                 if (manager.getCurrentBall() < 4) {

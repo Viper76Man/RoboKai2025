@@ -169,6 +169,8 @@ public class RobotV4 implements Subsystem { ;
                 if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
                     cachedFire = true;
                     manager.setBall1(ArtifactColor.NONE);
+                    manager.setBall2(ArtifactColor.GREEN);
+                    manager.setBall3(ArtifactColor.GREEN);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     shootCommand.schedule();

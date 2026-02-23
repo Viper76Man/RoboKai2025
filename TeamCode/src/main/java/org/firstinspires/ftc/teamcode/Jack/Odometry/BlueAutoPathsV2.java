@@ -4,8 +4,10 @@ import com.pedropathing.geometry.Pose;
 
 @Configurable
 public class BlueAutoPathsV2 {
-    public static Pose startPoseClose = new Pose(24, 125, Math.toRadians(320));
+    public static Pose startPoseClose = new Pose(24, 125, Math.toRadians(140));
     public static Pose shootPoseClose = new Pose(55, 100, Math.toRadians(140));
+
+    public static Pose startMoveOutClose = new Pose(24, 125, Math.toRadians(320));
     public static Pose moveOutClose = new Pose(48, 90, Math.toRadians(320));
     //BACK=-----------------------------------------------------------------------------------------
     public static Pose startPoseFar = new Pose(62, 9.6, Math.toRadians(90));
@@ -71,7 +73,7 @@ public class BlueAutoPathsV2 {
         outOfStartClose = new CustomPath(startPoseClose, shootPoseClose, toShootPoseCloseTValue);
         outOfStartClose.setConstantHeadingInterpolationPath1(shootPoseClose.getHeading());
         outOfStartClose.setName("outOfStartClose");
-        leaveShootClose = new CustomPath(startPoseClose, moveOutClose, 1);
+        leaveShootClose = new CustomPath(startMoveOutClose, moveOutClose, 1);
         leaveShootClose.setConstantHeadingInterpolationPath1(moveOutClose.getHeading());
         //BACK--------------------------------------------------------------------------------------
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);

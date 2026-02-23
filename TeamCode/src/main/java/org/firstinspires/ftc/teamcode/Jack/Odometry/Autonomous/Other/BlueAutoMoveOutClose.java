@@ -33,7 +33,7 @@ public class BlueAutoMoveOutClose extends LinearOpMode {
     public void runOpMode() {
         initHardware();
         pathState = PathStates.START;
-        follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
+        follower.setStartingPose(BlueAutoPathsV2.startMoveOutClose);
         waitForStart();
         while (opModeIsActive()) {
             log();
