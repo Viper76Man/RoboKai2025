@@ -52,7 +52,7 @@ public class SlotColorSensorV1 {
             countsWithinDistance = 0;
             distanceTimer.reset();
         }
-        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0.2) {
+        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0.05) {
             countsWithinDistance += 1;
             distanceTimer.reset();
         }
@@ -63,8 +63,7 @@ public class SlotColorSensorV1 {
         }
 
 
-        if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5 && countsWithinDistance > 3) {
-            if(detectedTimes >= 5) {
+        if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 1 && countsWithinDistance > 2) {
                 switch (state) {
                     case BALL_1_INTAKE:
                     case BALL_2_INTAKE:
@@ -76,13 +75,8 @@ public class SlotColorSensorV1 {
                         countsWithinDistance = 0;
                         break;
                 }
-            }
-            else {
-                detectedTimes += 1;
-            }
 
-        } else if (avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 5 && countsWithinDistance > 3) {
-            if(detectedTimes >= 5) {
+        } else if (avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 1 && countsWithinDistance > 2) {
                 switch (state) {
                     case BALL_1_INTAKE:
                     case BALL_2_INTAKE:
@@ -93,14 +87,10 @@ public class SlotColorSensorV1 {
                         current = ArtifactColor.GREEN;
                         countsWithinDistance = 0;
                         break;
-                }
-            }
-            else {
-                detectedTimes += 1;
             }
         }
         //change 26 to 10
-        else if (loops < 5 && spindexerReady && hasBall()) {
+        else if (loops < 1 && spindexerReady && hasBall()) {
             lastGreen = sensor.green();
             double brightness = sensor.red() +
                     lastGreen +

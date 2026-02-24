@@ -73,14 +73,14 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.005, 0, 0.001, 0.7, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.001, 0, 0.5, 0.549);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0011, 0, 0.6, 0.5495);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00085, 0, 1, 0.55);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00085, 0, 1, 0.55);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
-    public static PIDCoefficients turretPIDs = new PIDCoefficients(0.0012, 0, 0.0008);
-    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.0012, 0, 0.0008);
+    public static PIDCoefficients turretPIDs = new PIDCoefficients(0.001, 0, 0.09);
+    public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.001, 0, 0.09);
 
     public static double brakingStrength = 1.25;
     public static double timeoutConstantMS = 600;
@@ -121,8 +121,8 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_TOLERANCE = 1000;
 
     public static double MIN_G_VALUE_COLOR_SENSOR = 165;
-    public static double MAX_DISTANCE_COLOR_SENSOR = 32;
-    public static double MIN_DISTANCE_COLOR_SENSOR = 13;
+    public static double MAX_DISTANCE_COLOR_SENSOR = 35;
+    public static double MIN_DISTANCE_COLOR_SENSOR = 10;
 
     public static double FLICKER_SERVO_UP = 0.7;
     public static double FLICKER_SERVO_DOWN = 0.93;
