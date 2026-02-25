@@ -73,8 +73,8 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.005, 0, 0.001, 0.7, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00085, 0, 1, 0.55);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00085, 0, 1, 0.55);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00065, 0, 0.8, 0.6);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00065, 0, 0.8, 0.6);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -123,6 +123,9 @@ public class RobotConstantsV1 {
     public static double MIN_G_VALUE_COLOR_SENSOR = 165;
     public static double MAX_DISTANCE_COLOR_SENSOR = 35;
     public static double MIN_DISTANCE_COLOR_SENSOR = 10;
+
+
+    public static double HOOD_STEP_SIZE = 0.05;
 
     public static double FLICKER_SERVO_UP = 0.7;
     public static double FLICKER_SERVO_DOWN = 0.93;

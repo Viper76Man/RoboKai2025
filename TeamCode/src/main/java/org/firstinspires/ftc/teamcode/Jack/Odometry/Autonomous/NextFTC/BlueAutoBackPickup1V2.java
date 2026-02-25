@@ -290,7 +290,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case BACK_TO_SHOOT_1:
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 130){
-                    follower.follower.setMaxPower(0.22);
+                    follower.follower.setMaxPower(0.4);
                     shouldPickup = true;
                 }
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){

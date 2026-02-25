@@ -285,7 +285,7 @@ public class RedAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case BACK_TO_SHOOT_1:
                 if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) < Math.toDegrees(DecodeFieldLocalizer.mirrorPose(new Pose(0, 0, 130)).getHeading())){
-                    follower.follower.setMaxPower(0.22);
+                    follower.follower.setMaxPower(0.4);
                     shouldPickup = true;
                 }
                 if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && !follower.isBusy()){

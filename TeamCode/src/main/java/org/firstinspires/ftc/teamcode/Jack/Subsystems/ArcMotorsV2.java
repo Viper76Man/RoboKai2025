@@ -121,6 +121,6 @@ public class ArcMotorsV2 implements Subsystem {
 
     //https://www.desmos.com/calculator/lrc7l7irmt
     public double flywheelSpeed(double dist){
-        return MathFunctions.clamp(((-0.0000115654 * Math.pow(dist, 4)) + (0.00113335 * Math.pow(dist, 3)) + (0.17033 * Math.pow(dist, 2)) - (9.04719 * dist) + 2322.94042), 0, 4000);
+        return MathFunctions.clamp(((-0.0000836887 * Math.pow(dist, 4)) + (0.0254755 * Math.pow(dist, 3)) - (2.6871 * Math.pow(dist, 2)) + (127.76911 * dist) + 79.193), 0, 4000);
     }
 }
