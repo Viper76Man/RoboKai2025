@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV2;
@@ -28,14 +30,8 @@ public class FlickerSubsystem implements Subsystem {
 
         @Override
         public void update(){
-            flicker.update(spindexer.shouldStartFlick());
-            if(!flickedAlready){
-                flicker.setState(FlickerServoV2.State.DOWN);
-                flickedAlready = true;
-            }
-            else if(flicker.getState() == FlickerServoV2.State.IDLE){
-                done = true;
-            }
+            flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+            done = true;
         }
 
         @Override

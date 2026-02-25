@@ -130,7 +130,6 @@ public class RobotV4 implements Subsystem { ;
     public void systemStatesUpdate(){
         sensors.update();
         if(firstLoop){
-            flicker.fire().run();
             ActiveOpMode.telemetry().setMsTransmissionInterval(150);
             telemetryM.setUpdateInterval(150);
             firstLoop = false;
@@ -242,6 +241,7 @@ public class RobotV4 implements Subsystem { ;
                 //TODO: auto using command system
                 if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
                     setSystemState(SystemStates.START);
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     fireCommand.cancel();
                     firedAlready = false;
                 }

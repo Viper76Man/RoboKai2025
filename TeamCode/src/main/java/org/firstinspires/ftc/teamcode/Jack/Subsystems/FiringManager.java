@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
@@ -40,6 +43,8 @@ public class FiringManager implements Subsystem {
         public boolean triple;
         public Robot.Mode mode;
         public ArcMotorsV2 arc;
+        public ElapsedTime fireTimer = new ElapsedTime();
+        public boolean spindexerSet = false;
 
         public FireTriple(boolean triple, Robot.Mode mode, ArcMotorsV2 arcMotorsV2){
             this.triple = triple;
@@ -58,23 +63,31 @@ public class FiringManager implements Subsystem {
                 if (!firing && spindexer.isSpindexerReady()) {
                     if(mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
                         startFiring();
+                        activeFire = flicker.fire();
+                        activeFire.schedule();
                     }
                     else if(mode != Robot.Mode.AUTONOMOUS){
                         startFiring();
+                        activeFire = flicker.fire();
+                        activeFire.schedule();
                     }
                 }
-                if (firing && activeFire.isDone()) {
-                    nextBall();
+                if (firing && activeFire.isDone() && spindexer.isSpindexerReady() && spindexerSet) {
+                    //nextBall();
                     firing = false;
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                    spindexerSet = false;
                 }
-            }
-            else {
-                if (!firing && spindexer.isSpindexerReady() && ActiveOpMode.gamepad1().right_trigger >= 0.15) {
-                    startFiring();
+                if(firing && activeFire.isDone()) {
+                    if(fireTimer.seconds() > 0.15) {
+                        spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP);
+                        spindexerSet = true;
+                    }
                 }
-                if (firing && activeFire.isDone()) {
-                    nextBall();
-                    firing = false;
+                else {
+                    fireTimer.reset();
                 }
             }
         }
@@ -85,55 +98,7 @@ public class FiringManager implements Subsystem {
         }
 
         public void startFiring(){
-            if(mode == Robot.Mode.TELEOP) {
-                if ((!manager.isEmpty(manager.getCurrentBall())) && manager.getCurrentBall() < 4) {
-                    activeFire = flicker.fire();
-                    activeFire.schedule();
-                    firing = true;
-                }
-                else if(manager.getCurrentBall() < 4){
-                    nextBall();
-                }
-            }
-            else {
-                if (manager.getCurrentBall() < 4) {
-                    activeFire = flicker.fire();
-                    activeFire.schedule();
-                    firing = true;
-                }
-            }
-            if(manager.getCurrentBall() >= 4){
-                nextBall();
-            }
-        }
-
-        public void nextBall(){
-            if (manager.getCurrentBall() >= 4) {
-                if(mode == Robot.Mode.AUTONOMOUS) {
-                    manager.setEmpty(1);
-                    manager.setEmpty(2);
-                    manager.setEmpty(3);
-                }
-                manager.setCurrentBall(1);
-                manager.setMode(BallManager.State.INTAKE);
-            } else {
-                manager.setEmpty(manager.getCurrentBall());
-                switch (manager.getCurrentBall()){
-                    case 1:
-                        manager.setCurrentBall(2);
-                        break;
-                    case 2:
-                        manager.setCurrentBall(3);
-                        break;
-                    case 3:
-                        manager.setCurrentBall(1);
-                        manager.setMode(BallManager.State.INTAKE);
-                        break;
-                    default:
-                        manager.setCurrentBall(1);
-                        break;
-                }
-            }
+            firing = true;
         }
     }
 }

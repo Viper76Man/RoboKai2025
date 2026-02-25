@@ -31,6 +31,7 @@ public class SpindexerMotorV1 {
         BALL_1_SHOOT,
         BALL_2_SHOOT,
         BALL_3_SHOOT,
+        SHOOT_ALL_RAMP
     }
 
     public enum EncoderMeasurementMethod {
@@ -314,6 +315,9 @@ public class SpindexerMotorV1 {
                         break;
                     case BALL_3_SHOOT:
                         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT, method);
+                        break;
+                    case SHOOT_ALL_RAMP:
+                        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL, method);
                         break;
                 }
                 if(lastTicks == getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && !isSpindexerReady() && stuckTimer.seconds() > 2){

@@ -39,13 +39,13 @@ public class SpindexerV2 implements Subsystem {
                 case SHOOT:
                     switch (manager_.getCurrentBall()) {
                         case 1:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_SHOOT;
+                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL;
                             break;
                         case 2:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_2_SHOOT;
+                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL;
                             break;
                         case 3:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT;
+                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL;
                             break;
                     }
                     break;
