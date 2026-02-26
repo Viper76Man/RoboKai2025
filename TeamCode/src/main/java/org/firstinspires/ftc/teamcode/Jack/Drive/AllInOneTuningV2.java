@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrent;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.drawCurrentAndHistory;
 import static org.firstinspires.ftc.teamcode.Jack.Odometry.Tuning.follower;
 
+import android.hardware.Sensor;
+
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -31,6 +33,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.Messages;
 import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.RGB;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.AdjustableHoodServo;
 import org.firstinspires.ftc.teamcode.Jack.Servos.FlickerServoV1;
@@ -435,10 +438,12 @@ class SpindexerReadEncoderTest extends OpMode {
     public SpindexerMotorV1 spindexer = new SpindexerMotorV1();
     public GamepadV1 gamepad = new GamepadV1();
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    public Sensors sensors = new Sensors();
 
     @Override
     public void init() {
-        spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
+        sensors.init(hardwareMap);
+        spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs, sensors);
         gamepad.init(gamepad1, 0.3);
         telemetry.clear();
         telemetryM.addLine("This OpMode will read spindexer motor encoder position.");
@@ -452,10 +457,11 @@ class SpindexerReadEncoderTest extends OpMode {
             spindexer.switchEncoderMeasurementMethods();
             gamepad.resetTimer();
         }
+        sensors.update();
         gamepad.update();
         telemetryM.update(telemetry);
         telemetryM.addLine("Encoder measurement method: " + spindexer.getMeasurementMethod().name());
-        telemetryM.addLine("Pos: " + spindexer.getCurrentPosition());
+        telemetryM.addLine("Pos: " + sensors.spindexerPos);
         telemetryM.addLine("Target pos: "+ spindexer.getTargetPos());
     }
 }

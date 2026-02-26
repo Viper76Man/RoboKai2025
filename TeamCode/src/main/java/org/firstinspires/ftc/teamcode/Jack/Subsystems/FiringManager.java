@@ -50,6 +50,7 @@ public class FiringManager implements Subsystem {
             this.triple = triple;
             this.mode = mode;
             this.arc = arcMotorsV2;
+            activeFire = flicker.fire();
         }
 
         @Override
@@ -63,16 +64,12 @@ public class FiringManager implements Subsystem {
                 if (!firing && spindexer.isSpindexerReady()) {
                     if(mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
                         startFiring();
-                        activeFire = flicker.fire();
-                        activeFire.schedule();
                     }
                     else if(mode != Robot.Mode.AUTONOMOUS){
                         startFiring();
-                        activeFire = flicker.fire();
-                        activeFire.schedule();
                     }
                 }
-                if (firing && activeFire.isDone() && spindexer.isSpindexerReady() && spindexerSet) {
+                if (firing && activeFire.isDone() && spindexer.isSpindexerReady() && spindexerSet && spindexer.state == SpindexerMotorV1.State.SHOOT_ALL_RAMP) {
                     //nextBall();
                     firing = false;
                     manager.setCurrentBall(1);
@@ -80,10 +77,15 @@ public class FiringManager implements Subsystem {
                     flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     spindexerSet = false;
                 }
-                if(firing && activeFire.isDone()) {
-                    if(fireTimer.seconds() > 0.15) {
+                if(firing && !spindexerSet && spindexer.isSpindexerReady()){
+                    spindexerSet = true;
+                    activeFire.schedule();
+                }
+                if(firing && activeFire.isDone() && spindexerSet) {
+                    if(fireTimer.seconds() > 0.25) {
                         spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP);
-                        spindexerSet = true;
+                        manager.setCurrentBall(1);
+                        manager.setMode(BallManager.State.SHOOT);
                     }
                 }
                 else {
@@ -94,10 +96,18 @@ public class FiringManager implements Subsystem {
 
         @Override
         public boolean isDone() {
-            return manager.mode == BallManager.State.INTAKE;
+            return spindexer.state == SpindexerMotorV1.State.SHOOT_ALL_RAMP && spindexer.isSpindexerReady();
+        }
+
+        @Override
+        public void stop(boolean interrupted){
+            flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
         }
 
         public void startFiring(){
+            manager.setMode(BallManager.State.SHOOT);
+            manager.setCurrentBall(1);
+            spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
             firing = true;
         }
     }

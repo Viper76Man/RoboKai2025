@@ -132,6 +132,7 @@ public class RobotV4 implements Subsystem { ;
         if(firstLoop){
             ActiveOpMode.telemetry().setMsTransmissionInterval(150);
             telemetryM.setUpdateInterval(150);
+            flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
             firstLoop = false;
         }
         gamepad.update();
@@ -170,6 +171,7 @@ public class RobotV4 implements Subsystem { ;
                     manager.setBall1(ArtifactColor.NONE);
                     manager.setBall2(ArtifactColor.GREEN);
                     manager.setBall3(ArtifactColor.GREEN);
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     shootCommand.schedule();
@@ -195,6 +197,7 @@ public class RobotV4 implements Subsystem { ;
                 if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
                     cachedFire = true;
                     manager.setBall2(ArtifactColor.NONE);
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     shootCommand.schedule();
@@ -208,6 +211,7 @@ public class RobotV4 implements Subsystem { ;
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
                     manager.setBall3(sensor.sensor.getCurrent());
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.next();
                     sensor.clear();
                     shootCommand.schedule();
@@ -220,6 +224,7 @@ public class RobotV4 implements Subsystem { ;
                 if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
                     cachedFire = true;
                     manager.setBall3(ArtifactColor.NONE);
+                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.next();
                     sensor.clear();
                     shootCommand.schedule();
@@ -239,7 +244,7 @@ public class RobotV4 implements Subsystem { ;
                     cachedFire = false;
                 }
                 //TODO: auto using command system
-                if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
+                if(fireCommand.isDone()){
                     setSystemState(SystemStates.START);
                     flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     fireCommand.cancel();
