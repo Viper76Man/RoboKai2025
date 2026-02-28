@@ -127,7 +127,7 @@ public class RobotConstantsV1 {
 
     public static double HOOD_STEP_SIZE = 0.05;
 
-    public static double FLICKER_SERVO_UP = 1;
+    public static double FLICKER_SERVO_UP = 0.75;
     public static double FLICKER_SERVO_DOWN = 0;
     public static double FLICKER_UP_TIME = 0.35;
 
@@ -151,13 +151,13 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_INTAKE = 1102;
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
-    public static int SPINDEXER_MOTOR_SHOOT_ALL = 1000;
+    public static int SPINDEXER_MOTOR_SHOOT_ALL = -1000;
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
-    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = 368;
-    public static int SPINDEXER_MOTOR_BALL_2_INTAKE = 240;
-    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = 620;
-    public static int SPINDEXER_MOTOR_BALL_3_INTAKE = 485;
-    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = 874;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -350;
+    public static int SPINDEXER_MOTOR_BALL_2_INTAKE = -240;
+    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = -620;
+    public static int SPINDEXER_MOTOR_BALL_3_INTAKE = -485;
+    public static int SPINDEXER_MOTOR_BALL_3_SHOOT = -874;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------
     //TODO: TURN OFF BEFORE COMPS
     public static boolean panelsDrawingEnabled = true;

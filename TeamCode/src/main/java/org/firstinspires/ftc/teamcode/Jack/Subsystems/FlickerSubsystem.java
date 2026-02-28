@@ -26,7 +26,6 @@ public class FlickerSubsystem implements Subsystem {
 
     public class FlickUp extends Command {
         public boolean done = false;
-        public boolean flickedAlready = false;
 
         @Override
         public void update(){

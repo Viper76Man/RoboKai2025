@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.LED;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.BulkReadsTest;
@@ -132,7 +133,7 @@ public class RobotV4 implements Subsystem { ;
         if(firstLoop){
             ActiveOpMode.telemetry().setMsTransmissionInterval(150);
             telemetryM.setUpdateInterval(150);
-            flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+            flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
             firstLoop = false;
         }
         gamepad.update();
@@ -171,7 +172,7 @@ public class RobotV4 implements Subsystem { ;
                     manager.setBall1(ArtifactColor.NONE);
                     manager.setBall2(ArtifactColor.GREEN);
                     manager.setBall3(ArtifactColor.GREEN);
-                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     shootCommand.schedule();
@@ -197,7 +198,7 @@ public class RobotV4 implements Subsystem { ;
                 if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
                     cachedFire = true;
                     manager.setBall2(ArtifactColor.NONE);
-                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.setCurrentBall(1);
                     sensor.clear();
                     shootCommand.schedule();
@@ -211,7 +212,7 @@ public class RobotV4 implements Subsystem { ;
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
                     manager.setBall3(sensor.sensor.getCurrent());
-                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.next();
                     sensor.clear();
                     shootCommand.schedule();
@@ -224,7 +225,7 @@ public class RobotV4 implements Subsystem { ;
                 if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
                     cachedFire = true;
                     manager.setBall3(ArtifactColor.NONE);
-                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_UP);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
                     manager.next();
                     sensor.clear();
                     shootCommand.schedule();
@@ -245,9 +246,14 @@ public class RobotV4 implements Subsystem { ;
                 }
                 //TODO: auto using command system
                 if(fireCommand.isDone()){
+                    manager.setEmpty(1);
+                    manager.setEmpty(2);
+                    manager.setEmpty(3);
                     setSystemState(SystemStates.START);
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    spindexer.spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
                     flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
-                    fireCommand.cancel();
                     firedAlready = false;
                 }
                 break;
@@ -302,7 +308,7 @@ public class RobotV4 implements Subsystem { ;
     }
 
 
-    public void redLED(){
+    public void redLED() {
         left1.on();
         left2.on();
         right1.off();
@@ -315,5 +321,4 @@ public class RobotV4 implements Subsystem { ;
         right1.on();
         right2.on();
     }
-
 }

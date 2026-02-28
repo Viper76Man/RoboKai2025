@@ -41,6 +41,10 @@ public class FlickerServoV2 {
         this.position = position_;
     }
 
+    public void setPositionNew(double position_){
+        flicker.setPosition(position_);
+    }
+
 
     public void update(boolean isSpindexerReady){
         flicker.setPosition(position);
