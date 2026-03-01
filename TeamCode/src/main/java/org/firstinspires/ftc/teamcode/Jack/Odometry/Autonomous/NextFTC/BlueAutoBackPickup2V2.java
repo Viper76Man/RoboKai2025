@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
@@ -58,6 +59,8 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     public boolean firstLoop = true;
 
     public boolean shouldFire = false;
+
+    public ElapsedTime flickerResetTimer = new ElapsedTime();
     public double OFFSET_ANGLE;
     public enum PathStates {
         START,
@@ -170,26 +173,28 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     public void systemStatesUpdate(){
         sensors.update();
         if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && spindexer.spindexer.isSpindexerReady() && stateTimer.seconds() > 0.5 && shouldReverse) {
-            intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
+            intake.setPower(0, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
         }
         else {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
         }
         log();
         ll.turret.run(ll.limelight, OFFSET_ANGLE);
-        if(firstLoop){
-            flicker.fire().run();
-            firstLoop = false;
-        }
         switch (state){
             case START:
                 redLED();
-                firedAlreadyPathing = true;
-                manager.setCurrentBall(1);
-                manager.setMode(BallManager.State.INTAKE);
-                setSystemState(SystemStates.BALL_1_INTAKE);
-                shootCommand.cancel();
-                intakeCommand.schedule();
+                if(flickerResetTimer.seconds() > 0.2) {
+                    fireCommand = new ParallelGroup(firingManager.fireTriple(mode, arcMotorsV2));
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    setSystemState(SystemStates.BALL_1_INTAKE);
+                    spindexer.spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+                    //MOVE OUT OF CONDITIONAL???
+                    shootCommand.cancel();
+                    intakeCommand.schedule();
+                }
+                sensor.clear();
+                sensor.sensor.sensor.initialize();
                 break;
             case BALL_1_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -223,12 +228,15 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 if(readyForTriple()){
                     fireTriple();
                 }
-                if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
-                    setSystemState(SystemStates.START);
+                if(fireCommand.isDone()){
+                    manager.setEmpty(1);
+                    manager.setEmpty(2);
+                    manager.setEmpty(3);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     firedAlready = false;
                     firedAlreadyPathing = true;
-                    shouldFire = false;
-                    shouldPickup = false;
+                    flickerResetTimer.reset();
+                    setSystemState(SystemStates.START);
                 }
                 break;
         }
@@ -269,7 +277,6 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
             case SHOOT_SET_1:
                 if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
                     shouldFire = true;
-                    shouldReverse = true;
                 }
                 if (firedAlreadyPathing) {
                     setPathState(PathStates.TO_PICKUP_1);
@@ -280,6 +287,7 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 if(!follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.toFirstArtifacts);
                     setPathState(PathStates.PICKUP_1);
+                    shouldReverse = false;
                 }
                 break;
             case PICKUP_1:
@@ -296,6 +304,7 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
                     follower.follower.setMaxPower(1);
+                    shouldReverse = true;
                 }
                 else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
                     follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
@@ -349,12 +358,13 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 }
                 else if(isLastPathName(BlueAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot2OverdriveTValue){
                     follower.setCurrentPath(BlueAutoPathsV2.backToShoot2);
+                    shouldReverse = true;
                     setPathState(PathStates.SHOOT_SET_3);
                 }
                 firedAlreadyPathing = false;
                 break;
             case SHOOT_SET_3:
-                if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
+                if (follower.follower.getCurrentTValue() > 0.9 && !firedAlreadyPathing && !shouldFire){
                     shouldFire = true;
                 }
                 if (firedAlreadyPathing) {

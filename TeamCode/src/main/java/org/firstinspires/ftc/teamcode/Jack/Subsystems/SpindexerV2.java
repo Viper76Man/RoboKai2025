@@ -63,6 +63,9 @@ public class SpindexerV2 implements Subsystem {
                         case 3:
                             position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_INTAKE;
                             break;
+                        default:
+                            manager_.setCurrentBall(1);
+                            break;
                     }
                     break;
             }

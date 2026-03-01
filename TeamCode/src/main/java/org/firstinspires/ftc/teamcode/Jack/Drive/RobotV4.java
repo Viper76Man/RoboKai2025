@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 
-import android.provider.Settings;
-
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
@@ -52,6 +51,8 @@ public class RobotV4 implements Subsystem { ;
     public Sensors sensors;
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
     public Telemetry telemetry;
+
+    public ElapsedTime flickerResetTimer = new ElapsedTime();
 
     public boolean firedAlready = false;
     public boolean firstLoop = true;
@@ -118,6 +119,7 @@ public class RobotV4 implements Subsystem { ;
         firingManager.init(manager, flicker, spindexer.spindexer);
         shootCommand = new ParallelGroup(
                 drive.drive(),
+                sensor.update(),
                 spindexer.spindexerRun(),
                 arcMotorsV2.spinActive(),
                 ll.turretUpdate(OFFSET_ANGLE),
@@ -149,11 +151,18 @@ public class RobotV4 implements Subsystem { ;
         switch (state){
             case START:
                 redLED();
-                manager.setCurrentBall(1);
-                manager.setMode(BallManager.State.INTAKE);
-                setSystemState(SystemStates.BALL_1_INTAKE);
-                intakeCommand.schedule();
-                shootCommand.cancel();
+                if(flickerResetTimer.seconds() > 0.2) {
+                    fireCommand = new ParallelGroup(firingManager.fireTriple(mode, arcMotorsV2));
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    setSystemState(SystemStates.BALL_1_INTAKE);
+                    spindexer.spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+                    //MOVE OUT OF CONDITIONAL???
+                    shootCommand.cancel();
+                    intakeCommand.schedule();
+                }
+                sensor.clear();
+                sensor.sensor.sensor.initialize();
                 break;
             case BALL_1_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -249,12 +258,10 @@ public class RobotV4 implements Subsystem { ;
                     manager.setEmpty(1);
                     manager.setEmpty(2);
                     manager.setEmpty(3);
-                    setSystemState(SystemStates.START);
-                    manager.setCurrentBall(1);
-                    manager.setMode(BallManager.State.INTAKE);
-                    spindexer.spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
-                    flicker.flicker.setPosition(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     firedAlready = false;
+                    flickerResetTimer.reset();
+                    setSystemState(SystemStates.START);
                 }
                 break;
             case SHOOT_SINGLE:
@@ -304,7 +311,7 @@ public class RobotV4 implements Subsystem { ;
     }
 
     public boolean readyForTriple(){
-        return spindexer.spindexer.isSpindexerReady() && !firedAlready;
+        return spindexer.spindexer.isInRange(200) && !firedAlready;
     }
 
 

@@ -186,10 +186,6 @@ public class RedAutoBackPreloadV2 extends NextFTCOpMode {
         }
         log();
         ll.turret.run(ll.limelight, OFFSET_ANGLE);
-        if(firstLoop){
-            flicker.fire().run();
-            firstLoop = false;
-        }
         switch (state){
             case START:
                 redLED();

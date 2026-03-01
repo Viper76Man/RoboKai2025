@@ -113,6 +113,9 @@ public class SlotColorSensorV1 {
         loops = 0;
         totalGreen = 0;
         avgGreen = 0;
+        dist = 0;
+        distanceTimer.reset();
+        countsWithinDistance = 0;
     }
 
     public boolean isGreen(){

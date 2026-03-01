@@ -181,7 +181,7 @@ public class SpindexerMotorV1 {
                 break;
             case MOTOR:
                 targetPositionEncoder = pos_;
-                motorRange = new Range(targetPositionEncoder, 10);
+                motorRange = new Range(targetPositionEncoder, 20);
                 break;
         }
     }

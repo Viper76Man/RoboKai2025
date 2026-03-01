@@ -178,10 +178,6 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
         }
         log();
         ll.turret.run(ll.limelight, OFFSET_ANGLE);
-        if(firstLoop){
-            flicker.fire().run();
-            firstLoop = false;
-        }
         switch (state){
             case START:
                 redLED();
@@ -270,7 +266,6 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
             case SHOOT_SET_1:
                 if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
                     shouldFire = true;
-                    shouldReverse = true;
                 }
                 if (firedAlreadyPathing) {
                     setPathState(PathStates.IDLE);
