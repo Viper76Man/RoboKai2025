@@ -58,6 +58,9 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     public boolean firedAlreadyPathing = false;
     public boolean firstLoop = true;
 
+    public boolean ballsSpitOut = false;
+    public ElapsedTime spitOutTimer = new ElapsedTime();
+
     public boolean shouldFire = false;
 
     public ElapsedTime flickerResetTimer = new ElapsedTime();
@@ -129,11 +132,13 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
         intakeCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 sensor.update(),
+                hood.servoUpdate(),
                 arcMotorsV2.spinUpIdle());
-        firingManager.init(manager, flicker, spindexer.spindexer);
+        firingManager.init(manager, flicker, spindexer.spindexer, ll);
         shootCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
-                arcMotorsV2.spinActive()
+                arcMotorsV2.spinActive(),
+                hood.servoUpdate()
         );
         fireCommand = new ParallelGroup(firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2));
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
@@ -162,7 +167,6 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     }
 
     public void onUpdate(){
-        hood.hoodServo.setPos(0.2);
         if(isStopRequested()){
             return;
         }
@@ -172,8 +176,8 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
 
     public void systemStatesUpdate(){
         sensors.update();
-        if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && spindexer.spindexer.isSpindexerReady() && stateTimer.seconds() > 0.5 && shouldReverse) {
-            intake.setPower(0, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
+        if((state == SystemStates.SHOOT_ALL || state == SystemStates.SHOOT_SINGLE) && shouldReverse) {
+            intake.setPower(RobotConstantsV1.INTAKE_POWER, intake.intake.invertDirection(RobotConstantsV1.intakeDirection)).schedule();
         }
         else {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
@@ -215,18 +219,28 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
                     manager.setBall3(sensor.sensor.getCurrent());
-                    manager.next();
+                    manager.setCurrentBall(5);
                     sensor.clear();
                     intakeCommand.cancel();
                     shootCommand.schedule();
-                    manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
                     greenLED();
                 }
                 break;
             case SHOOT_ALL:
-                if(readyForTriple()){
-                    fireTriple();
+                if(spindexer.spindexer.isSpindexerReady() && manager.getCurrentBall() == 5 && manager.mode == BallManager.State.INTAKE && !shouldReverse){
+                    shouldReverse = true;
+                    spitOutTimer.reset();
+                }
+                if(shouldReverse && spitOutTimer.seconds() > 2){
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.SHOOT);
+                    shouldReverse = false;
+                }
+                if(!shouldReverse && manager.mode == BallManager.State.SHOOT && spindexer.spindexer.isSpindexerReady()){
+                    if(readyForTriple()){
+                        fireTriple();
+                    }
                 }
                 if(fireCommand.isDone()){
                     manager.setEmpty(1);
@@ -261,8 +275,8 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                     manager.setBall1(ArtifactColor.GREEN);
                     manager.setBall2(ArtifactColor.PURPLE);
                     manager.setBall3(ArtifactColor.PURPLE);
-                    manager.setMode(BallManager.State.SHOOT);
-                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    manager.setCurrentBall(5);
                     setSystemState(SystemStates.SHOOT_ALL);
                     setPathState(PathStates.SHOOT_SET_1);
                     sensor.clear();
@@ -304,15 +318,13 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 if(isLastPathName(BlueAutoPathsV2.pickup1.getName()) && !follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.overdriveBack1);
                     follower.follower.setMaxPower(1);
-                    shouldReverse = true;
                 }
                 else if(isLastPathName(BlueAutoPathsV2.overdriveBack1.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot1OverdriveTValue){
                     follower.setCurrentPath(BlueAutoPathsV2.backToShoot1);
-                    manager.setCurrentBall(1);
+                    manager.setCurrentBall(5);
                     sensor.clear();
                     intakeCommand.cancel();
                     shootCommand.schedule();
-                    manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
                     greenLED();
                     setPathState(PathStates.SHOOT_SET_2);
@@ -347,21 +359,20 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 }
                 if(isLastPathName(BlueAutoPathsV2.pickup2.getName()) && !follower.isBusy()){
                     follower.setCurrentPath(BlueAutoPathsV2.overdriveBack2);
-                    manager.setCurrentBall(1);
                     sensor.clear();
                     intakeCommand.cancel();
                     shootCommand.schedule();
-                    manager.setMode(BallManager.State.SHOOT);
+                    manager.setCurrentBall(5);
                     setSystemState(SystemStates.SHOOT_ALL);
                     greenLED();
                     follower.follower.setMaxPower(1);
                 }
                 else if(isLastPathName(BlueAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > BlueAutoPathsV2.backToShoot2OverdriveTValue){
                     follower.setCurrentPath(BlueAutoPathsV2.backToShoot2);
-                    shouldReverse = true;
                     setPathState(PathStates.SHOOT_SET_3);
                 }
                 firedAlreadyPathing = false;
+                shouldFire = false;
                 break;
             case SHOOT_SET_3:
                 if (follower.follower.getCurrentTValue() > 0.9 && !firedAlreadyPathing && !shouldFire){
@@ -429,7 +440,7 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     }
 
     public boolean readyForTriple(){
-        return spindexer.spindexer.isSpindexerReady() && !firedAlready && shouldFire;
+        return spindexer.spindexer.isSpindexerReady() && !firedAlready && shouldFire && !shouldReverse;
     }
 
 

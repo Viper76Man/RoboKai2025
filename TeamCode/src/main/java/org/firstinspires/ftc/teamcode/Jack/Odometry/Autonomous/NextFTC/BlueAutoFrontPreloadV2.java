@@ -128,7 +128,7 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
                 spindexer.spindexerRun(),
                 sensor.update(),
                 arcMotorsV2.spinUpIdle());
-        firingManager.init(manager, flicker, spindexer.spindexer);
+        firingManager.init(manager, flicker, spindexer.spindexer, ll);
         shootCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 arcMotorsV2.spinActive()

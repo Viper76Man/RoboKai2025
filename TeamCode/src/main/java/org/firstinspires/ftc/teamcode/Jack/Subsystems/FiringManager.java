@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Servos.StorageServoV1;
 
+import java.util.Objects;
+
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.subsystems.Subsystem;
@@ -19,14 +21,16 @@ public class FiringManager implements Subsystem {
     public FlickerSubsystem.FlickUp command, command2, command3;
     public FlickerSubsystem flicker;
     public SpindexerMotorV1 spindexer;
+    public LimelightSubsystem ll;
 
-    public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer) {
+    public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer, LimelightSubsystem limelightSub) {
         this.flicker = flicker;
         this.command = flicker.fire();
         this.manager = manager;
         this.spindexer = spindexer;
         this.command2 = flicker.fire();
         this.command3 = flicker.fire();
+        this.ll = limelightSub;
     }
 
     public FireTriple fireTriple(Robot.Mode mode, ArcMotorsV2 arcMotorsV2) {
@@ -50,6 +54,12 @@ public class FiringManager implements Subsystem {
         private boolean firing = false;
         public boolean done = false;
         public States state = States.START;
+
+        public int ballsHeld = 0;
+
+        public int ball1 = 0;
+        public int ball2 = 0;
+
         private Command activeFire;
         public boolean triple;
         public Robot.Mode mode;
@@ -73,6 +83,9 @@ public class FiringManager implements Subsystem {
         public void update() {
             if (triple) {
                 if (!firing && spindexer.isSpindexerReady() && !spindexerSet && state == States.START) {
+                    ballsHeld = getBallsHeld();
+                    ball1 = getBall1();
+                    ball2 = getBall2();
                     if (mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
                         startFiring();
                         done = false;
@@ -81,10 +94,13 @@ public class FiringManager implements Subsystem {
                         startFiring();
                     }
                 }
-                if (state == States.FLICKER_MOVING_UP) {
+                if (state == States.FLICKER_MOVING_UP){
+                    if(!spindexer.isSpindexerReady()){
+                        fireTimer.reset();
+                    }
                     //activeFire.schedule();
                     flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
-                    if (fireTimer.seconds() > 0.2) {
+                    if (fireTimer.seconds() > 0.3) {
                         state = States.FLICKER_UP;
                         fireTimer.reset();
                     }
@@ -109,11 +125,42 @@ public class FiringManager implements Subsystem {
                     }
                 }
                 if (state == States.FLICKER_MOVING_DOWN) {
-                    if (fireTimer.seconds() > 1.3 && fireTimer.seconds() < 1.75) {
+                    double dist = ll.limelight.getTargetDistance();
+                    if(!Objects.equals(dist, null) && dist > 90) {
+                        switch (ballsHeld) {
+                            case 3:
+                                if (Math.abs(spindexer.getCurrentPosition()) > 310) {
+                                    arc.disablePIDs();
+                                    arc.arcShooter.setMotorPower(0.85);
+                                }
+                                if (Math.abs(spindexer.getCurrentPosition()) > 622) {
+                                    arc.disablePIDs();
+                                    arc.arcShooter.setMotorPower(0.9);
+                                }
+                                break;
+                            case 2:
+                                switch (ball2) {
+                                    case 2:
+                                        if (Math.abs(spindexer.getCurrentPosition()) > 310) {
+                                            arc.disablePIDs();
+                                            arc.arcShooter.setMotorPower(0.8);
+                                        }
+                                        break;
+                                    case 3:
+                                        if (Math.abs(spindexer.getCurrentPosition()) > 622) {
+                                            arc.disablePIDs();
+                                            arc.arcShooter.setMotorPower(0.8);
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                    if (fireTimer.seconds() > 1.3 && fireTimer.seconds() < 1.95) {
                         activeFire.cancel();
                         flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     }
-                    if (fireTimer.seconds() > 1.75) {
+                    if (Math.abs(spindexer.getCurrentPosition()) > Math.abs(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT) + 40) {
                         state = States.DOWN;
                     }
                 }
@@ -132,9 +179,49 @@ public class FiringManager implements Subsystem {
         @Override
         public void stop(boolean interrupted){
             flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
+            arc.enablePIDs();
             state = States.START;
             firing = false;
             spindexerSet = false;
+        }
+
+        public int getBallsHeld(){
+            int sum = 0;
+            if(!manager.isEmpty(1)){
+                sum += 1;
+            }
+            if(!manager.isEmpty(2)){
+                sum += 1;
+            }
+            if(!manager.isEmpty(3)){
+                sum += 1;
+            }
+            return sum;
+        }
+
+        public int getBall1(){
+            if(!manager.isEmpty(1)){
+                return 1;
+            }
+            else if(!manager.isEmpty(2)){
+                return 2;
+            }
+            else {
+                return 3;
+            }
+        }
+
+        public int getBall2(){
+            if(ball1 == 3){
+                return 0;
+            }
+            else if(!manager.isEmpty(2)){
+                return 2;
+            }
+            else if(!manager.isEmpty(3)){
+                return 3;
+            }
+            return 0;
         }
 
         public void startFiring(){

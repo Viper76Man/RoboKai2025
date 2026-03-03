@@ -116,7 +116,7 @@ public class RobotV4 implements Subsystem { ;
                 ll.turretUpdate(OFFSET_ANGLE),
                 hood.servoUpdate()
         );
-        firingManager.init(manager, flicker, spindexer.spindexer);
+        firingManager.init(manager, flicker, spindexer.spindexer, ll);
         shootCommand = new ParallelGroup(
                 drive.drive(),
                 sensor.update(),

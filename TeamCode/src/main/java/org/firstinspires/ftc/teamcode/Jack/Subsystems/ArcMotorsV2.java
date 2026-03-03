@@ -123,4 +123,11 @@ public class ArcMotorsV2 implements Subsystem {
     public double flywheelSpeed(double dist){
         return MathFunctions.clamp(((-0.0000836887 * Math.pow(dist, 4)) + (0.0254755 * Math.pow(dist, 3)) - (2.6871 * Math.pow(dist, 2)) + (127.76911 * dist) + 79.193), 0, 4000);
     }
+
+    public void disablePIDs(){
+        arcShooter.setPidEnabled(false);
+    }
+    public void enablePIDs(){
+        arcShooter.setPidEnabled(true);
+    }
 }

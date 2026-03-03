@@ -42,6 +42,8 @@ public class ArcShooterV1 {
     public ElapsedTime tickTimer2 = new ElapsedTime();
     public ControlSystem nextController;
 
+    public boolean pidEnabled = true;
+
 
     public double lastTicks = 0;
     public VelocityController controller;
@@ -153,6 +155,7 @@ public class ArcShooterV1 {
 
     public void setMotorPower(double power){
         motor.setPower(power);
+        motor2.setPower(power);
     }
 
     public void setDirection(DcMotorSimple.Direction direction){
@@ -180,8 +183,14 @@ public class ArcShooterV1 {
     public void run(){
         //targetRPM = 2000 * Math.sin(tickTimer2.seconds());
         double power = runToVelocity(getVelocityRPM(), (int) targetRPM);
-        shooter.setPower(power);
-        shooter2.setPower(power);
+        if(pidEnabled) {
+            shooter.setPower(power);
+            shooter2.setPower(power);
+        }
+    }
+
+    public void setPidEnabled(boolean on){
+        this.pidEnabled = on;
     }
 
     public double getTargetVelocity(){

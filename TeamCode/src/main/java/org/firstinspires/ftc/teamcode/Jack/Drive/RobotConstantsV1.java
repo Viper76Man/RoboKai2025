@@ -74,7 +74,7 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00065, 0, 0.8, 0.6);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00065, 0, 0.8, 0.6);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.0017, 0, 0.9, 0.65);
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -112,8 +112,8 @@ public class RobotConstantsV1 {
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -6;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -6.5;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -5;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
     public static double TURRET_OFFSET_ANGLE_RED = 0;
 
     public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 15.5;
@@ -152,6 +152,8 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
     public static int SPINDEXER_MOTOR_SHOOT_ALL = -1000;
+
+    public static int SPINDEXER_MOTOR_LOCK = -120;
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
     public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -265;
     public static int SPINDEXER_MOTOR_BALL_2_INTAKE = -240;
