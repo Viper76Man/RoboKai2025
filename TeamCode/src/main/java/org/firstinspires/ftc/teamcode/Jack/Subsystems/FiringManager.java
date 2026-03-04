@@ -125,42 +125,47 @@ public class FiringManager implements Subsystem {
                     }
                 }
                 if (state == States.FLICKER_MOVING_DOWN) {
-                    double dist = ll.limelight.getTargetDistance();
-                    if(!Objects.equals(dist, null) && dist > 90) {
-                        switch (ballsHeld) {
-                            case 3:
-                                if (Math.abs(spindexer.getCurrentPosition()) > 310) {
-                                    arc.disablePIDs();
-                                    arc.arcShooter.setMotorPower(0.85);
-                                }
-                                if (Math.abs(spindexer.getCurrentPosition()) > 622) {
-                                    arc.disablePIDs();
-                                    arc.arcShooter.setMotorPower(0.9);
-                                }
-                                break;
-                            case 2:
-                                switch (ball2) {
-                                    case 2:
-                                        if (Math.abs(spindexer.getCurrentPosition()) > 310) {
-                                            arc.disablePIDs();
-                                            arc.arcShooter.setMotorPower(0.8);
-                                        }
-                                        break;
-                                    case 3:
-                                        if (Math.abs(spindexer.getCurrentPosition()) > 622) {
-                                            arc.disablePIDs();
-                                            arc.arcShooter.setMotorPower(0.8);
-                                        }
-                                        break;
-                                }
-                                break;
+                    if(!RobotConstantsV1.usingFlywheelWeights) {
+                        double dist = ll.limelight.getTargetDistance();
+                        if (!Objects.equals(dist, null) && dist > 90) {
+                            switch (ballsHeld) {
+                                case 3:
+                                    if (Math.abs(spindexer.getCurrentPosition()) > 310) {
+                                        arc.disablePIDs();
+                                        arc.arcShooter.setMotorPower(0.85);
+                                    }
+                                    if (Math.abs(spindexer.getCurrentPosition()) > 622) {
+                                        arc.disablePIDs();
+                                        arc.arcShooter.setMotorPower(0.9);
+                                    }
+                                    break;
+                                case 2:
+                                    switch (ball2) {
+                                        case 2:
+                                            if (Math.abs(spindexer.getCurrentPosition()) > 310) {
+                                                arc.disablePIDs();
+                                                arc.arcShooter.setMotorPower(0.8);
+                                            }
+                                            break;
+                                        case 3:
+                                            if (Math.abs(spindexer.getCurrentPosition()) > 622) {
+                                                arc.disablePIDs();
+                                                arc.arcShooter.setMotorPower(0.8);
+                                            }
+                                            break;
+                                    }
+                                    break;
+                            }
                         }
                     }
-                    if (fireTimer.seconds() > 1.3 && fireTimer.seconds() < 1.95) {
+                    if (fireTimer.seconds() > 1.3 && (Math.abs(spindexer.getCurrentPosition()) > Math.abs(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT) + 10)) {
                         activeFire.cancel();
                         flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                        state = States.DOWN;
                     }
-                    if (Math.abs(spindexer.getCurrentPosition()) > Math.abs(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT) + 40) {
+                    if (fireTimer.seconds() > 2) {
+                        activeFire.cancel();
+                        flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                         state = States.DOWN;
                     }
                 }

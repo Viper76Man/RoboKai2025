@@ -160,9 +160,8 @@ public class RobotV4 implements Subsystem { ;
                     //MOVE OUT OF CONDITIONAL???
                     shootCommand.cancel();
                     intakeCommand.schedule();
+                    sensor.clear();
                 }
-                sensor.clear();
-                sensor.sensor.sensor.initialize();
                 break;
             case BALL_1_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
@@ -254,7 +253,7 @@ public class RobotV4 implements Subsystem { ;
                     cachedFire = false;
                 }
                 //TODO: auto using command system
-                if(fireCommand.isDone()){
+                if(fireCommand.isDone() && firedAlready){
                     manager.setEmpty(1);
                     manager.setEmpty(2);
                     manager.setEmpty(3);
@@ -289,6 +288,7 @@ public class RobotV4 implements Subsystem { ;
             if(!Objects.equals(ll.limelight.getTargetDistance(), null)) {
                 telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
             }
+            telemetryM.addLine("Color distance: " + sensor.sensor.dist);
             telemetryM.addLine("Commands scheduled: " + CommandManager.INSTANCE.snapshot().size());
             telemetryM.update(telemetry);
         }

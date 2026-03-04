@@ -98,6 +98,8 @@ public class RobotConstantsV1 {
 
     public static double TURRET_MAX_ENCODER_VALUE = 300;
 
+    public static boolean usingFlywheelWeights = true;
+
 
     public static double SHOOTER_TARGET_RPM = 3100; //0.2 ANGLE
 
@@ -151,7 +153,7 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_INTAKE = 1102;
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
-    public static int SPINDEXER_MOTOR_SHOOT_ALL = -1000;
+    public static int SPINDEXER_MOTOR_SHOOT_ALL = -950;
 
     public static int SPINDEXER_MOTOR_LOCK = -120;
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;

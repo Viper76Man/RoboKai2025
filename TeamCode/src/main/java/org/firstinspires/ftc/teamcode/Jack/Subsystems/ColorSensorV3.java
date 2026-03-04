@@ -40,12 +40,7 @@ public class ColorSensorV3 implements Subsystem {
     public class ColorSensorUpdate extends Command {
         @Override
         public void update() {
-            if((spindexer.state == SpindexerMotorV1.State.BALL_1_INTAKE) || (spindexer.state == SpindexerMotorV1.State.BALL_2_INTAKE) || (spindexer.state == SpindexerMotorV1.State.BALL_3_INTAKE)) {
-                sensor.update(spindexer.state, spindexer.isSpindexerReady());
-            }
-            else {
-                sensor.clear();
-            }
+            sensor.update(spindexer.state, spindexer.isInRange(10));
         }
 
         @Override

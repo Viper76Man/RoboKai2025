@@ -44,15 +44,19 @@ public class SlotColorSensorV1 {
     }
 
     public void update(SpindexerMotorV1.State state, boolean spindexerReady) {
+        dist = sensor.getDistance(DistanceUnit.MM);
+        if(state == SpindexerMotorV1.State.SHOOT_ALL_RAMP || state == SpindexerMotorV1.State.BALL_1_SHOOT || state == SpindexerMotorV1.State.BALL_2_SHOOT || state == SpindexerMotorV1.State.BALL_3_SHOOT){
+            clear();
+            return;
+        }
         if(!spindexerReady){
             return;
         }
-        dist = sensor.getDistance(DistanceUnit.MM);
         if(dist > RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR){
             countsWithinDistance = 0;
             distanceTimer.reset();
         }
-        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0.05) {
+        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0) {
             countsWithinDistance += 1;
             distanceTimer.reset();
         }
