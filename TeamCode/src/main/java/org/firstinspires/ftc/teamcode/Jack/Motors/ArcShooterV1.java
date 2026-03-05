@@ -146,7 +146,7 @@ public class ArcShooterV1 {
         this.kI = pidfCoefficients.i;
         this.kD = pidfCoefficients.d;
         this.kF = pidfCoefficients.f;
-        nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(0,0, RobotConstantsV1.arcPIDs.f).build();
+        nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, RobotConstantsV1.arcPIDs.f).build();
         nextController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;

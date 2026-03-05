@@ -21,6 +21,7 @@ public class FiringManager implements Subsystem {
     public FlickerSubsystem.FlickUp command, command2, command3;
     public FlickerSubsystem flicker;
     public SpindexerMotorV1 spindexer;
+    public static boolean done = false;
     public LimelightSubsystem ll;
 
     public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer, LimelightSubsystem limelightSub) {
@@ -52,10 +53,10 @@ public class FiringManager implements Subsystem {
 
     public class FireTriple extends Command {
         private boolean firing = false;
-        public boolean done = false;
         public States state = States.START;
 
         public int ballsHeld = 0;
+        public double runs = 0;
 
         public int ball1 = 0;
         public int ball2 = 0;
@@ -66,6 +67,7 @@ public class FiringManager implements Subsystem {
         public ArcMotorsV2 arc;
         public ElapsedTime fireTimer = new ElapsedTime();
         public boolean spindexerSet = false;
+        public boolean finished = false;
 
         public FireTriple(boolean triple, Robot.Mode mode, ArcMotorsV2 arcMotorsV2) {
             this.triple = triple;
@@ -81,6 +83,7 @@ public class FiringManager implements Subsystem {
 
         @Override
         public void update() {
+            flicker.flicker.newUpdate();
             if (triple) {
                 if (!firing && spindexer.isSpindexerReady() && !spindexerSet && state == States.START) {
                     ballsHeld = getBallsHeld();
@@ -98,11 +101,13 @@ public class FiringManager implements Subsystem {
                     if(!spindexer.isSpindexerReady()){
                         fireTimer.reset();
                     }
-                    //activeFire.schedule();
-                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
-                    if (fireTimer.seconds() > 0.3) {
-                        state = States.FLICKER_UP;
-                        fireTimer.reset();
+                    else {
+                        //activeFire.schedule();
+                        flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
+                        if (fireTimer.seconds() > 0.2) {
+                            state = States.FLICKER_UP;
+                            fireTimer.reset();
+                        }
                     }
                 }
                 if (state == States.FLICKER_UP) {
@@ -117,10 +122,16 @@ public class FiringManager implements Subsystem {
                     }
                     if (fireTimer.seconds() > 0.1 && fireTimer.seconds() < 1.3) {
                         spindexerSet = true;
-                        spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP);
-                        activeFire.cancel();
-                        manager.setCurrentBall(4);
                         manager.setMode(BallManager.State.SHOOT);
+                        if(!manager.isEmpty(2) && manager.isEmpty(3)){
+                            spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP_2_BALLS);
+                            manager.setCurrentBall(5);
+                        }
+                        else {
+                            spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP);
+                            manager.setCurrentBall(4);
+                        }
+                        activeFire.cancel();
                         state = States.FLICKER_MOVING_DOWN;
                     }
                 }
@@ -171,14 +182,15 @@ public class FiringManager implements Subsystem {
                 }
                 if (state == States.DOWN) {
                     flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
-                    done = true;
+                    runs += 1;
+                    finished = true;
                 }
             }
         }
 
         @Override
         public boolean isDone() {
-            return done;
+            return false;
         }
 
         @Override
@@ -230,12 +242,20 @@ public class FiringManager implements Subsystem {
         }
 
         public void startFiring(){
-            manager.setMode(BallManager.State.SHOOT);
-            manager.setCurrentBall(1);
-            spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
+            if(!manager.isEmpty(2) && manager.isEmpty(3)) {
+                manager.setMode(BallManager.State.SHOOT);
+                spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
+                manager.setCurrentBall(2);
+            }
+            else {
+                manager.setMode(BallManager.State.SHOOT);
+                spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
+                manager.setCurrentBall(1);
+            }
             state = States.FLICKER_MOVING_UP;
             fireTimer.reset();
             firing = true;
+            finished = false;
         }
     }
 }

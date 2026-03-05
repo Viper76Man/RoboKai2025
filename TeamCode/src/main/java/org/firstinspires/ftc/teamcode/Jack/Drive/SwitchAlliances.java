@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.Jack.Drive;
 
 
 import com.bylazar.configurables.PanelsConfigurables;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Jack.Other.LoggerV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.PanelsToolkit;
 
-@TeleOp(name = "Alliance Switcher", group = "Experimental")
+@Disabled
 public class SwitchAlliances extends OpMode {
     public LoggerV1 logger = new LoggerV1();
     public Robot.Alliance alliance;

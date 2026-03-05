@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.Jack.Drive;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Red TeleOpV2")
+@Disabled
 //TODO: Test this!!!!
 public class RedTeleOpV2 extends OpMode {
     public RobotV3 robotv3 = new RobotV3();

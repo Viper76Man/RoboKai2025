@@ -21,6 +21,8 @@ public class FlickerServoV2 {
     public State state = State.DOWN;
     public double position = RobotConstantsV1.FLICKER_SERVO_DOWN;
     public ElapsedTime timer = new ElapsedTime();
+
+    public double newPos;
     private final ElapsedTime stateTimer = new ElapsedTime();
 
     public void init(HardwareMap hardwareMap, String servoName){
@@ -42,7 +44,12 @@ public class FlickerServoV2 {
     }
 
     public void setPositionNew(double position_){
+        this.newPos = position_;
         flicker.setPosition(position_);
+    }
+
+    public void newUpdate(){
+        flicker.setPosition(newPos);
     }
 
 

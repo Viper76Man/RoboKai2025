@@ -50,6 +50,9 @@ public class SpindexerV2 implements Subsystem {
                         case 4:
                             position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL;
                             break;
+                        case 5:
+                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL_2_BALLS;
+                            break;
                     }
                     break;
                 case INTAKE:
