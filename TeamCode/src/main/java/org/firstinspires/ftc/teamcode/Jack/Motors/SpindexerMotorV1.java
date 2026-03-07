@@ -32,6 +32,7 @@ public class SpindexerMotorV1 {
         BALL_2_SHOOT,
         BALL_3_SHOOT,
         SHOOT_ALL_RAMP,
+        LOCK,
         SHOOT_ALL_RAMP_2_BALLS
     }
 
@@ -322,6 +323,9 @@ public class SpindexerMotorV1 {
                         break;
                     case SHOOT_ALL_RAMP_2_BALLS:
                         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL_2_BALLS, method);
+                        break;
+                    case LOCK:
+                        setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_LOCK, method);
                         break;
                 }
                 if(lastTicks == getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && !isSpindexerReady() && stuckTimer.seconds() > 2){

@@ -80,7 +80,7 @@ public class AdjustableHoodV1 implements Subsystem {
     }
 
     public double hoodAngle(double dist){
-        return MathFunctions.clamp((((-0.00000552775 * Math.pow(dist, 3)) + (0.0011491 * Math.pow(dist, 2)) - (0.0723198* dist) + 1.52853)), 0, 0.2);
+        return MathFunctions.clamp(((((8.49516 * Math.pow(10, -8)) * Math.pow(dist, 4)) - (0.000020426 * Math.pow(dist, 3)) + (0.0016949 * Math.pow(dist, 2)) - (0.0549326* dist) + 0.754892)), 0, 0.3);
     }
 
 }

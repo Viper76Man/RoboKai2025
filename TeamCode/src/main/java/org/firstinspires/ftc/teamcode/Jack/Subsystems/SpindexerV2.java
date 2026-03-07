@@ -39,35 +39,35 @@ public class SpindexerV2 implements Subsystem {
                 case SHOOT:
                     switch (manager_.getCurrentBall()) {
                         case 1:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_SHOOT;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_1_SHOOT);
                             break;
                         case 2:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_2_SHOOT;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_2_SHOOT);
                             break;
                         case 3:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_3_SHOOT);
                             break;
                         case 4:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL;
+                            spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP);
                             break;
                         case 5:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_SHOOT_ALL_2_BALLS;
+                            spindexer.setState(SpindexerMotorV1.State.SHOOT_ALL_RAMP_2_BALLS);
                             break;
                     }
                     break;
                 case INTAKE:
                     switch (manager_.getCurrentBall()) {
                         case 1:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
                             break;
                         case 2:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_2_INTAKE;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_2_INTAKE);
                             break;
                         case 3:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_INTAKE;
+                            spindexer.setState(SpindexerMotorV1.State.BALL_3_INTAKE);
                             break;
                         case 5:
-                            position = RobotConstantsV1.SPINDEXER_MOTOR_LOCK;
+                            spindexer.setState(SpindexerMotorV1.State.LOCK);
                             break;
                         default:
                             manager_.setCurrentBall(1);
@@ -75,7 +75,6 @@ public class SpindexerV2 implements Subsystem {
                     }
                     break;
             }
-            spindexer.setTargetPos(position, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
             spindexer.run();
         }
 

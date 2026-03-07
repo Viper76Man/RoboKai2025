@@ -22,6 +22,7 @@ public class FiringManager implements Subsystem {
     public FlickerSubsystem flicker;
     public SpindexerMotorV1 spindexer;
     public static boolean done = false;
+    public double lastOffset = 0;
     public LimelightSubsystem ll;
 
     public void init(BallManager manager, FlickerSubsystem flicker, SpindexerMotorV1 spindexer, LimelightSubsystem limelightSub) {
@@ -56,6 +57,8 @@ public class FiringManager implements Subsystem {
         public States state = States.START;
 
         public int ballsHeld = 0;
+
+        public boolean flickerSetUP = false;
         public double runs = 0;
 
         public int ball1 = 0;
@@ -87,6 +90,7 @@ public class FiringManager implements Subsystem {
             if (triple) {
                 if (!firing && spindexer.isSpindexerReady() && !spindexerSet && state == States.START) {
                     ballsHeld = getBallsHeld();
+                    lastOffset = arc.offset;
                     ball1 = getBall1();
                     ball2 = getBall2();
                     if (mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
@@ -103,8 +107,11 @@ public class FiringManager implements Subsystem {
                     }
                     else {
                         //activeFire.schedule();
-                        flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
-                        if (fireTimer.seconds() > 0.2) {
+                        if(!flickerSetUP){
+                            flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
+                            flickerSetUP = true;
+                        }
+                        if (fireTimer.seconds() > 0.2 && flickerSetUP) {
                             state = States.FLICKER_UP;
                             fireTimer.reset();
                         }
@@ -169,6 +176,30 @@ public class FiringManager implements Subsystem {
                             }
                         }
                     }
+                    else {
+                        if(arc.offset == lastOffset) {
+                            if(mode == Robot.Mode.TELEOP) {
+                                switch (ballsHeld) {
+                                    case 1:
+                                        arc.offset -= RobotConstantsV1.ARC_COMPENSATION_RPM;
+                                        break;
+                                    case 3:
+                                        arc.offset += RobotConstantsV1.ARC_COMPENSATION_RPM;
+                                        break;
+                                }
+                            }
+                            else {
+                                switch (ballsHeld) {
+                                    case 1:
+                                        arc.offset -= 20;
+                                        break;
+                                    case 3:
+                                        arc.offset += 20;
+                                        break;
+                                }
+                            }
+                        }
+                    }
                     if (fireTimer.seconds() > 1.3 && (Math.abs(spindexer.getCurrentPosition()) > Math.abs(RobotConstantsV1.SPINDEXER_MOTOR_BALL_3_SHOOT) + 10)) {
                         activeFire.cancel();
                         flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
@@ -183,6 +214,7 @@ public class FiringManager implements Subsystem {
                 if (state == States.DOWN) {
                     flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     runs += 1;
+                    arc.offset = lastOffset;
                     finished = true;
                 }
             }

@@ -59,6 +59,7 @@ public class TurretServoCR {
             else {
                 power = controller.calculate(new KineticState(error));
             }
+            power += (RobotConstantsV1.turretKF * Math.signum(error));
             noResultTimer.reset();
         }
         else {
@@ -76,7 +77,7 @@ public class TurretServoCR {
         //turret.setPower(0);
 
         //}
-        power = Math.max(-0.5, Math.min(0.5, power));
+        power = Math.max(-0.6, Math.min(0.6, power));
         power_ = power;
         turret.setPower(power);
     }

@@ -73,12 +73,15 @@ public class RobotConstantsV1 {
     public static FilteredPIDFCoefficients drivePIDCoefficients = new FilteredPIDFCoefficients(0.005, 0, 0.001, 0.7, 0);
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
-    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.00065, 0, 0.8, 0.375);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00065, 0, 0.8, 0.375);
+    public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00125, 0, 0.8, 0.52);
 
+    public static double ARC_COMPENSATION_RPM = 50;
 
-    public static double arcKV = 0;
-    public static double arcKA = 0;
+    public static double arcKV = 0.000075;
+    public static double arcKA = 0.1;
+
+    public static double turretKF = 0.0025;
 
     public static PIDCoefficients rotationalPIDs = new PIDCoefficients(0.0502, 0.00065,0.00001);
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
@@ -159,9 +162,9 @@ public class RobotConstantsV1 {
 
     public static int SPINDEXER_MOTOR_SHOOT_ALL = -950;
     public static int SPINDEXER_MOTOR_SHOOT_ALL_2_BALLS = -1250;
-    public static int SPINDEXER_MOTOR_LOCK = -120;
+    public static int SPINDEXER_MOTOR_LOCK = -622;
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
-    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -265;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -313;
     public static int SPINDEXER_MOTOR_BALL_2_INTAKE = -240;
     public static int SPINDEXER_MOTOR_BALL_2_SHOOT = -546;
     public static int SPINDEXER_MOTOR_BALL_3_INTAKE = -485;
