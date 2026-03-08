@@ -7,6 +7,8 @@ public class RedAutoPathsV2 {
     public static Pose startPoseFar = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.startPoseFar);
     public static Pose shootPoseFar = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.shootPoseFar);
 
+    public static Pose shootPoseClose = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.shootPoseClose);
+
     public static Pose topArtifactsPickup = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.topArtifactsPickup);
     public static Pose middleArtifactsPickup = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.middleArtifactsPickup);
     public static Pose bottomArtifactsPickup = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.bottomArtifactsPickup);
@@ -36,12 +38,13 @@ public class RedAutoPathsV2 {
     public static double backToShoot1OverdriveTValue = BlueAutoPathsV2.backToShoot1OverdriveTValue;
 
     public static double artifacts2TValue = BlueAutoPathsV2.artifacts2TValue;
+    public static double toShootPoseCloseTValue = BlueAutoPathsV2.toShootPoseCloseTValue;
     public static double backToShoot2OverdriveTValue = BlueAutoPathsV2.backToShoot2OverdriveTValue;
 
     public static Pose moveOutClose = DecodeFieldLocalizer.mirrorPose(BlueAutoPathsV2.moveOutClose);
 
 
-    public static CustomPath outOfStartFar, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot;
+    public static CustomPath outOfStartFar, outOfStartClose, toFirstArtifacts, pickup1, overdriveBack1, backToShoot1, leaveShoot;
     public static CustomPath toSecondArtifacts, pickup2, overdriveBack2, backToShoot2, leaveShootClose;
 
     //==============================================================================================
@@ -49,6 +52,9 @@ public class RedAutoPathsV2 {
         outOfStartFar = new CustomPath(startPoseFar, shootPoseFar, toShootPoseFarTValue);
         outOfStartFar.setLinearHeadingInterpolationPath1(startPoseFar.getHeading(), shootPoseFar.getHeading());
         outOfStartFar.setName("outOfStartFar");
+        outOfStartClose = new CustomPath(startPoseClose, shootPoseClose, toShootPoseCloseTValue);
+        outOfStartClose.setConstantHeadingInterpolationPath1(shootPoseClose.getHeading());
+        outOfStartClose.setName("outOfStartClose");
         leaveShootClose = new CustomPath(startPoseClose, moveOutClose, 1);
         leaveShootClose.setConstantHeadingInterpolationPath1(moveOutClose.getHeading());
         toFirstArtifacts = new CustomPath(shootPoseFar, bottomArtifactsPickup, overdriveFirstBack, artifacts1TValue, 0.9);

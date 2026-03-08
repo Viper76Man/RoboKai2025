@@ -82,6 +82,7 @@ public class FiringManager implements Subsystem {
         @Override
         public void start() {
             firing = false;
+            flickerSetUP = false;
         }
 
         @Override
@@ -101,24 +102,22 @@ public class FiringManager implements Subsystem {
                         startFiring();
                     }
                 }
-                if (state == States.FLICKER_MOVING_UP){
-                    if(!spindexer.isSpindexerReady()){
+                if (state == States.FLICKER_MOVING_UP) {
+                    if (Math.abs(spindexer.getCurrentPosition()) < 250) {
                         fireTimer.reset();
+                        return;
                     }
-                    else {
-                        //activeFire.schedule();
-                        if(!flickerSetUP){
-                            flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
-                            flickerSetUP = true;
-                        }
-                        if (fireTimer.seconds() > 0.2 && flickerSetUP) {
-                            state = States.FLICKER_UP;
-                            fireTimer.reset();
-                        }
+                    if(!flickerSetUP){
+                        flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
+                        flickerSetUP = true;
+                    }
+                    if (fireTimer.seconds() > 0.2 && flickerSetUP){
+                        fireTimer.reset();
+                        state = States.FLICKER_UP;
                     }
                 }
                 if (state == States.FLICKER_UP) {
-                    if (fireTimer.seconds() > 0.1) {
+                    if (fireTimer.seconds() > 0.2) {
                         state = States.SPIN;
                         fireTimer.reset();
                     }

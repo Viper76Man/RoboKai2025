@@ -34,7 +34,8 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous
 public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
-    public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand, intakeReverse;
+    public ParallelGroup intakeCommand, shootCommand, fireSingleCommand, intakeReverse;
+    public FiringManager.FireTriple fireCommand;
     public LED left1, right1, left2, right2;
     public IntakeMotorV2 intake = new IntakeMotorV2();
     public ColorSensorV3 sensor = new ColorSensorV3();
@@ -127,13 +128,15 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
         intakeCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
                 sensor.update(),
+                hood.servoUpdate(),
                 arcMotorsV2.spinUpIdle());
         firingManager.init(manager, flicker, spindexer.spindexer, ll);
         shootCommand = new ParallelGroup(
                 spindexer.spindexerRun(),
-                arcMotorsV2.spinActive()
+                arcMotorsV2.spinActive(),
+                hood.servoUpdate()
         );
-        fireCommand = new ParallelGroup(firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2));
+        fireCommand = firingManager.fireTriple(Robot.Mode.AUTONOMOUS, arcMotorsV2);
         fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
     }
 
@@ -160,7 +163,6 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
     }
 
     public void onUpdate(){
-        hood.hoodServo.setPos(0.2);
         if(isStopRequested()){
             return;
         }
@@ -220,7 +222,7 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
                 if(readyForTriple()){
                     fireTriple();
                 }
-                if(manager.mode == BallManager.State.INTAKE && firedAlready && fireCommand.isDone()){
+                if(manager.mode == BallManager.State.INTAKE && fireCommand.runs > 0 && firedAlready){
                     setSystemState(SystemStates.START);
                     firedAlready = false;
                     firedAlreadyPathing = true;

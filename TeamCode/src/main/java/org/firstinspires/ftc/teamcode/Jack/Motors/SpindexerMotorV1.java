@@ -183,7 +183,7 @@ public class SpindexerMotorV1 {
                 break;
             case MOTOR:
                 targetPositionEncoder = pos_;
-                motorRange = new Range(targetPositionEncoder, 20);
+                motorRange = new Range(targetPositionEncoder, 10);
                 break;
         }
     }
@@ -298,6 +298,7 @@ public class SpindexerMotorV1 {
                         setTargetPos(RobotConstantsV1.SPINDEXER_ENCODER_BALL_3_SHOOT, method);
                         break;
                 }
+            break;
             case MOTOR:
                 switch (state){
                     case BALL_1_INTAKE:
@@ -328,20 +329,7 @@ public class SpindexerMotorV1 {
                         setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_LOCK, method);
                         break;
                 }
-                if(lastTicks == getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && !isSpindexerReady() && stuckTimer.seconds() > 2){
-                    setTargetPos(0, EncoderMeasurementMethod.MOTOR);
-                    stuck = true;
-                }
-                else if(isSpindexerReady()){
-                    lastTicks = getCurrentPositionEncoder();
-                    stuckTimer.reset();
-                    stuck = false;
-                }
-                else if(lastTicks != getCurrentPositionEncoder() && method == EncoderMeasurementMethod.MOTOR && stuckTimer.seconds() > 1.2){
-                    lastTicks = getCurrentPositionEncoder();
-                    stuckTimer.reset();
-                    stuck = false;
-                }
+            break;
         }
     }
 
@@ -431,7 +419,7 @@ public class SpindexerMotorV1 {
     public boolean isSpindexerReady(){
         switch (method) {
             case MOTOR:
-                return motorRange.isInRange(getCurrentPosition());
+                return motorRange.isInRange(getCurrentPosition()) && spindexer.getVelocity() < 20;
             case ELC2:
                 return range.isInRange(getCurrentPositionEncoder());
         }

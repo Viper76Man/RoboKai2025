@@ -168,6 +168,7 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
     public void onStartButtonPressed(){
         pathState = PathStates.START;
         follower.setStartingPose(BlueAutoPathsV2.startPoseFar);
+        matchTimer.reset();
     }
 
     public void onUpdate(){
@@ -291,7 +292,7 @@ public class BlueAutoBackPickup2V2 extends NextFTCOpMode {
                 shouldPickup = true;
                 break;
             case TO_SHOOT:
-                if (!follower.isBusy()) {
+                if (!follower.follower.isBusy()) {
                     follower.setCurrentPath(BlueAutoPathsV2.outOfStartFar);
                     manager.setBall1(ArtifactColor.GREEN);
                     manager.setBall2(ArtifactColor.PURPLE);

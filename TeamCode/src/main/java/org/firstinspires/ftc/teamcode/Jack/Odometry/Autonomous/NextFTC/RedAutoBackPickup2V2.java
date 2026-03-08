@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.NextFTC;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
@@ -35,7 +37,7 @@ import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous
-public class RedAutoBackPickup1V2 extends NextFTCOpMode {
+public class RedAutoBackPickup2V2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireSingleCommand, intakeReverse;
     public FiringManager.FireTriple  fireCommand;
     public LED left1, right1, left2, right2;
@@ -334,7 +336,7 @@ public class RedAutoBackPickup1V2 extends NextFTCOpMode {
                 }
                 break;
             case BACK_TO_SHOOT_1:
-                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) > 130){
+                if(isLastPathName(RedAutoPathsV2.pickup1.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) < Math.toDegrees(DecodeFieldLocalizer.mirrorPose(new Pose(0, 0, 130)).getHeading())){
                     follower.follower.setMaxPower(0.4);
                     shouldPickup = true;
                 }
@@ -357,6 +359,49 @@ public class RedAutoBackPickup1V2 extends NextFTCOpMode {
                 break;
             case SHOOT_SET_2:
                 if (follower.follower.getCurrentTValue() > 0.85 && !firedAlreadyPathing && !shouldFire) {
+                    shouldFire = true;
+                }
+                if (firedAlreadyPathing) {
+                    setPathState(PathStates.TO_PICKUP_2);
+                    firedAlreadyPathing = false;
+                }
+                break;
+            case TO_PICKUP_2:
+                if(!follower.isBusy()){
+                    follower.setCurrentPath(RedAutoPathsV2.toSecondArtifacts);
+                    setPathState(PathStates.PICKUP_2);
+                }
+                break;
+            case PICKUP_2:
+                if(!follower.isBusy()){
+                    follower.setCurrentPath(RedAutoPathsV2.pickup2);
+                    setPathState(PathStates.BACK_TO_SHOOT_2);
+                }
+                break;
+            case BACK_TO_SHOOT_2:
+                if(isLastPathName(RedAutoPathsV2.pickup2.getName()) && follower.isBusy() && Math.toDegrees(follower.follower.getPose().getHeading()) < Math.toDegrees(DecodeFieldLocalizer.mirrorPose(new Pose(0, 0, 130)).getHeading())){
+                    follower.follower.setMaxPower(0.4);
+                    shouldPickup = true;
+                }
+                if(isLastPathName(RedAutoPathsV2.pickup2.getName()) && !follower.isBusy()){
+                    follower.setCurrentPath(RedAutoPathsV2.overdriveBack2);
+                    follower.follower.setMaxPower(1);
+                }
+                else if(isLastPathName(RedAutoPathsV2.overdriveBack2.getName()) && follower.follower.getCurrentTValue() > RedAutoPathsV2.backToShoot2OverdriveTValue){
+                    follower.setCurrentPath(RedAutoPathsV2.backToShoot1);
+                    manager.setCurrentBall(5);
+                    spindexerTimer.reset();
+                    sensor.clear();
+                    intakeCommand.cancel();
+                    shootCommand.schedule();
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    setPathState(PathStates.SHOOT_SET_3);
+                }
+                firedAlreadyPathing = false;
+                break;
+            case SHOOT_SET_3:
+                if (follower.follower.getCurrentTValue() > 0.9 && !firedAlreadyPathing && !shouldFire){
                     shouldFire = true;
                 }
                 if (firedAlreadyPathing) {

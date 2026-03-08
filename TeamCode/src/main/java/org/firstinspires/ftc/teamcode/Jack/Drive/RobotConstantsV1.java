@@ -87,6 +87,10 @@ public class RobotConstantsV1 {
     public static PIDCoefficients rotationalPIDs2 = new PIDCoefficients(0.0102, 0.00065,0.00001);
     public static PIDCoefficients spindexerPIDs = new PIDCoefficients(0.005, 0, 0.000001);
     public static PIDCoefficients turretPIDs = new PIDCoefficients(0.001, 0, 0.09);
+
+    public static PIDCoefficients turretPIDsHeading = new PIDCoefficients(0.001, 0, 0.09);
+
+
     public static PIDCoefficients turretPIDsAuto = new PIDCoefficients(0.001, 0, 0.09);
 
     public static double brakingStrength = 1.25;
@@ -136,8 +140,8 @@ public class RobotConstantsV1 {
 
     public static double HOOD_STEP_SIZE = 0.05;
 
-    public static double FLICKER_SERVO_UP = 0.75;
-    public static double FLICKER_SERVO_DOWN = 0.6;
+    public static double FLICKER_SERVO_UP = 0.675;
+    public static double FLICKER_SERVO_DOWN = 0.5;
     public static double FLICKER_UP_TIME = 0.35;
 
     public static double maxLaunchZoneDistance = 15; //inches
