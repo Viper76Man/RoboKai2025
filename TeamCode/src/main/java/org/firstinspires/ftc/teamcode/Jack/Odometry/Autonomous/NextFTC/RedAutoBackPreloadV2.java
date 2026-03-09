@@ -4,6 +4,7 @@ import androidx.annotation.AnimatorRes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,6 +12,9 @@ import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
@@ -19,6 +23,8 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other.BlueAutoBackPickup1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.RedAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
@@ -52,7 +58,7 @@ public class RedAutoBackPreloadV2 extends NextFTCOpMode {
     public FlickerSubsystem flicker = new FlickerSubsystem();
     public SpindexerV2 spindexer = new SpindexerV2();
     public ElapsedTime matchTimer = new ElapsedTime();
-    public LimelightSubsystem ll = new LimelightSubsystem();
+    public LimelightSubsystem ll;
     public AdjustableHoodV1 hood = new AdjustableHoodV1();
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
@@ -68,6 +74,7 @@ public class RedAutoBackPreloadV2 extends NextFTCOpMode {
     public boolean shouldReverse = false;
     public boolean firedAlreadyPathing = false;
     public boolean firstLoop = true;
+    public PinpointV1 pinpoint;
 
     public boolean shouldFire = false;
     public double OFFSET_ANGLE;
@@ -101,6 +108,7 @@ public class RedAutoBackPreloadV2 extends NextFTCOpMode {
 
     public void init(HardwareMap hardwareMap, Robot.Mode mode, Robot.Alliance alliance){
         follower = new CustomFollower(hardwareMap);
+        ll = new LimelightSubsystem(Robot.Mode.AUTONOMOUS, alliance);
         this.mode = mode;
         sensors.init(hardwareMap);
         intake = new IntakeMotorV2();
@@ -185,7 +193,7 @@ public class RedAutoBackPreloadV2 extends NextFTCOpMode {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
         }
         log();
-        ll.turret.run(ll.limelight, OFFSET_ANGLE);
+        ll.turret.run(ll.limelight, OFFSET_ANGLE, Robot.Alliance.RED);
         switch (state){
             case START:
                 redLED();

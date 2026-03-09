@@ -67,6 +67,8 @@ public class RobotConstantsV1 {
     public static double lateralZeroPowerAcceleration = -59.31;
     public static double centripetalScaling = 0.005;
 
+    public static double ROBOT_HEADING_OFFSET = 90;
+
     //PIDs
     public static PIDFCoefficients translationalPIDCoefficients = new PIDFCoefficients(0.06, 0, 0.001, 0);
     public static PIDFCoefficients headingPIDFCoefficients = new PIDFCoefficients(0.7, 0, 0.1, 0);
@@ -140,7 +142,7 @@ public class RobotConstantsV1 {
 
     public static double HOOD_STEP_SIZE = 0.05;
 
-    public static double FLICKER_SERVO_UP = 0.675;
+    public static double FLICKER_SERVO_UP = 0.7;
     public static double FLICKER_SERVO_DOWN = 0.5;
     public static double FLICKER_UP_TIME = 0.35;
 

@@ -7,6 +7,7 @@ import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.CoordinateSystem;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,12 +15,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 
 import dev.nextftc.control.ControlSystem;
@@ -45,11 +50,18 @@ public class TurretServoCR {
     public double cameraTx, latestTagID;
 
     public Follower follower;
+    public Robot.Mode mode;
 
-    public void init(HardwareMap hardwareMap){
+    public void init(HardwareMap hardwareMap, Robot.Mode mode){
         turret = hardwareMap.get(CRServo.class, RobotConstantsV1.turretServoName);
         turret.setPower(0);
-        pinpoint.init(hardwareMap);
+        this.mode = mode;
+        if(mode != Robot.Mode.AUTONOMOUS) {
+            pinpoint.init(hardwareMap);
+            pinpoint.pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+            pinpoint.pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            pinpoint.pinpoint.setOffsets(RobotConstantsV1.strafePodX, RobotConstantsV1.forwardPodY, RobotConstantsV1.podsMeasurementUnit);
+        }
         coefficients = new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         controller = ControlSystem.builder().posSquID(coefficients).build();
         coefficients2 = new PIDCoefficients(RobotConstantsV1.turretPIDsHeading.p, RobotConstantsV1.turretPIDsHeading.i, RobotConstantsV1.turretPIDsHeading.d);
@@ -64,9 +76,11 @@ public class TurretServoCR {
         this.usePower = true;
     }
 
-    public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE){
+    public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE, Robot.Alliance alliance){
         double power = 0;
-        pinpoint.update();
+        if(mode != Robot.Mode.AUTONOMOUS) {
+            pinpoint.update();
+        }
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null && limelight.limelight.getLatestResult().isValid()) {
             latestTagID = latest_result.getFiducialId();
@@ -83,13 +97,32 @@ public class TurretServoCR {
             noResultTimer.reset();
         }
         else {
-            if(noResultTimer.seconds() > 1.2) {
-                double headingError = normalizeAngle(Math.toDegrees(pinpoint.getPose().getHeading()));
-                telemetryM.addData("heading error: " , headingError);
-                double err = (headingError +  (getEncoderPos() - 236));
-                telemetryM.addData("turret error: " , err);
-                //cameraTx = 0;
-                //double err = 236 - getEncoderPos(); // e.g., 236 - current
+            if(noResultTimer.seconds() > 1.2 && mode != Robot.Mode.AUTONOMOUS) {
+                double robotHeading, yDiff, xDiff, goalAngle, desiredTurretAngle, turretAngle, err;
+                Pose pose = pinpoint.getPose();
+                robotHeading = Math.toDegrees(pose.getHeading()) + 360;
+                switch (alliance) {
+                    case RED:
+                        yDiff = localizer.redGoalCenter.getY() - (pose.getY());
+                        xDiff = localizer.redGoalCenter.getX() - (pose.getX());
+                        break;
+                    case BLUE:
+                    default:
+                        yDiff = localizer.blueGoalCenter.getY() - (pose.getY());
+                        xDiff = localizer.blueGoalCenter.getX() - (pose.getX());
+                        break;
+                }
+                goalAngle = Math.toDegrees(Math.atan2(yDiff,xDiff));
+                desiredTurretAngle = normalizeAngle(goalAngle - robotHeading);
+                turretAngle = getTurretAngle();
+                err = normalizeAngle(desiredTurretAngle - turretAngle);
+                telemetryM.addData("goalAngle", goalAngle);
+                telemetryM.addData("x: " , pose.getX());
+                telemetryM.addData("y: " , pose.getY());
+                telemetryM.addData("robotHeading", robotHeading);
+                telemetryM.addData("turretAngle", turretAngle);
+                telemetryM.addData("error", err);
+
                 power = controllerHeading.calculate(new KineticState(err));
             }
         }
@@ -126,25 +159,28 @@ public class TurretServoCR {
     public double getEncoderPos(){
         return (encoder.getVoltage() / encoder.getMaxVoltage()) * 360.0;
     }
-    public double normalizeAngle(double angle){
-        angle = angle % 360;
-        while (angle < 0) {
-            angle += 360;
-        }
-        if(angle > 0 && angle < 90) {
-            return angle;
-        }
-        while (angle > 270){
+    public double normalizeAngle(double angle) {
+        angle %= 360;
+        if (angle > 180) {
             angle -= 360;
+        }
+        if (angle < -180) {
+            angle += 360;
         }
         return angle;
     }
-    public double normalizeAngle2(double angle){
-        angle = angle % 360;
-        while (angle < 0) {
+    public double normalizeAngle2(double angle) {
+        angle %= 360;
+        if (angle > 360) {
+            angle -= 360;
+        }
+        if (angle < -360) {
             angle += 360;
         }
         return angle;
+    }
+    public double getTurretAngle() {
+        return getEncoderPos() - 236;
     }
 
     public PIDCoefficients getPIDCoefficients(){

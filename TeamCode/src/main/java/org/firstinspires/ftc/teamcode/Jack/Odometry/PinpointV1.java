@@ -10,7 +10,7 @@ public class PinpointV1 {
     public GoBildaPinpointDriver pinpoint;
     public void init(HardwareMap hardwareMap){
         this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, RobotConstantsV1.pinpointName);
-        this.pinpoint.setOffsets(RobotConstantsV1.strafePodX, RobotConstantsV1.forwardPodY, DistanceUnit.INCH);
+        this.pinpoint.setOffsets(RobotConstantsV1.strafePodX, RobotConstantsV1.forwardPodY, RobotConstantsV1.podsMeasurementUnit);
     }
     public void update(){
         pinpoint.update();

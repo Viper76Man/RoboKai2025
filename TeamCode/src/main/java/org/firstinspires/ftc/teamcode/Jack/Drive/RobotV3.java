@@ -122,7 +122,7 @@ public class RobotV3 {
 
     public void initHardware(){
         intake.init(hardwareMap);
-        turret.init(hardwareMap);
+        turret.init(hardwareMap, Robot.Mode.TELEOP);
         limelight.init(hardwareMap);
         drive.init(hardwareMap, gamepad);
         intake.setDirection(RobotConstantsV1.intakeDirection);
@@ -673,7 +673,7 @@ public class RobotV3 {
     }
     //TURRET----------------------------------------------------------------------------------------
     public void turretUpdate(){
-        turret.run(limelight, TURRET_OFFSET_ANGLE);
+        turret.run(limelight, TURRET_OFFSET_ANGLE, alliance);
         cameraTx = turret.cameraTx;
     }
 
