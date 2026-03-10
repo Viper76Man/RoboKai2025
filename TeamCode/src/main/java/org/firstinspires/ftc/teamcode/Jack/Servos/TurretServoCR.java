@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
@@ -26,6 +27,8 @@ import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.DecodeFieldLocalizer;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
+
+import java.util.Objects;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
@@ -40,6 +43,9 @@ public class TurretServoCR {
     public double current = 0;
     public double error = 0;
     public ElapsedTime noResultTimer = new ElapsedTime();
+    public Position newPose;
+    public double heading;
+    public ElapsedTime relocalizeTimer = new ElapsedTime();
     public PinpointV1 pinpoint = new PinpointV1();
     public boolean usePower = true;
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
@@ -68,6 +74,7 @@ public class TurretServoCR {
         controllerHeading = ControlSystem.builder().posSquID(coefficients2).build();
         controllerHeading.setGoal(new KineticState(Math.toDegrees(localizer.blueGoalCenter.getHeading())));
         encoder = hardwareMap.get(AnalogInput.class, "turretEncoder");
+        relocalizeTimer.reset();
     }
 
     public void setPower(double power){
@@ -84,7 +91,7 @@ public class TurretServoCR {
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null && limelight.limelight.getLatestResult().isValid()) {
             latestTagID = latest_result.getFiducialId();
-            cameraTx = latest_result.getTargetYDegrees();
+            cameraTx = latest_result.getTargetXDegrees();
             double error = (cameraTx + TURRET_OFFSET_ANGLE);
             if(Math.abs(error) < RobotConstantsV1.degreeToleranceCamera) {
                 power = error * RobotConstantsV1.turretSlowPower;
@@ -97,33 +104,10 @@ public class TurretServoCR {
             noResultTimer.reset();
         }
         else {
-            if(noResultTimer.seconds() > 1.2 && mode != Robot.Mode.AUTONOMOUS) {
-                double robotHeading, yDiff, xDiff, goalAngle, desiredTurretAngle, turretAngle, err;
-                Pose pose = pinpoint.getPose();
-                robotHeading = Math.toDegrees(pose.getHeading()) + 360;
-                switch (alliance) {
-                    case RED:
-                        yDiff = localizer.redGoalCenter.getY() - (pose.getY());
-                        xDiff = localizer.redGoalCenter.getX() - (pose.getX());
-                        break;
-                    case BLUE:
-                    default:
-                        yDiff = localizer.blueGoalCenter.getY() - (pose.getY());
-                        xDiff = localizer.blueGoalCenter.getX() - (pose.getX());
-                        break;
-                }
-                goalAngle = Math.toDegrees(Math.atan2(yDiff,xDiff));
-                desiredTurretAngle = normalizeAngle(goalAngle - robotHeading);
-                turretAngle = getTurretAngle();
-                err = normalizeAngle(desiredTurretAngle - turretAngle);
-                telemetryM.addData("goalAngle", goalAngle);
-                telemetryM.addData("x: " , pose.getX());
-                telemetryM.addData("y: " , pose.getY());
-                telemetryM.addData("robotHeading", robotHeading);
-                telemetryM.addData("turretAngle", turretAngle);
-                telemetryM.addData("error", err);
-
-                power = controllerHeading.calculate(new KineticState(err));
+            if(noResultTimer.seconds() > 3) {
+                cameraTx = 0;
+                double err = 236 - getEncoderPos(); // e.g., 236 - current
+                power = err * RobotConstantsV1.turretServoPower;
             }
         }
         if(getEncoderPos() >= RobotConstantsV1.TURRET_MAX_ENCODER_VALUE && power > 0){

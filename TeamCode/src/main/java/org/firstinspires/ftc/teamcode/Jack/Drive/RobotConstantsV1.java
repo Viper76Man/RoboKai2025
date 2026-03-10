@@ -142,8 +142,10 @@ public class RobotConstantsV1 {
 
     public static double HOOD_STEP_SIZE = 0.05;
 
-    public static double FLICKER_SERVO_UP = 0.7;
-    public static double FLICKER_SERVO_DOWN = 0.5;
+    public static double FLICKER_SERVO_UP = 0.75;
+
+    public static double limelightMountAngle = 4.2;
+    public static double FLICKER_SERVO_DOWN = 0;
     public static double FLICKER_UP_TIME = 0.35;
 
     public static double maxLaunchZoneDistance = 15; //inches

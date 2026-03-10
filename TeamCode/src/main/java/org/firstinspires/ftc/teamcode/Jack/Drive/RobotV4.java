@@ -317,7 +317,7 @@ public class RobotV4 implements Subsystem { ;
     }
 
     public boolean readyForTriple(){
-        return spindexer.spindexer.isInRange(200) && !firedAlready;
+        return spindexer.spindexer.isInRange(200) && !firedAlready && !fireCommand.isScheduled();
     }
 
 
