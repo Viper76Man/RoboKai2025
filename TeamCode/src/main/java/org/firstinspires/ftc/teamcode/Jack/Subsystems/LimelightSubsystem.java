@@ -7,6 +7,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Servos.TurretServoCR;
 
@@ -17,13 +18,18 @@ import dev.nextftc.ftc.ActiveOpMode;
 public class LimelightSubsystem implements Subsystem {
     public TurretServoCR turret = new TurretServoCR();
     public LimelightV1 limelight = new LimelightV1();
+    public Robot.Alliance alliance;
+    public Robot.Mode mode;
 
-    public LimelightSubsystem(){
+
+    public LimelightSubsystem(Robot.Mode mode, Robot.Alliance alliance){
+        this.mode = mode;
+        this.alliance = alliance;
     }
 
     public void init() {
         limelight.init(ActiveOpMode.hardwareMap());
-        turret.init(ActiveOpMode.hardwareMap());
+        turret.init(ActiveOpMode.hardwareMap(), mode);
     }
 
     public void setPipeline(LimelightV1.Pipeline pipeline){
@@ -31,13 +37,15 @@ public class LimelightSubsystem implements Subsystem {
     }
 
     public updateTurret turretUpdate(double offset){
-        return new updateTurret(offset);
+        return new updateTurret(offset, alliance);
     }
 
     public class updateTurret extends Command {
         public double angle;
-        public updateTurret(double offset){
+        public Robot.Alliance alliance;
+        public updateTurret(double offset, Robot.Alliance alliance){
             this.angle = offset;
+            this.alliance = alliance;
         }
         public boolean done;
 
@@ -48,7 +56,7 @@ public class LimelightSubsystem implements Subsystem {
 
         @Override
         public void update(){
-            turret.run(limelight, angle);
+            turret.run(limelight, angle, alliance);
         }
 
         @Override

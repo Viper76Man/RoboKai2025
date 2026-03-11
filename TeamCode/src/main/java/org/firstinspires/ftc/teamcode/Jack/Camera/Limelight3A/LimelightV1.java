@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A;
 
-import com.bylazar.limelightproxy.LimelightProxyConfig;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -197,11 +196,11 @@ public class LimelightV1 {
     public double getTargetDistance() {
         LLResultTypes.FiducialResult result = getLatestAprilTagResult();
         if (result != null) {
-            double angleToGoalDegrees = result.getTargetXDegrees();
+            double angleToGoalDegrees = RobotConstantsV1.limelightMountAngle + result.getTargetYDegrees();
             double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
             double goalHeightInches = 29.5;
             //calculate distance
-            return Math.abs((goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians));
+            return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
         }
         return 0;
     }

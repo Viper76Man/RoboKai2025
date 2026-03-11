@@ -42,7 +42,7 @@ public class RobotV4 implements Subsystem { ;
     public ColorSensorV3 sensor = new ColorSensorV3();
     public FlickerSubsystem flicker = new FlickerSubsystem();
     public SpindexerV2 spindexer = new SpindexerV2();
-    public LimelightSubsystem ll = new LimelightSubsystem();
+    public LimelightSubsystem ll;
     public AdjustableHoodV1 hood = new AdjustableHoodV1();
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
@@ -78,6 +78,7 @@ public class RobotV4 implements Subsystem { ;
         this.mode = mode;
         this.sensors = new Sensors();
         this.gamepad = gamepadV1;
+        ll = new LimelightSubsystem(Robot.Mode.TELEOP, alliance);
         sensors.init(hardwareMap);
         intake = new IntakeMotorV2();
         drive = new DriveMotorsV2();
@@ -316,7 +317,7 @@ public class RobotV4 implements Subsystem { ;
     }
 
     public boolean readyForTriple(){
-        return spindexer.spindexer.isInRange(200) && !firedAlready;
+        return spindexer.spindexer.isInRange(200) && !firedAlready && !fireCommand.isScheduled();
     }
 
 

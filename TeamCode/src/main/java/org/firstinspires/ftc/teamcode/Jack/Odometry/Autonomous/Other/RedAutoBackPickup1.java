@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
@@ -112,7 +113,7 @@ public class RedAutoBackPickup1 extends LinearOpMode {
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
         spindexer.resetEncoder();
         flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
-        turret.init(hardwareMap);
+        turret.init(hardwareMap, Robot.Mode.AUTONOMOUS);
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
         intake.init(hardwareMap);
         intake.setDirection(RobotConstantsV1.intakeDirection);

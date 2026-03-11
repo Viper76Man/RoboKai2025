@@ -1,13 +1,18 @@
 package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.Other;
 
 import com.bylazar.telemetry.PanelsTelemetry;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.IntakeV1;
@@ -15,6 +20,8 @@ import org.firstinspires.ftc.teamcode.Jack.Motors.PIDController;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactSlot;
 import org.firstinspires.ftc.teamcode.Jack.Other.DecodeAprilTag;
@@ -112,7 +119,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
         spindexer.init(hardwareMap, RobotConstantsV1.spindexerPIDs);
         spindexer.resetEncoder();
         flicker.init(hardwareMap, RobotConstantsV1.flickerServoName);
-        turret.init(hardwareMap);
+        turret.init(hardwareMap, Robot.Mode.AUTONOMOUS);
         spindexer.setTargetPos(RobotConstantsV1.SPINDEXER_MOTOR_BALL_1_INTAKE, SpindexerMotorV1.EncoderMeasurementMethod.MOTOR);
         intake.init(hardwareMap);
         intake.setDirection(RobotConstantsV1.intakeDirection);
@@ -372,7 +379,7 @@ public class BlueAutoBackPickup1 extends LinearOpMode {
     }
 
     public void turretUpdate() {
-        turret.run(limelight, RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO);
+        turret.run(limelight, RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO, Robot.Alliance.BLUE);
         turretReady = ((turret.cameraTx + RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE_AUTO) < RobotConstantsV1.degreeToleranceCameraAuto);
         if(stateTimer.seconds() > 3 && actionState == State.SHOOT_BALL_1 || actionState == State.SHOOT_BALL_2 || actionState == State.SHOOT_BALL_3){
             turretReady = true;

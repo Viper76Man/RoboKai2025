@@ -556,7 +556,7 @@ class TurretServoTester extends OpMode {
     public void init() {
         controller = new PIDController(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         limelight.init(hardwareMap);
-        turret.init(hardwareMap);
+        turret.init(hardwareMap, Robot.Mode.TELEOP);
         turret.setPower(0);
         gamepad.init(gamepad1, 0.3);
     }
@@ -614,7 +614,7 @@ class TurretSpeedTest extends OpMode {
     @Override
     public void init() {
         limelight.init(hardwareMap);
-        servo.init(hardwareMap);
+        servo.init(hardwareMap, Robot.Mode.TELEOP);
         gamepad.init(gamepad1, 0.3);
     }
 

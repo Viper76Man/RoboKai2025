@@ -2,12 +2,16 @@ package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.NextFTC;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
 import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
@@ -15,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
 import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.PinpointV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
@@ -43,8 +49,9 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     public FlickerSubsystem flicker = new FlickerSubsystem();
     public SpindexerV2 spindexer = new SpindexerV2();
     public ElapsedTime matchTimer = new ElapsedTime();
-    public LimelightSubsystem ll = new LimelightSubsystem();
+    public LimelightSubsystem ll;
     public AdjustableHoodV1 hood = new AdjustableHoodV1();
+    public PinpointV1 pinpoint;
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
     public BallManager manager = new BallManager();
@@ -101,6 +108,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
     public ElapsedTime stateTimer = new ElapsedTime();
 
     public void init(HardwareMap hardwareMap, Robot.Mode mode, Robot.Alliance alliance){
+        ll = new LimelightSubsystem(Robot.Mode.AUTONOMOUS, alliance);
         follower = new CustomFollower(hardwareMap);
         this.mode = mode;
         sensors.init(hardwareMap);
@@ -188,7 +196,7 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
         }
         log();
-        ll.turret.run(ll.limelight, OFFSET_ANGLE);
+        ll.turret.run(ll.limelight, OFFSET_ANGLE, Robot.Alliance.BLUE);
         switch (state){
             case START:
                 redLED();
@@ -440,6 +448,18 @@ public class BlueAutoBackPickup1V2 extends NextFTCOpMode {
 
     public boolean isLastPathName(String name){
         return Objects.equals(follower.lastPathName, name);
+    }
+
+    public void onStop() {
+        if (pinpoint == null) {
+            pinpoint = new PinpointV1();
+            pinpoint.init(hardwareMap);
+            pinpoint.pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+            pinpoint.pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+            pinpoint.pinpoint.setOffsets(RobotConstantsV1.strafePodX, RobotConstantsV1.forwardPodY, RobotConstantsV1.podsMeasurementUnit);
+            Pose lastFollowerPose = follower.follower.getPose();
+            pinpoint.pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, lastFollowerPose.getX(), lastFollowerPose.getY(), AngleUnit.RADIANS, lastFollowerPose.getHeading() + Math.toRadians(RobotConstantsV1.ROBOT_HEADING_OFFSET)));
+        }
     }
 
 }

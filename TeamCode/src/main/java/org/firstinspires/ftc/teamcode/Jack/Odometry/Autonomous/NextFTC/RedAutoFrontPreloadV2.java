@@ -43,7 +43,7 @@ public class RedAutoFrontPreloadV2 extends NextFTCOpMode {
     public FlickerSubsystem flicker = new FlickerSubsystem();
     public SpindexerV2 spindexer = new SpindexerV2();
     public ElapsedTime matchTimer = new ElapsedTime();
-    public LimelightSubsystem ll = new LimelightSubsystem();
+    public LimelightSubsystem ll;
     public AdjustableHoodV1 hood = new AdjustableHoodV1();
     public FiringManager firingManager = new FiringManager();
     public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
@@ -95,6 +95,7 @@ public class RedAutoFrontPreloadV2 extends NextFTCOpMode {
 
     public void init(HardwareMap hardwareMap, Robot.Mode mode, Robot.Alliance alliance){
         follower = new CustomFollower(hardwareMap);
+        ll = new LimelightSubsystem(Robot.Mode.AUTONOMOUS, alliance);
         this.mode = mode;
         sensors.init(hardwareMap);
         intake = new IntakeMotorV2();
@@ -180,7 +181,7 @@ public class RedAutoFrontPreloadV2 extends NextFTCOpMode {
             intake.setPower(RobotConstantsV1.INTAKE_POWER, RobotConstantsV1.intakeDirection).schedule();
         }
         log();
-        ll.turret.run(ll.limelight, OFFSET_ANGLE);
+        ll.turret.run(ll.limelight, OFFSET_ANGLE, Robot.Alliance.RED);
         switch (state){
             case START:
                 redLED();
