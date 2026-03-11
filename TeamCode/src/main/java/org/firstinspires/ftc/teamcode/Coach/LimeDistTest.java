@@ -6,7 +6,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.components.BindingsComponent;
@@ -16,12 +15,15 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 
-@TeleOp(name = "NextFTC Drive Test")
-public class BasicDriveTest extends NextFTCOpMode {
+@TeleOp(name = "Lime Light Distance Test")
+public class LimeDistTest extends NextFTCOpMode {
     private Limelight3A limelight3A;
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-    public BasicDriveTest() {
+    private double CAMERA_HEIGHT_CM = 40;
+    private double CAMERA_ANGLE = 3.1;
+    private double GOAL_HEIGHT = 74.95;
+    private double distance = 0;
+    public LimeDistTest() {
         addComponents(
                 BulkReadComponent.INSTANCE,
                 BindingsComponent.INSTANCE
@@ -60,11 +62,20 @@ public class BasicDriveTest extends NextFTCOpMode {
     public void onUpdate(){
         LLResult llResult = limelight3A.getLatestResult();
         if (llResult != null && llResult.isValid()) {
-            Pose3D botpose = llResult.getBotpose_MT2();
-            telemetry.addData("Target X", llResult.getTx());
-            telemetry.update();
+            distance = getDistance(llResult.getTy());
+            telemetry.addData("Distance", distance);
+        }
+        else {
+            telemetry.addLine("No Valid Target");
+        }
+        telemetry.update();
     }
 
+    public double getDistance(double ty){
+        double angleToTarget = CAMERA_ANGLE + ty;
+        double heightDifference = GOAL_HEIGHT - CAMERA_HEIGHT_CM;
+
+        return heightDifference / Math.tan(Math.toRadians(angleToTarget));
     }
 
 }
