@@ -14,6 +14,7 @@ import java.util.List;
 
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.NextFTCOpMode;
+import dev.nextftc.ftc.components.BulkReadComponent;
 
 @TeleOp(name = "RedTeleOpV4 [EXPERIMENTAL]")
 public class RedTeleOpV4 extends NextFTCOpMode {
@@ -23,6 +24,12 @@ public class RedTeleOpV4 extends NextFTCOpMode {
     public ElapsedTime loopTimer = new ElapsedTime();
 
     public double cycles = 0;
+
+    public RedTeleOpV4(){
+        addComponents(
+                BulkReadComponent.INSTANCE)
+        ;
+    }
 
     @Override
     public void onInit(){

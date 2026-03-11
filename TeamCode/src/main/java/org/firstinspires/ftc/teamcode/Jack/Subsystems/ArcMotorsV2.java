@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Jack.Subsystems;
 
+import static org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1.Mode.BACK;
+import static org.firstinspires.ftc.teamcode.Jack.Motors.ArcShooterV1.Mode.FRONT;
+
 import com.pedropathing.math.MathFunctions;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -93,6 +96,12 @@ public class ArcMotorsV2 implements Subsystem {
             arcShooter.run();
             double dist = limelight.getTargetDistance();
             if(dist != 0) {
+                if(dist >= 85 && arcShooter.getMode() != BACK){
+                    arcShooter.setMode(BACK);
+                }
+                if(dist <= 85 && arcShooter.getMode() != FRONT) {
+                    arcShooter.setMode(FRONT);
+                }
                 setTargetRPM(flywheelSpeed(dist) + offset);
             }
             //if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
@@ -121,7 +130,7 @@ public class ArcMotorsV2 implements Subsystem {
 
     //https://www.desmos.com/calculator/lrc7l7irmt
     public double flywheelSpeed(double dist){
-        return MathFunctions.clamp(((-0.00220945 * Math.pow(dist, 3)) + (0.56818 * Math.pow(dist, 2)) - (28.06382 * Math.pow(dist, 1)) + 2411.79463), 0, 4000);
+        return MathFunctions.clamp(((0.0000192875 * Math.pow(dist, 4) - (0.00551582 * Math.pow(dist, 3)) + (0.499588 * Math.pow(dist, 2)) - (5.20341 * Math.pow(dist, 1)) + 1762.14001)), 0, 4000);
     }
 
     public void disablePIDs(){

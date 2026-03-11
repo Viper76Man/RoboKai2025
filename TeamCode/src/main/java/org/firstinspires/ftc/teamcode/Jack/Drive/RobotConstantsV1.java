@@ -76,7 +76,8 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.00125, 0, 0.8, 0.52);
+    public static PIDFCoefficients arcPIDsBack = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.2, 0, 0.8, 0.475);
 
     public static double ARC_COMPENSATION_RPM = 50;
 
@@ -123,6 +124,10 @@ public class RobotConstantsV1 {
     public static double SHOOTER_UPDATE_TIME_SECONDS = 0;
     public static double SHOOTER_ANGLE_DEG = 50;
 
+    public static double CAMERA_HEIGHT_CM = 40;
+    public static double CAMERA_ANGLE = 3.1;
+    public static double GOAL_HEIGHT = 74.95;
+
 
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
@@ -130,8 +135,6 @@ public class RobotConstantsV1 {
     public static double TURRET_OFFSET_ANGLE_BLUE = -5;
     public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
     public static double TURRET_OFFSET_ANGLE_RED = 0;
-
-    public static double LIMELIGHT_HEIGHT_FROM_GROUND_INCHES = 15.5;
 
     public static int SPINDEXER_TOLERANCE = 1000;
 

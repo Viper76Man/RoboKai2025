@@ -16,7 +16,7 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 
-@TeleOp(name = "NextFTC Drive Test")
+@TeleOp(name = "NextFTC Drive Test", group = "Coach")
 public class BasicDriveTest extends NextFTCOpMode {
     private Limelight3A limelight3A;
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();

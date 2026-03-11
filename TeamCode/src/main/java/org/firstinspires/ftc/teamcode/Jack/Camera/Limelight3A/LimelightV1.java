@@ -193,14 +193,14 @@ public class LimelightV1 {
         }
     }
 
-    public double getTargetDistance() {
-        LLResultTypes.FiducialResult result = getLatestAprilTagResult();
-        if (result != null) {
-            double angleToGoalDegrees = RobotConstantsV1.limelightMountAngle + result.getTargetYDegrees();
-            double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-            double goalHeightInches = 29.5;
-            //calculate distance
-            return (goalHeightInches - RobotConstantsV1.LIMELIGHT_HEIGHT_FROM_GROUND_INCHES) / Math.tan(angleToGoalRadians);
+    public double getTargetDistance(){
+        double CAMERA_HEIGHT_CM = RobotConstantsV1.CAMERA_HEIGHT_CM;
+        double CAMERA_ANGLE = RobotConstantsV1.CAMERA_ANGLE;
+        double GOAL_HEIGHT = RobotConstantsV1.GOAL_HEIGHT;
+        double heightDifference = GOAL_HEIGHT - CAMERA_HEIGHT_CM;
+        LLResult llResult = limelight.getLatestResult();
+        if (llResult != null && llResult.isValid()) {
+            return (heightDifference / Math.tan(Math.toRadians(CAMERA_ANGLE + llResult.getTy()))) / 2.54;
         }
         return 0;
     }

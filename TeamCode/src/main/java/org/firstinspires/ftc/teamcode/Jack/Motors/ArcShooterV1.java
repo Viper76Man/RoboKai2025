@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Jack.Motors;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 
 import com.bylazar.telemetry.TelemetryManager;
@@ -18,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 
+import java.util.Objects;
+
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.control.KineticState;
 import dev.nextftc.control.builder.ControlSystemBuilder;
@@ -27,6 +30,11 @@ public class ArcShooterV1 {
     public HardwareMap hardwareMap;
     public DcMotor motor;
     public DcMotorEx shooter;
+
+    public enum Mode {
+        BACK,
+        FRONT
+    }
     public DcMotor motor2;
     public DcMotorEx shooter2;
     public double velocity = 0;
@@ -43,6 +51,8 @@ public class ArcShooterV1 {
     public ControlSystem nextController;
 
     public boolean pidEnabled = true;
+
+    public Mode mode = Mode.BACK;
 
 
     public double lastTicks = 0;
@@ -235,6 +245,22 @@ public class ArcShooterV1 {
         return (rpm / 60.0) * motorTicksPerRev;
     }
 
+    public void setMode(Mode mode){
+        this.mode = mode;
+        switch(mode) {
+            case FRONT:
+                rebuildController(RobotConstantsV1.arcPIDs.p, RobotConstantsV1.arcPIDs.i, RobotConstantsV1.arcPIDs.d, RobotConstantsV1.arcPIDs.f);
+                break;
+            case BACK:
+                rebuildController(RobotConstantsV1.arcPIDsBack.p, RobotConstantsV1.arcPIDsBack.i, RobotConstantsV1.arcPIDsBack.d, RobotConstantsV1.arcPIDsBack.f);
+                break;
+        }
+    }
+
+    public Mode getMode(){
+        return mode;
+    }
+
 
     public boolean ready(){
         return getVelocityRPM() >= RobotConstantsV1.SHOOTER_TARGET_RPM;
@@ -248,6 +274,17 @@ public class ArcShooterV1 {
         if(usingPID) {
             controller.updatePIDsFromConstants(RobotConstantsV1.arcPIDs);
         }
+    }
+
+    public boolean rebuildController(double kP, double kI, double kD, double kF){
+        double last = nextController.getGoal().getVelocity();
+        nextController = null;
+        while (Objects.equals(nextController, null)) {
+            nextController = new ControlSystemBuilder().velPid(kP, kI, kD).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, kF).build();
+            nextController.setGoal(new KineticState(last));
+            nextController.setLastMeasurement(new KineticState(0, getVelocityRPM()));
+        }
+        return true;
     }
 
     public double runToVelocity(double currentRPM, int targetRPM){

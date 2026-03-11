@@ -97,7 +97,8 @@ public class FiringManager implements Subsystem {
                     if (mode == Robot.Mode.AUTONOMOUS && arc.arcShooter.isInRange(75)) {
                         startFiring();
                         done = false;
-                    } else if (mode != Robot.Mode.AUTONOMOUS) {
+                    }
+                    if (mode != Robot.Mode.AUTONOMOUS && !firing) {
                         done = false;
                         startFiring();
                     }

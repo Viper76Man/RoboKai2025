@@ -33,6 +33,7 @@ import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
+import dev.nextftc.ftc.components.BulkReadComponent;
 
 public class RobotV4 implements Subsystem { ;
     public ParallelGroup intakeCommand, shootCommand, fireSingleCommand;
@@ -252,7 +253,7 @@ public class RobotV4 implements Subsystem { ;
                     cachedFire = false;
                 }
                 //TODO: auto using command system
-                if(fireCommand.runs > 0 && firedAlready){
+                if(fireCommand.isScheduled() && fireCommand.finished && firedAlready){
                     manager.setEmpty(1);
                     manager.setEmpty(2);
                     manager.setEmpty(3);
@@ -261,10 +262,6 @@ public class RobotV4 implements Subsystem { ;
                     firedAlready = false;
                     flickerResetTimer.reset();
                     setSystemState(SystemStates.START);
-                }
-                if(fireCommand.runs <= 0 && fireCommand.isDone()){
-                    fireCommand.cancel();
-                    fireCommand.schedule();
                 }
                 break;
             case SHOOT_SINGLE:

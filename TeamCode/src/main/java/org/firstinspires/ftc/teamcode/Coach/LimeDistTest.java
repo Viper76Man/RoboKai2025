@@ -15,7 +15,7 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
 import dev.nextftc.hardware.impl.MotorEx;
 
-@TeleOp(name = "Lime Light Distance Test")
+@TeleOp(name = "Lime Light Distance Test", group = "Coach")
 public class LimeDistTest extends NextFTCOpMode {
     private Limelight3A limelight3A;
     public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -40,7 +40,7 @@ public class LimeDistTest extends NextFTCOpMode {
     @Override
     public void onInit(){
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight3A.pipelineSwitch(2); //Red Apriltag
+        limelight3A.pipelineSwitch(1); //Red Apriltag
         limelight3A.start();
     }
 
