@@ -48,7 +48,7 @@ public class ArcShooterV1 {
     public double newTicks = 0;
     public ElapsedTime tickTimer = new ElapsedTime();
     public ElapsedTime tickTimer2 = new ElapsedTime();
-    public ControlSystem nextController;
+    public ControlSystem nextController, backController;
 
     public boolean pidEnabled = true;
 
@@ -116,6 +116,8 @@ public class ArcShooterV1 {
         this.kF = kF;
         nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(0,0, RobotConstantsV1.arcPIDs.f).build();
         nextController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
+        backController = new ControlSystemBuilder().velPid(RobotConstantsV1.arcPIDsBack.p, RobotConstantsV1.arcPIDsBack.i, RobotConstantsV1.arcPIDsBack.d).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, RobotConstantsV1.arcPIDsBack.f).build();
+        backController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
@@ -158,6 +160,8 @@ public class ArcShooterV1 {
         this.kF = pidfCoefficients.f;
         nextController = new ControlSystemBuilder().velPid(this.kP, this.kI, this.kD).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, RobotConstantsV1.arcPIDs.f).build();
         nextController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
+        backController = new ControlSystemBuilder().velPid(RobotConstantsV1.arcPIDsBack.p, RobotConstantsV1.arcPIDsBack.i, RobotConstantsV1.arcPIDsBack.d).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, RobotConstantsV1.arcPIDsBack.f).build();
+        backController.setGoal(new KineticState(0, RobotConstantsV1.SHOOTER_IDLE_RPM));
         controller = new VelocityController(RobotConstantsV1.SHOOTER_PPR, this.kP, this.kI, this.kD, this.kF);
         this.usingPID = true;
     }
@@ -247,14 +251,6 @@ public class ArcShooterV1 {
 
     public void setMode(Mode mode){
         this.mode = mode;
-        switch(mode) {
-            case FRONT:
-                rebuildController(RobotConstantsV1.arcPIDs.p, RobotConstantsV1.arcPIDs.i, RobotConstantsV1.arcPIDs.d, RobotConstantsV1.arcPIDs.f);
-                break;
-            case BACK:
-                rebuildController(RobotConstantsV1.arcPIDsBack.p, RobotConstantsV1.arcPIDsBack.i, RobotConstantsV1.arcPIDsBack.d, RobotConstantsV1.arcPIDsBack.f);
-                break;
-        }
     }
 
     public Mode getMode(){
@@ -276,16 +272,6 @@ public class ArcShooterV1 {
         }
     }
 
-    public boolean rebuildController(double kP, double kI, double kD, double kF){
-        double last = nextController.getGoal().getVelocity();
-        nextController = null;
-        while (Objects.equals(nextController, null)) {
-            nextController = new ControlSystemBuilder().velPid(kP, kI, kD).basicFF(RobotConstantsV1.arcKV,RobotConstantsV1.arcKA, kF).build();
-            nextController.setGoal(new KineticState(last));
-            nextController.setLastMeasurement(new KineticState(0, getVelocityRPM()));
-        }
-        return true;
-    }
 
     public double runToVelocity(double currentRPM, int targetRPM){
         if(!usingPID){
@@ -296,11 +282,22 @@ public class ArcShooterV1 {
                 return controller.getOutput(currentRPM, targetRPM);
             }
             else {
-                if (targetRPM != lastTargetRPM) {
-                    nextController.setGoal(new KineticState(0, targetRPM));
-                    lastTargetRPM = targetRPM;
+                switch (mode) {
+                    case FRONT:
+                        if (targetRPM != lastTargetRPM) {
+                            nextController.setGoal(new KineticState(0, targetRPM));
+                            lastTargetRPM = targetRPM;
+                        }
+                        backController.setLastMeasurement(new KineticState(0, currentRPM));
+                        return nextController.calculate(new KineticState(0, currentRPM));
+                    default:
+                        if (targetRPM != lastTargetRPM) {
+                            backController.setGoal(new KineticState(0, targetRPM));
+                            lastTargetRPM = targetRPM;
+                        }
+                        nextController.setLastMeasurement(new KineticState(0, currentRPM));
+                        return backController.calculate(new KineticState(0, currentRPM));
                 }
-                return nextController.calculate(new KineticState(0, currentRPM));
             }
         }
     }

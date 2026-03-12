@@ -76,10 +76,10 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
-    public static PIDFCoefficients arcPIDsBack = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.2, 0, 0.8, 0.475);
+    public static PIDFCoefficients arcPIDsBack = new PIDFCoefficients(0.003, 0, 0.8, 0.95);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.003, 0, 0.8, 0.95);
 
-    public static double ARC_COMPENSATION_RPM = 50;
+    public static double ARC_COMPENSATION_RPM = 0;
 
     public static double arcKV = 0.000075;
     public static double arcKA = 0.1;
@@ -132,8 +132,8 @@ public class RobotConstantsV1 {
     public static double HOOD_STARTING_ANGLE = 45;
     public static double HOOD_MAX_ANGLE = 55;
 
-    public static double TURRET_OFFSET_ANGLE_BLUE = -5;
-    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -5;
+    public static double TURRET_OFFSET_ANGLE_BLUE = -8;
+    public static double TURRET_OFFSET_ANGLE_BLUE_AUTO = -8;
     public static double TURRET_OFFSET_ANGLE_RED = 0;
 
     public static int SPINDEXER_TOLERANCE = 1000;
@@ -163,7 +163,6 @@ public class RobotConstantsV1 {
     public static double STORAGE_BALL_3 = 0.85;
 
 
-    //TODO: Get these values
     public static int SPINDEXER_ENCODER_BALL_1_INTAKE = 2424;
     public static int SPINDEXER_ENCODER_BALL_1_SHOOT = 518;
     public static int SPINDEXER_ENCODER_BALL_2_INTAKE = 3650;
@@ -171,13 +170,13 @@ public class RobotConstantsV1 {
     public static int SPINDEXER_ENCODER_BALL_3_INTAKE = 1102;
     public static int SPINDEXER_ENCODER_BALL_3_SHOOT = 3255;
 
-    public static int SPINDEXER_MOTOR_SHOOT_ALL = -950;
+    public static int SPINDEXER_MOTOR_SHOOT_ALL = -1650;
     public static int SPINDEXER_MOTOR_SHOOT_ALL_2_BALLS = -1250;
     public static int SPINDEXER_MOTOR_LOCK = -622;
     public static int SPINDEXER_MOTOR_BALL_1_INTAKE = 0;
-    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -313;
+    public static int SPINDEXER_MOTOR_BALL_1_SHOOT = -634;
     public static int SPINDEXER_MOTOR_BALL_2_INTAKE = -240;
-    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = -546;
+    public static int SPINDEXER_MOTOR_BALL_2_SHOOT = -634;
     public static int SPINDEXER_MOTOR_BALL_3_INTAKE = -485;
     public static int SPINDEXER_MOTOR_BALL_3_SHOOT = -874;
     //TUNERS---------------------------------------------------------------------------------------------------------------------------

@@ -106,7 +106,6 @@ public class FiringManager implements Subsystem {
                 if (state == States.FLICKER_MOVING_UP) {
                     if (Math.abs(spindexer.getCurrentPosition()) < 250) {
                         fireTimer.reset();
-                        return;
                     }
                     if(!flickerSetUP){
                         flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_UP);
@@ -118,16 +117,16 @@ public class FiringManager implements Subsystem {
                     }
                 }
                 if (state == States.FLICKER_UP) {
-                    if (fireTimer.seconds() > 0.2) {
+                    if (fireTimer.seconds() > 0.4) {
                         state = States.SPIN;
                         fireTimer.reset();
                     }
                 }
                 if (state == States.SPIN) {
-                    if (!spindexer.isInRange(100)) {
+                    if (!spindexer.isInRange(30)) {
                         fireTimer.reset();
                     }
-                    if (fireTimer.seconds() > 0.1 && fireTimer.seconds() < 1.3) {
+                    if (fireTimer.seconds() > 0.1) {
                         spindexerSet = true;
                         manager.setMode(BallManager.State.SHOOT);
                         if(!manager.isEmpty(2) && manager.isEmpty(3)){
@@ -216,6 +215,8 @@ public class FiringManager implements Subsystem {
                     runs += 1;
                     arc.offset = lastOffset;
                     finished = true;
+                    spindexerSet = false;
+                    flickerSetUP = false;
                 }
             }
         }
@@ -231,6 +232,7 @@ public class FiringManager implements Subsystem {
             arc.enablePIDs();
             state = States.START;
             firing = false;
+            flickerSetUP = false;
             spindexerSet = false;
         }
 
@@ -287,7 +289,9 @@ public class FiringManager implements Subsystem {
             state = States.FLICKER_MOVING_UP;
             fireTimer.reset();
             firing = true;
+            flickerSetUP = false;
             finished = false;
+            spindexerSet = false;
         }
     }
 }

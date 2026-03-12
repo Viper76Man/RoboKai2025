@@ -81,12 +81,10 @@ public class Robot {
             switch (alliance){
                 case RED:
                     setCameraPipeline(LimelightV1.Pipeline.RED_GOAL);
-                    //TODO: Remove before comps
                     follower.setStartingPose(RedAutoPathsV1.startPose);
                     break;
                 case BLUE:
                     setCameraPipeline(LimelightV1.Pipeline.BLUE_GOAL);
-                    //TODO: Remove before comps
                     follower.setStartingPose(BlueAutoPathsV1.startPose);
                     break;
             }
@@ -119,7 +117,6 @@ public class Robot {
                 lockTimer.reset();
                 gamepad.resetTimer();
             }
-            //TODO:Code function to do this to selected ball slot
             if(gamepad.gamepad.right_trigger >= 0.2 && readyToFire()){
                 shootBall(getNextBall());
             }

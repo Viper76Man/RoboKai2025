@@ -237,7 +237,6 @@ public class RobotV2 {
         shooterOn = !shooterOn;
     }
 
-    //TODO: Remember button presses maybe?
     public void shootBall(int ball) {
         shootTimer.reset();
         if(spindexer.isSpindexerReady()){

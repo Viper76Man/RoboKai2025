@@ -96,10 +96,10 @@ public class ArcMotorsV2 implements Subsystem {
             arcShooter.run();
             double dist = limelight.getTargetDistance();
             if(dist != 0) {
-                if(dist >= 85 && arcShooter.getMode() != BACK){
+                if(dist >= 85){
                     arcShooter.setMode(BACK);
                 }
-                if(dist <= 85 && arcShooter.getMode() != FRONT) {
+                if(dist < 85) {
                     arcShooter.setMode(FRONT);
                 }
                 setTargetRPM(flywheelSpeed(dist) + offset);

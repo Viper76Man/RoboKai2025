@@ -156,6 +156,7 @@ public class RobotV4 implements Subsystem { ;
             case START:
                 redLED();
                 if(flickerResetTimer.seconds() > 0.2) {
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
                     fireCommand = firingManager.fireTriple(mode, arcMotorsV2);
                     manager.setCurrentBall(1);
                     manager.setMode(BallManager.State.INTAKE);
@@ -222,11 +223,9 @@ public class RobotV4 implements Subsystem { ;
             case BALL_3_INTAKE:
                 if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
                     manager.setBall3(sensor.sensor.getCurrent());
-                    manager.next();
                     sensor.clear();
                     shootCommand.schedule();
                     intakeCommand.cancel();
-                    manager.setMode(BallManager.State.SHOOT);
                     setSystemState(SystemStates.SHOOT_ALL);
                     cachedFire = false;
                     greenLED();
@@ -252,7 +251,6 @@ public class RobotV4 implements Subsystem { ;
                     fireTriple();
                     cachedFire = false;
                 }
-                //TODO: auto using command system
                 if(fireCommand.isScheduled() && fireCommand.finished && firedAlready){
                     manager.setEmpty(1);
                     manager.setEmpty(2);

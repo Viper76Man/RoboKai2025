@@ -161,6 +161,7 @@ public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
     public void onStartButtonPressed(){
         pathState = PathStates.START;
         follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
+        matchTimer.reset();
     }
 
     public void onUpdate(){
