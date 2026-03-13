@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV2;
 
 import java.util.Arrays;
 import java.util.List;
@@ -107,6 +108,71 @@ public class SlotColorSensorV1 {
             }
         }
     }
+    public void update(SpindexerMotorV2.SpindexerState state,  boolean spindexerReady) {
+        dist = sensor.getDistance(DistanceUnit.MM);
+        if(state == SpindexerMotorV2.SpindexerState.SHOOT_WITH_1_BALL || state == SpindexerMotorV2.SpindexerState.SHOOT_WITH_2_BALLS || state == SpindexerMotorV2.SpindexerState.SHOOT_WITH_3_BALLS){
+            clear();
+            return;
+        }
+        if(!spindexerReady){
+            return;
+        }
+        if(dist > RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR){
+            countsWithinDistance = 0;
+            distanceTimer.reset();
+        }
+        else if(dist < RobotConstantsV1.MAX_DISTANCE_COLOR_SENSOR && distanceTimer.seconds() > 0) {
+            countsWithinDistance += 1;
+            distanceTimer.reset();
+        }
+        if (loops > 0) {
+            avgGreen = totalGreen / loops;
+        } else {
+            avgGreen = 0;
+        }
+
+
+        if (avgGreen < RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 1 && countsWithinDistance > 2) {
+            switch (state) {
+                case INTAKE_BALL_1:
+                case INTAKE_BALL_2:
+                case INTAKE_BALL_3:
+                    loops = 0;
+                    totalGreen = 0;
+                    avgGreen = 0;
+                    current = ArtifactColor.PURPLE;
+                    countsWithinDistance = 0;
+                    break;
+            }
+
+        } else if (avgGreen > RobotConstantsV1.MIN_G_VALUE_COLOR_SENSOR && loops >= 1 && countsWithinDistance > 2) {
+            switch (state) {
+                case INTAKE_BALL_1:
+                case INTAKE_BALL_2:
+                case INTAKE_BALL_3:
+                    loops = 0;
+                    totalGreen = 0;
+                    avgGreen = 0;
+                    current = ArtifactColor.GREEN;
+                    countsWithinDistance = 0;
+                    break;
+            }
+        }
+        //change 26 to 10
+        else if (loops < 1 && spindexerReady && hasBall()) {
+            lastGreen = sensor.green();
+            double brightness = sensor.red() +
+                    lastGreen +
+                    sensor.blue();
+            if (brightness > 185) {
+                totalGreen = totalGreen + lastGreen;
+                lastGreen = 0;
+                loops = loops + 1;
+                captureTimer.reset();
+            }
+        }
+    }
+
 
     public ArtifactColor getCurrent(){
         return this.current;

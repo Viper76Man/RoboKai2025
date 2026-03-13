@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV2;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.SlotColorSensorV1;
 
@@ -13,9 +14,17 @@ import dev.nextftc.core.subsystems.Subsystem;
 public class ColorSensorV3 implements Subsystem {
     public SlotColorSensorV1 sensor = new SlotColorSensorV1();
     public SpindexerMotorV1 spindexer;
+    public SpindexerMotorV2 newSpindexer;
     public BallManager manager;
     public void init(HardwareMap hardwareMap, BallManager manager, SpindexerMotorV1 spindexer){
         this.spindexer = spindexer;
+        this.manager = manager;
+        sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
+        sensor.sensor.setGain(10);
+    }
+
+    public void init(HardwareMap hardwareMap, BallManager manager, SpindexerMotorV2 spindexer){
+        this.newSpindexer = spindexer;
         this.manager = manager;
         sensor.init(hardwareMap, RobotConstantsV1.colorSensor1);
         sensor.sensor.setGain(10);
@@ -40,12 +49,21 @@ public class ColorSensorV3 implements Subsystem {
     public class ColorSensorUpdate extends Command {
         @Override
         public void update() {
-            sensor.update(spindexer.state, spindexer.isInRange(10));
+            if(spindexer == null) {
+                sensor.update(newSpindexer.currentSpindexerState, !newSpindexer.isActive());
+            }
+            else {
+                sensor.update(spindexer.state, spindexer.isInRange(10));
+            }
         }
 
         @Override
         public boolean isDone() {
             return false;
         }
+    }
+
+    public boolean hasBall(){
+        return (sensor.isGreen() || sensor.isPurple()) && sensor.getNormalizedRGB().green >= 0.03;
     }
 }

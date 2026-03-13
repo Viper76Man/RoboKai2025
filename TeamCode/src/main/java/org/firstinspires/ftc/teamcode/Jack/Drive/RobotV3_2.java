@@ -1,0 +1,326 @@
+package org.firstinspires.ftc.teamcode.Jack.Drive;
+
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV1;
+import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
+import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
+import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.AdjustableHoodV1;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.ArcMotorsV2;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.ColorSensorV3;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.DriveMotorsV2;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.FiringManager;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.FlickerSubsystem;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeMotorV2;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.LimelightSubsystem;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.SpindexerV2;
+
+import java.util.Objects;
+
+import dev.nextftc.core.commands.CommandManager;
+import dev.nextftc.core.commands.groups.ParallelGroup;
+import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.ftc.ActiveOpMode;
+
+public class RobotV3_2 implements Subsystem { ;
+    public ParallelGroup intakeCommand, shootCommand, fireSingleCommand;
+    public FiringManager.FireTriple fireCommand;
+    public LED left1, right1, left2, right2;
+    public IntakeMotorV2 intake = new IntakeMotorV2();
+    public ColorSensorV3 sensor = new ColorSensorV3();
+    public FlickerSubsystem flicker = new FlickerSubsystem();
+    public SpindexerV2 spindexer = new SpindexerV2();
+    public LimelightSubsystem ll;
+    public AdjustableHoodV1 hood = new AdjustableHoodV1();
+    public FiringManager firingManager = new FiringManager();
+    public ArcMotorsV2 arcMotorsV2 = new ArcMotorsV2();
+    public BallManager manager = new BallManager();
+    public GamepadV1 gamepad = new GamepadV1();
+    public DriveMotorsV2 drive = new DriveMotorsV2();
+    public Sensors sensors;
+    public TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+    public Telemetry telemetry;
+
+    public ElapsedTime flickerResetTimer = new ElapsedTime();
+
+    public boolean firedAlready = false;
+    public boolean firstLoop = true;
+    public boolean cachedFire = false;
+
+    public double OFFSET_ANGLE;
+
+    public enum SystemStates {
+        START,
+        BALL_1_INTAKE,
+        BALL_2_INTAKE,
+        BALL_3_INTAKE,
+        SHOOT_ALL,
+        SHOOT_SINGLE
+    }
+
+    public SystemStates state = SystemStates.START;
+    public Robot.Mode mode = Robot.Mode.TELEOP;
+
+
+    public void init(HardwareMap hardwareMap, GamepadV1 gamepadV1, Robot.Mode mode, Robot.Alliance alliance){
+        this.mode = mode;
+        this.sensors = new Sensors();
+        this.gamepad = gamepadV1;
+        ll = new LimelightSubsystem(Robot.Mode.TELEOP, alliance);
+        sensors.init(hardwareMap);
+        intake = new IntakeMotorV2();
+        drive = new DriveMotorsV2();
+        intake.init(hardwareMap);
+        spindexer.init(manager, sensors);
+        drive.init(hardwareMap, gamepadV1);
+        ll.init();
+        hood.init(ll.limelight);
+        flicker.init(spindexer.spindexer);
+        sensor.init(hardwareMap, manager, spindexer.spindexer);
+        arcMotorsV2.init(hardwareMap, Robot.Mode.TELEOP, ll.limelight, sensors);
+        left1 = hardwareMap.get(LED.class, "left");
+        right1 = hardwareMap.get(LED.class, "right");
+        left2 = hardwareMap.get(LED.class, "left2");
+        right2 = hardwareMap.get(LED.class, "right2");
+        switch (alliance){
+            case RED:
+                OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_RED;
+                ll.limelight.setPipeline(LimelightV1.Pipeline.RED_GOAL);
+                break;
+            case BLUE:
+            case TEST:
+                ll.limelight.setPipeline(LimelightV1.Pipeline.BLUE_GOAL);
+                OFFSET_ANGLE = RobotConstantsV1.TURRET_OFFSET_ANGLE_BLUE;
+                break;
+        }
+        ll.limelight.startStreaming();
+    }
+
+    public void buildCommands(){
+        telemetry = ActiveOpMode.telemetry();
+        intakeCommand = new ParallelGroup(
+                drive.drive(),
+                spindexer.spindexerRun(),
+                sensor.update(),
+                arcMotorsV2.spinUpIdle(),
+                ll.turretUpdate(OFFSET_ANGLE),
+                hood.servoUpdate()
+        );
+        firingManager.init(manager, flicker, spindexer.spindexer, ll);
+        shootCommand = new ParallelGroup(
+                drive.drive(),
+                sensor.update(),
+                spindexer.spindexerRun(),
+                arcMotorsV2.spinActive(),
+                ll.turretUpdate(OFFSET_ANGLE),
+                hood.servoUpdate()
+        );
+        fireCommand = firingManager.fireTriple(mode, arcMotorsV2);
+        fireSingleCommand = new ParallelGroup(firingManager.fireSingle(arcMotorsV2));
+    }
+
+
+    public void systemStatesUpdate(){
+        flicker.flicker.newUpdate();
+        sensors.update();
+        if(firstLoop){
+            ActiveOpMode.telemetry().setMsTransmissionInterval(150);
+            telemetryM.setUpdateInterval(150);
+            flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
+            firstLoop = false;
+        }
+        gamepad.update();
+        if(gamepad.left_trigger >= 0.15){
+            intake.intake.setDirection(intake.intake.invertDirection(RobotConstantsV1.intakeDirection));
+            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
+        else {
+            intake.intake.setDirection(RobotConstantsV1.intakeDirection);
+            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+        }
+
+        switch (state){
+            case START:
+                redLED();
+                if(flickerResetTimer.seconds() > 0.2) {
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                    fireCommand = firingManager.fireTriple(mode, arcMotorsV2);
+                    manager.setCurrentBall(1);
+                    manager.setMode(BallManager.State.INTAKE);
+                    setSystemState(SystemStates.BALL_1_INTAKE);
+                    spindexer.spindexer.setState(SpindexerMotorV1.State.BALL_1_INTAKE);
+                    //MOVE OUT OF CONDITIONAL???
+                    shootCommand.cancel();
+                    intakeCommand.schedule();
+                    sensor.clear();
+                }
+                break;
+            case BALL_1_INTAKE:
+                if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
+                    manager.setBall1(sensor.sensor.getCurrent());
+                    manager.setCurrentBall(2);
+                    sensor.clear();
+                    setSystemState(SystemStates.BALL_2_INTAKE);
+                }
+                if(gamepad.isGamepadReady() && gamepad.circle && mode == Robot.Mode.TELEOP){
+                    gamepad.resetTimer();
+                    manager.setCurrentBall(1);
+                    setSystemState(SystemStates.SHOOT_SINGLE);
+                }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall1(ArtifactColor.NONE);
+                    manager.setBall2(ArtifactColor.GREEN);
+                    manager.setBall3(ArtifactColor.GREEN);
+                    manager.setCurrentBall(1);
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
+                }
+                break;
+            case BALL_2_INTAKE:
+                if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
+                    manager.setBall2(sensor.sensor.getCurrent());
+                    manager.setCurrentBall(3);
+                    sensor.clear();
+                    setSystemState(SystemStates.BALL_3_INTAKE);
+                }
+                if(gamepad.isGamepadReady() && gamepad.circle && mode == Robot.Mode.TELEOP){
+                    gamepad.resetTimer();
+                    manager.setCurrentBall(1);
+                    setSystemState(SystemStates.SHOOT_SINGLE);
+                }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall2(ArtifactColor.NONE);
+                    manager.setCurrentBall(1);
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
+                }
+                break;
+            case BALL_3_INTAKE:
+                if ((sensor.isPurple() || sensor.isGreen()) && sensor.sensor.getNormalizedRGB().green >= 0.03) {
+                    manager.setBall3(sensor.sensor.getCurrent());
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    cachedFire = false;
+                    greenLED();
+                }
+                if(gamepad.isGamepadReady() && gamepad.right_trigger > 0.25){
+                    cachedFire = true;
+                    manager.setBall3(ArtifactColor.NONE);
+                    manager.setCurrentBall(2);
+                    sensor.clear();
+                    shootCommand.schedule();
+                    intakeCommand.cancel();
+                    manager.setMode(BallManager.State.SHOOT);
+                    setSystemState(SystemStates.SHOOT_ALL);
+                    greenLED();
+                    gamepad.resetTimer();
+                }
+                break;
+            case SHOOT_ALL:
+                if(readyForTriple() && gamepad.right_trigger >= 0.1 && gamepad.isGamepadReady() && mode == Robot.Mode.TELEOP){
+                    fireTriple();
+                }
+                if(readyForTriple() && cachedFire && mode == Robot.Mode.TELEOP){
+                    fireTriple();
+                    cachedFire = false;
+                }
+                if(fireCommand.isScheduled() && fireCommand.finished && firedAlready){
+                    manager.setEmpty(1);
+                    manager.setEmpty(2);
+                    manager.setEmpty(3);
+                    fireCommand.cancel();
+                    flicker.flicker.setPositionNew(RobotConstantsV1.FLICKER_SERVO_DOWN);
+                    firedAlready = false;
+                    flickerResetTimer.reset();
+                    setSystemState(SystemStates.START);
+                }
+                break;
+            case SHOOT_SINGLE:
+                if(spindexer.spindexer.isSpindexerReady() && !firedAlready && gamepad.right_trigger > 0.15 && gamepad.isGamepadReady()){
+                    fireSingleCommand.schedule();
+                    firedAlready = true;
+                    gamepad.resetTimer();
+                }
+                if(manager.mode == BallManager.State.INTAKE && firedAlready && fireSingleCommand.isDone()){
+                    firedAlready = false;
+                }
+                break;
+        }
+    }
+
+
+    public void log(){
+        if(RobotConstantsV1.panelsEnabled){
+            hood.hoodServo.log(telemetryM);
+            telemetryM.addLine("Target Shooter RPM: " + arcMotorsV2.arcShooter.getTargetRPM());
+            telemetryM.addLine("Shooter Current RPM: " + arcMotorsV2.arcShooter.getVelocityRPM());
+            telemetryM.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Turret error: " + (OFFSET_ANGLE + ll.turret.cameraTx));
+            telemetryM.addLine("Turret power: " + ll.turret.power_);
+            if(!Objects.equals(ll.limelight.getTargetDistance(), null)) {
+                telemetryM.addLine("Distance: " + ll.limelight.getTargetDistance());
+            }
+            telemetryM.addLine("Color distance: " + sensor.sensor.dist);
+            telemetryM.addLine("Flicker target: " + flicker.flicker.newPos);
+            telemetryM.addLine("Flicker current pos: " + flicker.flicker.flicker.getPosition());
+            telemetryM.addLine("Commands scheduled: " + CommandManager.INSTANCE.snapshot().size());
+            telemetryM.update(telemetry);
+        }
+        else {
+            arcMotorsV2.arcShooter.log(telemetry);
+            telemetry.addLine("Current ball: " + manager.getCurrentBall());
+            telemetryM.addLine("Mode: "+ manager.mode);
+        }
+    }
+
+    public void setSystemState(SystemStates state){
+        this.state = state;
+    }
+
+
+    public void fireTriple(){
+        fireCommand.schedule();
+        firedAlready = true;
+        gamepad.resetTimer();
+    }
+
+    public boolean readyForTriple(){
+        return spindexer.spindexer.isInRange(200) && !firedAlready && !fireCommand.isScheduled();
+    }
+
+
+    public void redLED() {
+        left1.on();
+        left2.on();
+        right1.off();
+        right2.off();
+    }
+
+    public void greenLED(){
+        left1.off();
+        left2.off();
+        right1.on();
+        right2.on();
+    }
+}

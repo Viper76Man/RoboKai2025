@@ -46,16 +46,16 @@ public class ArcMotorsV2 implements Subsystem {
         }
     }
 
-    public run spinUpIdle(){
+    public Command spinUpIdle(){
         setTargetRPM(RobotConstantsV1.SHOOTER_IDLE_RPM);
-        return new run();
+        return run();
     }
 
     public void setZone(Zone zone){
         this.zone = zone;
     }
 
-    public run spinActive(){
+    public Command spinActive(){
         switch (zone){
             case FRONT:
                 return spinUpFront();
@@ -66,20 +66,20 @@ public class ArcMotorsV2 implements Subsystem {
         }
     }
 
-    public run spinUpFront(){
+    public Command spinUpFront(){
         setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
-        return new run();
+        return run();
     }
 
-    public run spinUpBack(){
+    public Command spinUpBack(){
         switch (mode) {
             case AUTONOMOUS:
                 setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM_AUTO);
-                return new run();
+                return run();
             case TELEOP:
             default:
                 setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
-                return new run();
+                return run();
         }
     }
 
@@ -87,45 +87,46 @@ public class ArcMotorsV2 implements Subsystem {
         arcShooter.setTargetRPM(target);
     }
 
-    public class run extends Command{
-        public ElapsedTime buttonTimer = new ElapsedTime();
-        public Gamepad gamepad = ActiveOpMode.gamepad1();
+    public Command run(){
+        return new Command() {
+            public ElapsedTime buttonTimer = new ElapsedTime();
+            public Gamepad gamepad = ActiveOpMode.gamepad1();
 
-        @Override
-        public void update(){
-            arcShooter.run();
-            double dist = limelight.getTargetDistance();
-            if(dist != 0) {
-                if(dist >= 85){
-                    arcShooter.setMode(BACK);
+            public void update(){
+                arcShooter.run();
+                double dist = limelight.getTargetDistance();
+                if(dist != 0) {
+                    if(dist >= 85){
+                        arcShooter.setMode(BACK);
+                    }
+                    if(dist < 85) {
+                        arcShooter.setMode(FRONT);
+                    }
+                    setTargetRPM(flywheelSpeed(dist) + offset);
                 }
-                if(dist < 85) {
-                    arcShooter.setMode(FRONT);
-                }
-                setTargetRPM(flywheelSpeed(dist) + offset);
-            }
-            //if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
+                //if(gamepad.right_bumper && buttonTimer.seconds() > 0.3){
                 //setTargetRPM(RobotConstantsV1.SHOOTER_TARGET_RPM);
                 //buttonTimer.reset();
-            //}
-            //if(gamepad.left_bumper && buttonTimer.seconds() > 0.3){
+                //}
+                //if(gamepad.left_bumper && buttonTimer.seconds() > 0.3){
                 //setTargetRPM(RobotConstantsV1.SHOOTER_FRONT_RPM);
-               // buttonTimer.reset();
-            //}
-            if(gamepad.dpad_up && buttonTimer.seconds() > 0.3){
-                offset += 10;
-                buttonTimer.reset();
+                // buttonTimer.reset();
+                //}
+                if(gamepad.dpad_up && buttonTimer.seconds() > 0.3){
+                    offset += 10;
+                    buttonTimer.reset();
+                }
+                if(buttonTimer.seconds() > 0.3 && gamepad.dpad_down){
+                    offset -= 10;
+                    buttonTimer.reset();
+                }
             }
-            if(buttonTimer.seconds() > 0.3 && gamepad.dpad_down){
-                offset -= 10;
-                buttonTimer.reset();
-            }
-        }
 
-        @Override
-        public boolean isDone() {
-            return ActiveOpMode.isStopRequested();
-        }
+            @Override
+            public boolean isDone() {
+                return ActiveOpMode.isStopRequested();
+            }
+        };
     }
 
     //https://www.desmos.com/calculator/lrc7l7irmt
