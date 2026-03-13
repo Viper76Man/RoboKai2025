@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.Jack.Other.MultipleTelemetry;
 import org.firstinspires.ftc.teamcode.R;
 
 public class MecanumDriveOnly {
-    private DcMotor frontLeftMotor;
-    private DcMotor frontRightMotor;
-    private DcMotor backLeftMotor;
-    private DcMotor backRightMotor;
+    public DcMotor frontLeftMotor;
+    public DcMotor frontRightMotor;
+    public DcMotor backLeftMotor;
+    public DcMotor backRightMotor;
     public HardwareMap hardwareMap;
     public GamepadV1 gamepad1 = new GamepadV1();
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();

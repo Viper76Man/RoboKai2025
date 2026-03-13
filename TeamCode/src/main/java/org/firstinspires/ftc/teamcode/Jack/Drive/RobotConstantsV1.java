@@ -76,8 +76,8 @@ public class RobotConstantsV1 {
 
     //TELEOP-------------------------------------------------------------------------------------------------------------------------
     public static PIDFCoefficients arcPIDs = new PIDFCoefficients(0.001, 0, 0.8, 0.45);
-    public static PIDFCoefficients arcPIDsBack = new PIDFCoefficients(0.003, 0, 0.8, 0.95);
-    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.003, 0, 0.8, 0.95);
+    public static PIDFCoefficients arcPIDsBack = new PIDFCoefficients(0.001, 0, 0.8, 0.95);
+    public static PIDFCoefficients arcPIDsAuto = new PIDFCoefficients(0.001, 0, 0.8, 0.95);
 
     public static double ARC_COMPENSATION_RPM = 0;
 

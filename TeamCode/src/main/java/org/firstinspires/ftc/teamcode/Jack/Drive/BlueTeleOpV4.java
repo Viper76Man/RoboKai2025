@@ -7,9 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.DriveMotorsV2;
 
+import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.ftc.Gamepads;
 import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.ftc.components.BulkReadComponent;
+import dev.nextftc.hardware.driving.MecanumDriverControlled;
+import dev.nextftc.hardware.impl.MotorEx;
 
 @TeleOp(name = "BlueTeleOpV4 [EXPERIMENTAL]")
 public class BlueTeleOpV4 extends NextFTCOpMode {
@@ -24,7 +29,8 @@ public class BlueTeleOpV4 extends NextFTCOpMode {
         addComponents(
                 BulkReadComponent.INSTANCE,
                 new SubsystemComponent(SpindexerMotorV2.INSTANCE),
-                new SubsystemComponent(robotV4)
+                new SubsystemComponent(robotV4),
+                BindingsComponent.INSTANCE
         );
     }
 
@@ -34,10 +40,6 @@ public class BlueTeleOpV4 extends NextFTCOpMode {
         robotV4.buildCommands();
     }
 
-    @Override
-    public void onStartButtonPressed(){
-        gamepad.update();
-    }
 
     @Override
     public void onUpdate() {

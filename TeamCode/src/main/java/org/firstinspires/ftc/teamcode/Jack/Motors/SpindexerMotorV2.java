@@ -3,10 +3,14 @@ package org.firstinspires.ftc.teamcode.Jack.Motors;
 
 import androidx.core.content.PermissionChecker;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.teamcode.Coach.subsystems.Ramp;
 import org.firstinspires.ftc.teamcode.Coach.subsystems.Spindexer;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
 import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
+import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 
 import java.util.Objects;
 
@@ -20,7 +24,7 @@ import dev.nextftc.hardware.controllable.RunToPosition;
 import dev.nextftc.hardware.impl.MotorEx;
 
 public class SpindexerMotorV2 implements Subsystem {
-    public static final SpindexerMotorV2 INSTANCE = new SpindexerMotorV2();
+    public static final SpindexerMotorV2 INSTANCE = new SpindexerMotorV2(Robot.Mode.TELEOP);
     private final double firstPos = 0;  //0 degrees (INTAKE_BALL_1)
     private final double secondPos = 250.6; //-120 degrees (INTAKE_BALL_2)
     private final double thirdPos = 501.2;  //-240 degrees (INTAKE_BALL_3)
@@ -29,9 +33,10 @@ public class SpindexerMotorV2 implements Subsystem {
     private final double sixthPos = 1253; //600 degrees
 
     public Command lastFireCommand;
+    public Robot.Mode mode;
 
-    private SpindexerMotorV2() {
-
+    public SpindexerMotorV2(Robot.Mode mode) {
+        this.mode = mode;
     }
 
     public void init(BallManager manager){
@@ -56,7 +61,7 @@ public class SpindexerMotorV2 implements Subsystem {
 
 
     private final ControlSystem controlSystem = ControlSystem.builder()
-            .posPid(RobotConstantsV1.spindexerPIDs.p, 0, RobotConstantsV1.spindexerPIDs.d)
+            .posPid(0.005, 0, 0)
             .build();
 
     public Command toFirstPos = new RunToPosition(controlSystem, firstPos).requires(this).then(setCurrentState(SpindexerState.INTAKE_BALL_1));
@@ -69,9 +74,11 @@ public class SpindexerMotorV2 implements Subsystem {
 
     @Override
     public void initialize() {
-        motor = new MotorEx("spindexer").reversed();
+        motor = new MotorEx("spindexer").reversed().zeroed();
         //reset encoder
+        resetAll();
     }
+
 
     public void resetMotor(){
         motor.zero();
@@ -182,27 +189,51 @@ public class SpindexerMotorV2 implements Subsystem {
         return false;
     }
 
+    public boolean isActive2(){
+       switch (currentSpindexerState){
+           case INTAKE_BALL_1:
+               return ! new Range(firstPos, 20).isInRange(motor.getCurrentPosition());
+           case INTAKE_BALL_2:
+               return ! new Range(secondPos, 20).isInRange(motor.getCurrentPosition());
+           case INTAKE_BALL_3:
+               return ! new Range(thirdPos, 20).isInRange(motor.getCurrentPosition());
+           case SHOOT_WITH_1_BALL:
+               return ! new Range(fourthPos, 20).isInRange(motor.getCurrentPosition());
+           case SHOOT_WITH_2_BALLS:
+               return ! new Range(fifthPos, 20).isInRange(motor.getCurrentPosition());
+           case SHOOT_WITH_3_BALLS:
+               return ! new Range(sixthPos, 20).isInRange(motor.getCurrentPosition());
+           default:
+               return false;
+       }
+    }
+
     public Command Fire(){
         switch (currentSpindexerState) {
             case INTAKE_BALL_1:
+                return new ParallelRaceGroup(
                     new SequentialGroup(
-                        Ramp.INSTANCE.rampUp,
-                        new Delay(.4),
-                        toFourthPos,
-                        Ramp.INSTANCE.rampDown,
-                        new Delay(.4),
-                        toFirstPos
-                    ).requires(this);
-
+                            Ramp.INSTANCE.rampUp,
+                            new Delay(.4),
+                            toFourthPos,
+                            Ramp.INSTANCE.rampDown,
+                            new Delay(.4),
+                            toFirstPos
+                    )
+                    , new Delay(5)
+             ).requires(this);
             case INTAKE_BALL_2:
-                    new SequentialGroup(
-                        Ramp.INSTANCE.rampUp,
-                        new Delay(.4),
-                        toFifthPos,
-                        Ramp.INSTANCE.rampDown,
-                        new Delay(.4),
-                        toFirstPos
-                    ).requires(this);
+                return new ParallelRaceGroup(
+                        new SequentialGroup(
+                                Ramp.INSTANCE.rampUp,
+                                new Delay(.4),
+                                toFifthPos,
+                                Ramp.INSTANCE.rampDown,
+                                new Delay(.4),
+                                toFirstPos
+                        )
+                        , new Delay(5)
+                ).requires(this);
             case INTAKE_BALL_3:
                 return new ParallelRaceGroup(
                     new SequentialGroup(
@@ -213,9 +244,25 @@ public class SpindexerMotorV2 implements Subsystem {
                         new Delay(.4),
                         toFirstPos
                     )
+                    , new Delay(5)
                 ).requires(this);
         }
         return null;
+    }
+
+    public double getCurrentPos(){
+        return motor.getCurrentPosition();
+    }
+
+    public double getStatePos(){
+        return motor.getState().getPosition();
+    }
+
+    public void resetAll(){
+        motor.getMotor().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.zeroed();
+        motor.atPosition(firstPos);
+        motor.getMotor().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 }

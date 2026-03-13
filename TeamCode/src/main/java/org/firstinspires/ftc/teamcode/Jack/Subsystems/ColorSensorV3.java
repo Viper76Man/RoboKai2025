@@ -50,7 +50,7 @@ public class ColorSensorV3 implements Subsystem {
         @Override
         public void update() {
             if(spindexer == null) {
-                sensor.update(newSpindexer.currentSpindexerState, !newSpindexer.isActive());
+                sensor.update(newSpindexer.currentSpindexerState, !newSpindexer.isActive2());
             }
             else {
                 sensor.update(spindexer.state, spindexer.isInRange(10));

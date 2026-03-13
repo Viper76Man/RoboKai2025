@@ -41,7 +41,6 @@ public class BasicDriveTest extends NextFTCOpMode {
         limelight3A.pipelineSwitch(2); //Red Apriltag
         limelight3A.start();
     }
-
     public void onStartButtonPressed() {
         telemetry.addLine("Running");
 
@@ -55,7 +54,7 @@ public class BasicDriveTest extends NextFTCOpMode {
                 Gamepads.gamepad1().rightStickX()
         );
         driverControlled.schedule();
-        }
+    }
 
     public void onUpdate(){
         LLResult llResult = limelight3A.getLatestResult();
