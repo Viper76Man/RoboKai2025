@@ -1,39 +1,55 @@
-package org.firstinspires.ftc.teamcode.Jack.Drive;
+package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.NextFTC.V3;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
-import com.qualcomm.hardware.limelightvision.LLResult;
+import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Coach.subsystems.Ramp;
 import org.firstinspires.ftc.teamcode.Jack.Camera.Limelight3A.LimelightV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.GamepadV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.Robot;
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotConstantsV1;
+import org.firstinspires.ftc.teamcode.Jack.Drive.RobotV4;
 import org.firstinspires.ftc.teamcode.Jack.Motors.SpindexerMotorV2;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.NextFTC.BlueAutoBackPreloadV2;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.BlueAutoPathsV2;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.Constants;
+import org.firstinspires.ftc.teamcode.Jack.Odometry.CustomFollower;
+import org.firstinspires.ftc.teamcode.Jack.Other.ArtifactColor;
 import org.firstinspires.ftc.teamcode.Jack.Other.BallManager;
 import org.firstinspires.ftc.teamcode.Jack.Other.Sensors;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.AdjustableHoodV1;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ArcMotorsV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.ColorSensorV3;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.DriveMotorsV2;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.FiringManager;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.FlickerSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.IntakeMotorV2;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.LiftSubsystem;
 import org.firstinspires.ftc.teamcode.Jack.Subsystems.LimelightSubsystem;
+import org.firstinspires.ftc.teamcode.Jack.Subsystems.SpindexerV2;
 
 import java.util.Objects;
-import java.util.logging.Handler;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.ParallelRaceGroup;
-import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.Gamepads;
+import dev.nextftc.ftc.NextFTCOpMode;
 import dev.nextftc.hardware.driving.MecanumDriverControlled;
-import dev.nextftc.hardware.impl.MotorEx;
 
-public class RobotV4 implements Subsystem {
+@Autonomous
+public class BlueAutoFrontPreloadV3 extends NextFTCOpMode {
     public ParallelGroup driveCommand;
     public Command fireCommand, liftCommand, rampDown, arcSpinUp, driveMotors;
 
@@ -52,15 +68,28 @@ public class RobotV4 implements Subsystem {
         BALL_2_INTAKE,
         BALL_3_INTAKE,
         SHOOT_ALL,
-        SHOOT_SINGLE,
-        LIFT
+        SHOOT_SINGLE
+    }
+
+    public enum PathStates {
+        START,
+        TO_SHOOT,
+        SHOOT_SET_1,
+        TO_PICKUP_1,
+        TURN_TO_PICKUP_1,
+        PICKUP_1,
+        BACK_TO_SHOOT_1,
+        SHOOT_SET_2,
+        OUT_OF_ZONE,
+        IDLE
     }
 
 
-    public SpindexerMotorV2 spindexer = SpindexerMotorV2.INSTANCE;
+    public SpindexerMotorV2 spindexer = SpindexerMotorV2.INSTANCE_AUTO;
     public ColorSensorV3 sensor = new ColorSensorV3();
     public IntakeMotorV2 intake = new IntakeMotorV2();
     public AdjustableHoodV1 hood = new AdjustableHoodV1();
+    public BlueAutoPathsV2 pathsV2 = new BlueAutoPathsV2();
     public LiftSubsystem lift = new LiftSubsystem();
 
     public ArcMotorsV2 arc = new ArcMotorsV2();
@@ -68,21 +97,27 @@ public class RobotV4 implements Subsystem {
     public Sensors sensors = new Sensors();
     public LimelightSubsystem ll;
 
-    public Robot.Alliance alliance;
+    public Robot.Alliance alliance = Robot.Alliance.BLUE;
+    public PathStates pathState = PathStates.START;
 
     public BallManager manager = new BallManager();
     public SystemStates state = SystemStates.START;
+    public CustomFollower follower;
 
     public boolean shooting = false;
-
-    private final MotorEx frontLeftMotor = new MotorEx("fl").reversed();
-    private final MotorEx frontRightMotor = new MotorEx("fr");
-    private final MotorEx backLeftMotor = new MotorEx("bl").reversed();
-    private final MotorEx backRightMotor = new MotorEx("br");
+    public boolean firedAlreadyPathing = false;
+    public boolean shouldFire = false;
+    public ElapsedTime matchTimer = new ElapsedTime();
 
 
-    private void init(){
+    public BlueAutoFrontPreloadV3(){
+        addComponents(new SubsystemComponent(SpindexerMotorV2.INSTANCE_AUTO));
+    }
+
+    private void initialize(){
         hardwareMap = ActiveOpMode.hardwareMap();
+        follower = new CustomFollower(hardwareMap);
+        pathsV2.buildPaths();
         telemetry = ActiveOpMode.telemetry();
         gamepad.init(ActiveOpMode.gamepad1(), 0.3);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -109,31 +144,20 @@ public class RobotV4 implements Subsystem {
         ll.limelight.startStreaming();
     }
 
-    public RobotV4(Robot.Alliance alliance){
-        this.alliance = alliance;
-    }
-
-    public void initialize(){
-        init();
-    }
-
     public void buildCommands(){
-        driveMotors = new MecanumDriverControlled(
-                frontLeftMotor,
-                frontRightMotor,
-                backLeftMotor,
-                backRightMotor,
-                Gamepads.gamepad1().leftStickY().negate(),
-                Gamepads.gamepad1().leftStickX(),
-                Gamepads.gamepad1().rightStickX()
+        driveCommand = new ParallelGroup(
+                sensor.update(),
+                spindexer.spindexerUpdate(),
+                ll.turretUpdate(OFFSET_ANGLE),
+                hood.servoUpdate()
         );
         manager.setMode(BallManager.State.INTAKE);
         fireCommand = buildShot();
         liftCommand = lift.liftUpdate();
         rampDown = Ramp.INSTANCE.rampDown;
         arcSpinUp = arc.spinUpIdle();
+        follower.setStartingPose(BlueAutoPathsV2.startPoseClose);
     }
-
 
     public Command buildShot(){
         return new ParallelRaceGroup(
@@ -143,35 +167,34 @@ public class RobotV4 implements Subsystem {
         );
     }
 
-    public void systemStatesUpdate(){
-        if(firstLoop){
-            sensor.update().schedule();
-            ll.turretUpdate(OFFSET_ANGLE).schedule();
-            hood.servoUpdate().schedule();
-            firstLoop = false;
+
+
+    @Override
+    public void onInit() {
+        initialize();
+        buildCommands();
+    }
+
+    @Override
+    public void onWaitForStart(){
+        if(isStopRequested()){
             return;
         }
-        else if(!driveMotors.isScheduled()) {
-            driveMotors.update();
-            driveMotors.schedule();
+    }
+
+    @Override
+    public void onStartButtonPressed(){
+    }
+
+    public void onUpdate(){
+        if(isStopRequested()){
+            return;
         }
-        if(gamepad.left_trigger >= 0.15 && state != SystemStates.LIFT){
-            intake.intake.setDirection(intake.intake.invertDirection(RobotConstantsV1.intakeDirection));
-            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
-        }
-        else if(state != SystemStates.LIFT) {
-            intake.intake.setDirection(RobotConstantsV1.intakeDirection);
-            intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
-        }
-        sensors.update();
-        gamepad.update();
-        if(gamepad.right_trigger > 0.15 && !fireCommand.isScheduled() && gamepad.isGamepadReady()){
-            shoot();
-        }
-        if(gamepad.cross && gamepad.isGamepadReady()){
-            setSystemState(SystemStates.LIFT);
-            gamepad.resetTimer();
-        }
+        systemStatesUpdate();
+        autoPathUpdate();
+    }
+
+    public void systemStatesUpdate(){
         switch (state){
             case START:
                 manager.setMode(BallManager.State.INTAKE);
@@ -188,7 +211,7 @@ public class RobotV4 implements Subsystem {
                     driveCommand.schedule();
                     rampDown.schedule();
                     manager.setMode(BallManager.State.INTAKE);
-                    spindexer.next();
+                    spindexer.setState(SpindexerMotorV2.SpindexerState.INTAKE_BALL_1);
                     setSystemState(SystemStates.BALL_1_INTAKE);
                     shooting = false;
                     arcSpinUp.schedule();
@@ -240,26 +263,15 @@ public class RobotV4 implements Subsystem {
                 }
                 break;
             case SHOOT_ALL:
-                if(!fireCommand.isScheduled() && gamepad.isGamepadReady() && gamepad.right_trigger > 0.15 && !shooting) {
+                if(!fireCommand.isScheduled() && !firedAlreadyPathing && !shooting && shouldFire) {
                     shoot();
+                    firedAlreadyPathing = true;
                     gamepad.resetTimer();
-                }
-                break;
-            case LIFT:
-                if(driveCommand.isScheduled()){
-                    driveCommand.cancel();
-                }
-                intake.setPower(0, RobotConstantsV1.intakeDirection);
-                arc.disablePIDs();
-                arc.arcShooter.setMotorPower(0);
-                if(!liftCommand.isScheduled()){
-                    liftCommand.schedule();
                 }
                 break;
         }
 
     }
-
     public void shoot(){
         fireCommand.cancel();
         fireCommand = buildShot();
@@ -268,23 +280,63 @@ public class RobotV4 implements Subsystem {
         shooting = true;
     }
 
+    public void autoPathUpdate() {
+        follower.update();
+        telemetry.addData("Pose: ", follower.follower.getPose());
+        if(matchTimer.seconds() > 28.5){
+            setPathState(PathStates.OUT_OF_ZONE);
+        }
+        switch (pathState) {
+            case START:
+                setPathState(PathStates.TO_SHOOT);
+                intake.intake.setPower(RobotConstantsV1.INTAKE_POWER);
+                break;
+            case TO_SHOOT:
+                if (!follower.isBusy()) {
+                    follower.setCurrentPath(BlueAutoPathsV2.outOfStartClose);
+                    manager.setBall1(ArtifactColor.GREEN);
+                    manager.setBall2(ArtifactColor.PURPLE);
+                    manager.setCurrentBall(3);
+                    setSystemState(SystemStates.BALL_3_INTAKE);
+                    setPathState(PathStates.SHOOT_SET_1);
+                }
+                firedAlreadyPathing = false;
+                break;
+            case SHOOT_SET_1:
+                if (!follower.follower.isBusy() && !firedAlreadyPathing && !shouldFire){
+                    shouldFire = true;
+                }
+                if (firedAlreadyPathing) {
+                    setPathState(PathStates.OUT_OF_ZONE);
+                    firedAlreadyPathing = false;
+                }
+                break;
+            case OUT_OF_ZONE:
+                if(!follower.isBusy()){
+                    follower.setCurrentPath(BlueAutoPathsV2.leaveShoot);
+                    setPathState(PathStates.IDLE);
+                }
+                break;
+            case IDLE:
+                if(!follower.isBusy()){
+                    requestOpModeStop();
+                }
+                break;
+        }
+    }
+
+    public void setPathState(PathStates pathState) {
+        this.pathState = pathState;
+    }
+
+
+    public void log(){
+
+    }
+
     public void setSystemState(SystemStates state){
         this.state = state;
     }
 
-    public void log(){
-        telemetryM.addLine("Commands running: " + CommandManager.INSTANCE.snapshot().size());
-        telemetryM.addLine("Spindexer State: " + spindexer.currentSpindexerState.name());
-        telemetryM.addLine("Spindexer control system pos: " + spindexer.motor.getState().getPosition());
-        telemetryM.addLine("Spindexer encoder pos: " + spindexer.motor.getCurrentPosition());
-        telemetryM.addLine("Arc velocity: " + arc.arcShooter.getVelocityRPM());
-        telemetryM.addLine("Arc target: " + arc.arcShooter.getTargetRPM());
-        LLResult result = ll.limelight.getLatestResult();
-        if(result != null && result.isValid()) {
-            telemetryM.addLine("LL distance: " + ll.limelight.getTargetDistance());
-            telemetryM.addLine("Target X: " + result.getTx());
-        }
-        telemetryM.addData("Lift powers: (" + lift.left.getPower()+ ", " + lift.left2.getPower(), + lift.right.getPower() + ", " + lift.right2.getPower());
-        telemetryM.update(telemetry);
-    }
 }
+

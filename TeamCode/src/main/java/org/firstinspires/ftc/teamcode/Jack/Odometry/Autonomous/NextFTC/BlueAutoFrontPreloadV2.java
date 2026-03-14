@@ -32,7 +32,7 @@ import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous
+@Disabled
 public class BlueAutoFrontPreloadV2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireSingleCommand, intakeReverse;
     public FiringManager.FireTriple fireCommand;

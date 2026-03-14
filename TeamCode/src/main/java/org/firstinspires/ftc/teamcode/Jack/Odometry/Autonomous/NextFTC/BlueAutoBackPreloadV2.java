@@ -5,6 +5,7 @@ import androidx.annotation.AnimatorRes;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
@@ -42,7 +43,7 @@ import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous
+@Disabled
 public class BlueAutoBackPreloadV2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireCommand, fireSingleCommand, intakeReverse;
     public LED left1, right1, left2, right2;

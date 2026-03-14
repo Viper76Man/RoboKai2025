@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Jack.Odometry.Autonomous.NextFTC;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -34,7 +35,7 @@ import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous
+@Disabled
 public class RedAutoBackPickup1V2 extends NextFTCOpMode {
     public ParallelGroup intakeCommand, shootCommand, fireSingleCommand, intakeReverse;
     public FiringManager.FireTriple  fireCommand;

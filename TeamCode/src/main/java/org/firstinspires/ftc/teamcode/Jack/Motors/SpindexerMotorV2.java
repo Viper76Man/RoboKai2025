@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Jack.Other.Range;
 import java.util.Objects;
 
 import dev.nextftc.control.ControlSystem;
+import dev.nextftc.control.KineticState;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelRaceGroup;
@@ -25,6 +26,7 @@ import dev.nextftc.hardware.impl.MotorEx;
 
 public class SpindexerMotorV2 implements Subsystem {
     public static final SpindexerMotorV2 INSTANCE = new SpindexerMotorV2(Robot.Mode.TELEOP);
+    public static final SpindexerMotorV2 INSTANCE_AUTO = new SpindexerMotorV2(Robot.Mode.AUTONOMOUS);
     private final double firstPos = 0;  //0 degrees (INTAKE_BALL_1)
     private final double secondPos = 250.6; //-120 degrees (INTAKE_BALL_2)
     private final double thirdPos = 501.2;  //-240 degrees (INTAKE_BALL_3)
@@ -55,8 +57,9 @@ public class SpindexerMotorV2 implements Subsystem {
     }
     public SpindexerState currentSpindexerState = SpindexerState.INTAKE_BALL_1;
 
-    private MotorEx motor;
+    public MotorEx motor;
     public BallManager manager;
+    public boolean firstLoop = true;
 
 
 
@@ -64,29 +67,43 @@ public class SpindexerMotorV2 implements Subsystem {
             .posPid(0.005, 0, 0)
             .build();
 
-    public Command toFirstPos = new RunToPosition(controlSystem, firstPos).requires(this).then(setCurrentState(SpindexerState.INTAKE_BALL_1));
-    public Command toSecondPos = new RunToPosition(controlSystem, secondPos).requires(this).then(setCurrentState(SpindexerState.INTAKE_BALL_2));
-    public Command toThirdPos = new RunToPosition(controlSystem, thirdPos).requires(this).then(setCurrentState(SpindexerState.INTAKE_BALL_3));
-    public Command toFourthPos = new RunToPosition(controlSystem, fourthPos).requires(this).then(setCurrentState(SpindexerState.SHOOT_WITH_1_BALL));
-    public Command toFifthPos = new RunToPosition(controlSystem, fifthPos).requires(this).then(setCurrentState(SpindexerState.SHOOT_WITH_2_BALLS));
-    public Command toSixthPos = new RunToPosition(controlSystem, sixthPos).requires(this).then(setCurrentState(SpindexerState.SHOOT_WITH_3_BALLS));
+    public Command toFirstPos = new RunToPosition(controlSystem, firstPos).requires(this);
+    public Command toSecondPos = new RunToPosition(controlSystem, secondPos).requires(this);
+    public Command toThirdPos = new RunToPosition(controlSystem, thirdPos).requires(this);
+    public Command toFourthPos = new RunToPosition(controlSystem, fourthPos).requires(this);
+    public Command toFifthPos = new RunToPosition(controlSystem, fifthPos).requires(this);
+    public Command toSixthPos = new RunToPosition(controlSystem, sixthPos).requires(this);
 
 
     @Override
     public void initialize() {
-        motor = new MotorEx("spindexer").reversed().zeroed();
-        //reset encoder
-        resetAll();
+        motor = new MotorEx("spindexer").reversed().brakeMode();
+        if (mode == Robot.Mode.AUTONOMOUS) {
+            motor.getMotor().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.getMotor().setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            controlSystem.reset();
+            motor.atPosition(0);
+        }
     }
 
 
-    public void resetMotor(){
+    public void runMotorToZero(){
         motor.zero();
     }
 
     @Override
     public void periodic() {
-        motor.setPower(controlSystem.calculate(motor.getState()));
+        if(firstLoop && mode == Robot.Mode.TELEOP) {
+            motor.atPosition(motor.getMotor().getCurrentPosition());
+            motor.zero();
+
+        }
+        if(firstLoop && new Range(0, 20).isInRange(motor.getState().getPosition())){
+            firstLoop = false;
+        }
+        if(!firstLoop) {
+            motor.setPower(controlSystem.calculate(motor.getState()));
+        }
     }
 
     public void setState(SpindexerState state){
@@ -148,21 +165,6 @@ public class SpindexerMotorV2 implements Subsystem {
    }
 
    public void spin() {
-        switch (manager.mode) {
-            case INTAKE:
-                switch (manager.getCurrentBall()) {
-                    case 1:
-                        currentSpindexerState = SpindexerState.INTAKE_BALL_1;
-                        break;
-                    case 2:
-                        currentSpindexerState = SpindexerState.INTAKE_BALL_2;
-                        break;
-                    case 3:
-                        currentSpindexerState = SpindexerState.INTAKE_BALL_3;
-                        break;
-                }
-                break;
-        }
    }
 
 
@@ -192,17 +194,17 @@ public class SpindexerMotorV2 implements Subsystem {
     public boolean isActive2(){
        switch (currentSpindexerState){
            case INTAKE_BALL_1:
-               return ! new Range(firstPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(firstPos, 20).isInRange(motor.getState().getPosition());
            case INTAKE_BALL_2:
-               return ! new Range(secondPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(secondPos, 20).isInRange(motor.getState().getPosition());
            case INTAKE_BALL_3:
-               return ! new Range(thirdPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(thirdPos, 20).isInRange(motor.getState().getPosition());
            case SHOOT_WITH_1_BALL:
-               return ! new Range(fourthPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(fourthPos, 20).isInRange(motor.getState().getPosition());
            case SHOOT_WITH_2_BALLS:
-               return ! new Range(fifthPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(fifthPos, 20).isInRange(motor.getState().getPosition());
            case SHOOT_WITH_3_BALLS:
-               return ! new Range(sixthPos, 20).isInRange(motor.getCurrentPosition());
+               return ! new Range(sixthPos, 20).isInRange(motor.getState().getPosition());
            default:
                return false;
        }
@@ -256,13 +258,6 @@ public class SpindexerMotorV2 implements Subsystem {
 
     public double getStatePos(){
         return motor.getState().getPosition();
-    }
-
-    public void resetAll(){
-        motor.getMotor().setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.zeroed();
-        motor.atPosition(firstPos);
-        motor.getMotor().setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 }

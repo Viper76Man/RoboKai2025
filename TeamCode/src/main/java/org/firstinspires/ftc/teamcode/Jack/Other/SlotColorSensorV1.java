@@ -36,6 +36,7 @@ public class SlotColorSensorV1 {
     public void init(HardwareMap hardwareMap, String configName){
         sensor = hardwareMap.get(RevColorSensorV3.class, configName);
         sensor.enableLed(true);
+        sensor.setGain(10);
     }
     public RGB getRGB() {
         return new RGB(sensor.red(), sensor.green(), sensor.blue());

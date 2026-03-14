@@ -46,7 +46,6 @@ public class TurretServoCR {
     public Position newPose;
     public double heading;
     public ElapsedTime relocalizeTimer = new ElapsedTime();
-    public PinpointV1 pinpoint = new PinpointV1();
     public boolean usePower = true;
     public DecodeFieldLocalizer localizer = new DecodeFieldLocalizer();
     public TelemetryManager telemetryM  = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -62,12 +61,6 @@ public class TurretServoCR {
         turret = hardwareMap.get(CRServo.class, RobotConstantsV1.turretServoName);
         turret.setPower(0);
         this.mode = mode;
-        if(mode != Robot.Mode.AUTONOMOUS) {
-            pinpoint.init(hardwareMap);
-            pinpoint.pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-            pinpoint.pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
-            pinpoint.pinpoint.setOffsets(RobotConstantsV1.strafePodX, RobotConstantsV1.forwardPodY, RobotConstantsV1.podsMeasurementUnit);
-        }
         coefficients = new PIDCoefficients(RobotConstantsV1.turretPIDs.p, RobotConstantsV1.turretPIDs.i, RobotConstantsV1.turretPIDs.d);
         controller = ControlSystem.builder().posSquID(coefficients).build();
         coefficients2 = new PIDCoefficients(RobotConstantsV1.turretPIDsHeading.p, RobotConstantsV1.turretPIDsHeading.i, RobotConstantsV1.turretPIDsHeading.d);
@@ -85,9 +78,6 @@ public class TurretServoCR {
 
     public void run(LimelightV1 limelight, double TURRET_OFFSET_ANGLE, Robot.Alliance alliance){
         double power = 0;
-        if(mode != Robot.Mode.AUTONOMOUS) {
-            pinpoint.update();
-        }
         LLResultTypes.FiducialResult latest_result = limelight.getLatestAprilTagResult();
         if(latest_result != null && limelight.limelight.getLatestResult().isValid()) {
             latestTagID = latest_result.getFiducialId();
